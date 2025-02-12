@@ -6,10 +6,12 @@ apis:
     name: AhaSend
     tags:
       - Emails
-    humanURL: ' https://ahasend.com/free-email-api'
+    humanURL: https://ahasend.com/free-email-api
     properties:
-      - url: ' https://ahasend.com/free-email-api'
+      - url: https://ahasend.com/free-email-api
         type: Documentation
+      - type: OpenAPI
+        url: properties/ahasend-openapi.yml
     description: >-
       AhaSend is a secure messaging platform that allows users to communicate
       and collaborate with colleagues, clients, and partners with ease. The
