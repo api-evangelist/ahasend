@@ -18,7 +18,7 @@ type: Index
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 access: 3rd-Party
 created: '2025-02-06'
-modified: '2025-02-12'
+modified: '2026-03-16'
 position: Consumer
 description: >-
   AhaSend is a secure messaging platform that allows users to communicate and
@@ -32,7 +32,7 @@ description: >-
   in a fast-paced digital world.
 maintainers:
   - FN: Kin Lane
-    email: info@apievangelist.com
+    email: kin@apievangelist.com
 specificationVersion: '0.19'
 common:
   - name: Pricing | AhaSend
