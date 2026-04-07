@@ -18,7 +18,7 @@ externalDocs:
 servers:
   - url: https://api.ahasend.com/v1
 tags:
-  - name: email
+  - name: Email
     description: APIs for sending emails
     externalDocs:
       description: Find out more
@@ -27,7 +27,7 @@ paths:
   /email/send:
     post:
       tags:
-        - email
+        - Email
       summary: AhaSend Send emails
       description: >-
         You can send emails to up to 100 recipients using this API at the same
