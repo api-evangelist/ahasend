@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-add-member-request-structure.json",
+  "name": "AddMemberRequest",
+  "description": "AddMemberRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Email address of the user to add",
+      "example": "user@example.com"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the user",
+      "example": "Example Name"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "Administrator",
+        "Developer",
+        "Analyst",
+        "Billing Manager"
+      ],
+      "description": "Role to assign to the user",
+      "example": "Administrator"
+    }
+  },
+  "required": [
+    "email",
+    "role"
+  ],
+  "example": {
+    "email": "user@example.com",
+    "name": "John Doe",
+    "role": "Developer"
+  }
+}

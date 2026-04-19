@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-delivery-time-statistics-response-structure.json",
+  "name": "DeliveryTimeStatisticsResponse",
+  "description": "DeliveryTimeStatisticsResponse schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "list"
+      ],
+      "description": "Object type identifier",
+      "example": "list"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/DeliveryTimeStatistics"
+      },
+      "description": "Array of delivery time statistics",
+      "example": [
+        {
+          "from_timestamp": "2025-03-15T14:30:00Z",
+          "to_timestamp": "2025-03-15T14:30:00Z",
+          "avg_delivery_time": 1.0,
+          "delivered_count": 1,
+          "delivery_times": [
+            {}
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "object",
+    "data"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-api-key-schema.json",
+  "title": "APIKey",
+  "description": "APIKey schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "api_key"
+      ],
+      "description": "Object type identifier",
+      "example": "api_key"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the API key",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the API key was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the API key was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "last_used_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the API key was last used (updates every 5-10 minutes)",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "account_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Account ID this API key belongs to",
+      "example": "500123"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label for the API key",
+      "example": "example_value"
+    },
+    "public_key": {
+      "type": "string",
+      "description": "Public portion of the API key",
+      "example": "aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "secret_key": {
+      "type": "string",
+      "description": "Secret key (only returned on creation)",
+      "example": "aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/APIKeyScope"
+      },
+      "description": "Scopes granted to this API key",
+      "example": [
+        {
+          "id": "500123",
+          "created_at": "2025-03-15T14:30:00Z",
+          "updated_at": "2025-03-15T14:30:00Z",
+          "api_key_id": "500123",
+          "scope": "example_value"
+        }
+      ]
+    }
+  },
+  "required": [
+    "object",
+    "id",
+    "created_at",
+    "updated_at",
+    "account_id",
+    "label",
+    "public_key",
+    "scopes"
+  ]
+}

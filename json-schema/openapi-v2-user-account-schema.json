@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-user-account-schema.json",
+  "title": "UserAccount",
+  "description": "UserAccount schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the user account relationship",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the relationship was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the relationship was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User ID",
+      "example": "500123"
+    },
+    "account_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Account ID",
+      "example": "500123"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "Administrator",
+        "Developer",
+        "Analyst",
+        "Billing Manager"
+      ],
+      "description": "User role in the account",
+      "example": "Administrator"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "updated_at",
+    "user_id",
+    "account_id",
+    "role"
+  ]
+}

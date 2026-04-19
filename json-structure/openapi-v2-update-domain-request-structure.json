@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-update-domain-request-structure.json",
+  "name": "UpdateDomainRequest",
+  "description": "UpdateDomainRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "tracking_subdomain": {
+      "type": "string",
+      "description": "Optional custom tracking subdomain. Omit to leave the current value unchanged.",
+      "example": "mail.example.com"
+    },
+    "return_path_subdomain": {
+      "type": "string",
+      "description": "Optional custom return-path subdomain. Omit to leave the current value unchanged.",
+      "example": "mail.example.com"
+    },
+    "subscription_subdomain": {
+      "type": "string",
+      "description": "Optional custom subscription management subdomain. Omit to leave the current value unchanged.",
+      "example": "mail.example.com"
+    },
+    "media_subdomain": {
+      "type": "string",
+      "description": "Optional custom media subdomain. Omit to leave the current value unchanged.",
+      "example": "mail.example.com"
+    },
+    "dkim_rotation_interval_days": {
+      "type": "int32",
+      "description": "Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.",
+      "example": 1
+    }
+  },
+  "example": {
+    "tracking_subdomain": "click",
+    "return_path_subdomain": "mail",
+    "subscription_subdomain": "preferences",
+    "media_subdomain": "media",
+    "dkim_rotation_interval_days": 45
+  }
+}

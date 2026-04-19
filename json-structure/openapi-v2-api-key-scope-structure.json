@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-api-key-scope-structure.json",
+  "name": "APIKeyScope",
+  "description": "APIKeyScope schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "uuid",
+      "description": "Unique identifier for the scope",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "datetime",
+      "description": "When the scope was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "datetime",
+      "description": "When the scope was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "api_key_id": {
+      "type": "uuid",
+      "description": "ID of the API key this scope belongs to",
+      "example": "500123"
+    },
+    "scope": {
+      "type": "string",
+      "description": "The scope string",
+      "example": "example_value"
+    },
+    "domain_id": {
+      "type": "uuid",
+      "description": "Domain ID for domain-specific scopes",
+      "example": "500123"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "updated_at",
+    "api_key_id",
+    "scope"
+  ]
+}

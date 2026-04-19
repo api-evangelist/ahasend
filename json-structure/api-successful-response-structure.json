@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-successful-response-structure.json",
+  "name": "SuccessfulResponse",
+  "description": "SuccessfulResponse schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "success_count": {
+      "type": "int32",
+      "description": "Number of messages that were queued for sending.",
+      "example": 1
+    },
+    "fail_count": {
+      "type": "int32",
+      "description": "Number of messages that failed to be queued for sending.",
+      "example": 1
+    },
+    "failed_recipients": {
+      "type": "array",
+      "description": "List of email addresses that the email was not sent to.",
+      "example": [
+        "john@nasa.gov"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "example": [
+        "john@nasa.gov: The email account that you tried to reach does not exist."
+      ],
+      "items": {
+        "type": "string",
+        "description": "The reason the email failed to be sent to a recipient."
+      }
+    }
+  }
+}

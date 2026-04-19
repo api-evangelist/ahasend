@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-bounce-structure.json",
+  "name": "Bounce",
+  "description": "Bounce schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "classification": {
+      "type": "string",
+      "description": "Bounce classification",
+      "example": "example_value"
+    },
+    "count": {
+      "type": "int32",
+      "description": "Number of bounces",
+      "example": 1
+    }
+  },
+  "required": [
+    "classification",
+    "count"
+  ]
+}

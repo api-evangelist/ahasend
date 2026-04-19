@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-delivery-event-schema.json",
+  "title": "DeliveryEvent",
+  "description": "DeliveryEvent schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the delivery event",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "log": {
+      "type": "string",
+      "description": "Log message for the delivery event",
+      "example": "example_value"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of the delivery event",
+      "example": "example_value"
+    }
+  },
+  "required": [
+    "time",
+    "log",
+    "status"
+  ]
+}

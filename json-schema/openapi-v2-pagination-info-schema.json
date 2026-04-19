@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-pagination-info-schema.json",
+  "title": "PaginationInfo",
+  "description": "PaginationInfo schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "has_more": {
+      "type": "boolean",
+      "description": "Whether there are more items available",
+      "example": true
+    },
+    "next_cursor": {
+      "type": "string",
+      "description": "Cursor for the next page of results",
+      "example": "example_value"
+    },
+    "previous_cursor": {
+      "type": "string",
+      "description": "Cursor for the previous page of results",
+      "example": "example_value"
+    }
+  },
+  "required": [
+    "has_more"
+  ],
+  "example": {
+    "has_more": true,
+    "next_cursor": "eyJpZCI6MTIzNH0="
+  }
+}

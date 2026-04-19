@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-contact-structure.json",
+  "name": "Contact",
+  "description": "Contact schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "examples": [
+        "john@nasa.gov",
+        "jane@nasa.gov"
+      ],
+      "example": "user@example.com"
+    },
+    "name": {
+      "type": "string",
+      "examples": [
+        "John Smith",
+        "Jane Williams"
+      ],
+      "example": "Example Name"
+    }
+  },
+  "required": [
+    "email"
+  ]
+}

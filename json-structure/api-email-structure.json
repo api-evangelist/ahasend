@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-email-structure.json",
+  "name": "Email",
+  "description": "Email schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from": {
+      "$ref": "#/components/schemas/Contact"
+    },
+    "recipients": {
+      "type": "array",
+      "description": "Specifies the list of recipients to which message will be sent.",
+      "items": {
+        "$ref": "#/components/schemas/Contact"
+      },
+      "example": [
+        {
+          "email": "user@example.com",
+          "name": "Example Name"
+        }
+      ]
+    },
+    "content": {
+      "$ref": "#/components/schemas/Content"
+    }
+  },
+  "required": [
+    "from",
+    "recipients",
+    "content"
+  ]
+}

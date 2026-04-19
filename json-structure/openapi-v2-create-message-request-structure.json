@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-create-message-request-structure.json",
+  "name": "CreateMessageRequest",
+  "description": "CreateMessageRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from": {
+      "$ref": "#/components/schemas/Address"
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Recipient"
+      },
+      "minItems": 1,
+      "description": "This does not set the To header to multiple addresses, it sends a separate message for each recipient",
+      "example": [
+        {
+          "email": "user@example.com",
+          "name": "Example Name",
+          "substitutions": {}
+        }
+      ]
+    },
+    "reply_to": {
+      "$ref": "#/components/schemas/Address",
+      "description": "If provided, the reply-to header in headers array must not be provided"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line",
+      "example": "example_value"
+    },
+    "text_content": {
+      "type": "string",
+      "description": "Plain text content. Required if html_content is empty",
+      "example": "example_value"
+    },
+    "html_content": {
+      "type": "string",
+      "description": "HTML content. Required if text_content is empty",
+      "example": "example_value"
+    },
+    "amp_content": {
+      "type": "string",
+      "description": "AMP HTML content",
+      "example": "example_value"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Attachment"
+      },
+      "description": "File attachments",
+      "example": [
+        {
+          "base64": true,
+          "data": "example_value",
+          "content_type": "example_value",
+          "content_disposition": "example_value",
+          "content_id": "500123"
+        }
+      ]
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated",
+      "example": {}
+    },
+    "substitutions": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Global substitutions, recipient substitutions override global",
+      "example": {}
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing messages",
+      "example": [
+        "example_value"
+      ]
+    },
+    "sandbox": {
+      "type": "boolean",
+      "description": "If true, the message will be sent to the sandbox environment",
+      "default": false,
+      "example": true
+    },
+    "sandbox_result": {
+      "type": "string",
+      "enum": [
+        "deliver",
+        "bounce",
+        "defer",
+        "fail",
+        "suppress"
+      ],
+      "description": "The result of the sandbox send",
+      "example": "deliver"
+    },
+    "tracking": {
+      "$ref": "#/components/schemas/Tracking",
+      "description": "Tracking settings for the message, overrides default account settings"
+    },
+    "retention": {
+      "$ref": "#/components/schemas/Retention",
+      "description": "Retention settings for the message, overrides default account settings"
+    },
+    "schedule": {
+      "$ref": "#/components/schemas/MessageSchedule",
+      "description": "Schedule for message delivery"
+    }
+  },
+  "required": [
+    "from",
+    "recipients",
+    "subject"
+  ],
+  "example": {
+    "from": {
+      "email": "noreply@example.com",
+      "name": "Example Corp"
+    },
+    "recipients": [
+      {
+        "email": "user@example.com",
+        "name": "John Doe"
+      }
+    ],
+    "subject": "Welcome to Example Corp",
+    "html_content": "<h1>Welcome {{first_name}}!</h1>",
+    "text_content": "Welcome {{first_name}}!",
+    "substitutions": {
+      "first_name": "John"
+    }
+  }
+}

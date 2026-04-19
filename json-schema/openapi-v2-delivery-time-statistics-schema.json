@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-delivery-time-statistics-schema.json",
+  "title": "DeliveryTimeStatistics",
+  "description": "DeliveryTimeStatistics schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "to_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "avg_delivery_time": {
+      "type": "number",
+      "format": "double",
+      "description": "Average delivery time in seconds",
+      "example": 1.0
+    },
+    "delivered_count": {
+      "type": "integer",
+      "description": "Number of messages",
+      "example": 1
+    },
+    "delivery_times": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/DeliveryTime",
+        "description": "Delivery times per recipient domain"
+      },
+      "example": [
+        {
+          "recipient_domain": "mail.example.com",
+          "delivery_time": 1.0
+        }
+      ]
+    }
+  },
+  "required": [
+    "from_timestamp",
+    "to_timestamp",
+    "avg_delivery_time",
+    "delivered_count"
+  ]
+}

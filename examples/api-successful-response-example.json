@@ -1,0 +1,10 @@
+{
+  "success_count": 1,
+  "fail_count": 1,
+  "failed_recipients": [
+    "example_value"
+  ],
+  "errors": [
+    "example_value"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-suppression-schema.json",
+  "title": "Suppression",
+  "description": "Suppression schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "suppression"
+      ],
+      "description": "Object type identifier",
+      "example": "suppression"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the suppression",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the suppression was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the suppression was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Suppressed email address",
+      "example": "user@example.com"
+    },
+    "domain": {
+      "type": "string",
+      "nullable": true,
+      "description": "Domain for which the email is suppressed",
+      "example": "mail.example.com"
+    },
+    "reason": {
+      "type": "string",
+      "nullable": true,
+      "description": "Reason for suppression",
+      "example": "example_value"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the suppression expires",
+      "example": "2025-03-15T14:30:00Z"
+    }
+  },
+  "required": [
+    "object",
+    "id",
+    "created_at",
+    "updated_at",
+    "email",
+    "expires_at"
+  ]
+}

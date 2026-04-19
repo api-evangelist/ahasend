@@ -1,0 +1,6 @@
+{
+  "name": "Example Name",
+  "url": "https://example.com",
+  "recipient": "example_value",
+  "attachments": true
+}

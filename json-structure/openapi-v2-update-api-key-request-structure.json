@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-update-api-key-request-structure.json",
+  "name": "UpdateAPIKeyRequest",
+  "description": "UpdateAPIKeyRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Human-readable label for the API key",
+      "example": "example_value"
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Array of scope strings to grant to this API key",
+      "example": [
+        "example_value"
+      ]
+    }
+  },
+  "example": {
+    "label": "Updated API Key",
+    "scopes": [
+      "messages:send:example.com",
+      "domains:read"
+    ]
+  }
+}

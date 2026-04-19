@@ -1,0 +1,14 @@
+{
+  "from": {
+    "email": {},
+    "name": {}
+  },
+  "recipients": [
+    {}
+  ],
+  "reply_to": {
+    "email": {},
+    "name": {}
+  },
+  "subject": "example_value"
+}

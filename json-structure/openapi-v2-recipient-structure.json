@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-recipient-structure.json",
+  "name": "Recipient",
+  "description": "Recipient schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Recipient email address",
+      "example": "user@example.com"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the recipient",
+      "example": "Example Name"
+    },
+    "substitutions": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Substitution data for the recipient. Used with jinja2 templating language for dynamic content",
+      "example": {}
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "example": {
+    "email": "user@example.com",
+    "name": "John Doe",
+    "substitutions": {
+      "first_name": "John",
+      "order_id": "12345"
+    }
+  }
+}

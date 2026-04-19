@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-access-denied-response-structure.json",
+  "name": "AccessDeniedResponse",
+  "description": "AccessDeniedResponse schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "description": "The reason your request failed.",
+      "examples": [
+        "invalid credentials",
+        "domain DNS config is not valid"
+      ],
+      "example": "example_value"
+    }
+  },
+  "example": {
+    "status": "invalid credentials"
+  }
+}

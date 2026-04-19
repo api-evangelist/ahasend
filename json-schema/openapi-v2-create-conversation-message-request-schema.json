@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-create-conversation-message-request-schema.json",
+  "title": "CreateConversationMessageRequest",
+  "description": "CreateConversationMessageRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from": {
+      "$ref": "#/components/schemas/Address"
+    },
+    "to": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Address"
+      },
+      "minItems": 1,
+      "description": "This parameter can set the `To` header to multiple addresses.",
+      "example": [
+        {
+          "email": "user@example.com",
+          "name": "Example Name"
+        }
+      ]
+    },
+    "cc": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Address"
+      },
+      "minItems": 1,
+      "description": "This parameter can set the `CC` header to multiple addresses. Do not include `cc` in the headers array.",
+      "example": [
+        {
+          "email": "user@example.com",
+          "name": "Example Name"
+        }
+      ]
+    },
+    "bcc": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Address"
+      },
+      "minItems": 1,
+      "description": "This parameter can set the `To` header to multiple addresses.",
+      "example": [
+        {
+          "email": "user@example.com",
+          "name": "Example Name"
+        }
+      ]
+    },
+    "reply_to": {
+      "$ref": "#/components/schemas/Address",
+      "description": "If provided, the reply-to header in headers array must not be provided"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line",
+      "example": "example_value"
+    },
+    "text_content": {
+      "type": "string",
+      "description": "Plain text content. Required if html_content is empty",
+      "example": "example_value"
+    },
+    "html_content": {
+      "type": "string",
+      "description": "HTML content. Required if text_content is empty",
+      "example": "example_value"
+    },
+    "amp_content": {
+      "type": "string",
+      "description": "AMP HTML content",
+      "example": "example_value"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Attachment"
+      },
+      "description": "File attachments",
+      "example": [
+        {
+          "base64": true,
+          "data": "example_value",
+          "content_type": "example_value",
+          "content_disposition": "example_value",
+          "content_id": "500123"
+        }
+      ]
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Custom email headers. `cc` and `reply-to` headers cannot be provided if `reply_to` or `cc` parameters are provided, message-id will be ignored and automatically generated",
+      "example": {}
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing messages",
+      "example": [
+        "example_value"
+      ]
+    },
+    "sandbox": {
+      "type": "boolean",
+      "description": "If true, the message will be sent to the sandbox environment",
+      "default": false,
+      "example": true
+    },
+    "sandbox_result": {
+      "type": "string",
+      "enum": [
+        "deliver",
+        "bounce",
+        "defer",
+        "fail",
+        "suppress"
+      ],
+      "description": "The result of the sandbox send",
+      "example": "deliver"
+    },
+    "tracking": {
+      "$ref": "#/components/schemas/Tracking",
+      "description": "Tracking settings for the message, overrides default account settings"
+    },
+    "retention": {
+      "$ref": "#/components/schemas/Retention",
+      "description": "Retention settings for the message, overrides default account settings"
+    },
+    "schedule": {
+      "$ref": "#/components/schemas/MessageSchedule",
+      "description": "Schedule for message delivery"
+    }
+  },
+  "required": [
+    "from",
+    "recipients",
+    "subject"
+  ],
+  "example": {
+    "from": {
+      "email": "noreply@example.com",
+      "name": "Example Corp"
+    },
+    "to": [
+      {
+        "email": "user@example.com",
+        "name": "John Doe"
+      },
+      {
+        "email": "someone@example.com",
+        "name": "Jane Doe"
+      }
+    ],
+    "cc": [
+      {
+        "email": "hr@example.com",
+        "name": "Example Corp HR"
+      }
+    ],
+    "bcc": [
+      {
+        "email": "bcc@example.com",
+        "name": "BCC Recipient"
+      }
+    ],
+    "subject": "Welcome to Example Corp",
+    "html_content": "<h1>Dear John and Jane, welcome to Example Corp!</h1>",
+    "text_content": "Dear John and Jane, welcome to Example Corp!"
+  }
+}

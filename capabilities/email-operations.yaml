@@ -1,0 +1,179 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AhaSend Email Operations"
+  description: "Unified workflow for sending transactional emails, managing domains, configuring webhooks, and monitoring delivery statistics. Used by developers integrating email notifications into applications."
+  tags:
+    - Email
+    - Transactional Email
+    - Developer Tools
+    - Webhooks
+    - Deliverability
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      AHASEND_API_KEY: AHASEND_API_KEY
+      AHASEND_ACCOUNT_ID: AHASEND_ACCOUNT_ID
+
+capability:
+  consumes:
+    - import: ahasend
+      location: ./shared/ahasend-api.yaml
+
+  exposes:
+    - type: rest
+      port: 8080
+      namespace: ahasend-email-ops-api
+      description: "Unified REST API for AhaSend email operations."
+      resources:
+        - path: /v1/messages
+          name: messages
+          description: "Send and retrieve transactional email messages"
+          operations:
+            - method: GET
+              name: list-messages
+              description: "List email messages"
+              call: "ahasend.list-messages"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: POST
+              name: send-message
+              description: "Send a transactional email"
+              call: "ahasend.send-message"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/domains
+          name: domains
+          description: "Manage sending domains"
+          operations:
+            - method: GET
+              name: list-domains
+              description: "List domains"
+              call: "ahasend.list-domains"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/webhooks
+          name: webhooks
+          description: "Manage event webhooks"
+          operations:
+            - method: GET
+              name: list-webhooks
+              description: "List webhooks"
+              call: "ahasend.list-webhooks"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/suppressions
+          name: suppressions
+          description: "Manage email suppressions"
+          operations:
+            - method: GET
+              name: list-suppressions
+              description: "List suppressed addresses"
+              call: "ahasend.list-suppressions"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/statistics/deliverability
+          name: statistics
+          description: "Email delivery statistics"
+          operations:
+            - method: GET
+              name: get-deliverability-stats
+              description: "Get deliverability statistics"
+              call: "ahasend.get-deliverability-stats"
+              with:
+                account_id: "rest.account_id"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9080
+      namespace: ahasend-email-ops-mcp
+      transport: http
+      description: "MCP server for AI-assisted transactional email operations."
+      tools:
+        - name: send-email
+          description: "Send a transactional email message via AhaSend"
+          hints:
+            readOnly: false
+            destructive: false
+            idempotent: false
+          call: "ahasend.send-message"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-messages
+          description: "List sent email messages with delivery status"
+          hints:
+            readOnly: true
+            openWorld: true
+          call: "ahasend.list-messages"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-domains
+          description: "List configured sending domains and their DNS verification status"
+          hints:
+            readOnly: true
+            openWorld: true
+          call: "ahasend.list-domains"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-webhooks
+          description: "List configured webhooks for email event notifications"
+          hints:
+            readOnly: true
+            openWorld: true
+          call: "ahasend.list-webhooks"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-suppressions
+          description: "List suppressed email addresses (bounces, complaints, unsubscribes)"
+          hints:
+            readOnly: true
+            openWorld: true
+          call: "ahasend.list-suppressions"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-deliverability-stats
+          description: "Get transactional email deliverability statistics and metrics"
+          hints:
+            readOnly: true
+            openWorld: true
+          call: "ahasend.get-deliverability-stats"
+          with:
+            account_id: "tools.account_id"
+          outputParameters:
+            - type: object
+              mapping: "$."

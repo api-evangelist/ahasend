@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-tracking-structure.json",
+  "name": "Tracking",
+  "description": "Tracking schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "open": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to track opens",
+      "example": true
+    },
+    "click": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to track clicks",
+      "example": true
+    }
+  },
+  "example": {
+    "open": true,
+    "click": true
+  }
+}

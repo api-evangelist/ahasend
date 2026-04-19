@@ -1,0 +1,6 @@
+{
+  "domain": "mail.example.com",
+  "dkim_private_key": "aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tracking_subdomain": "mail.example.com",
+  "return_path_subdomain": "mail.example.com"
+}

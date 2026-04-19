@@ -1,0 +1,11 @@
+{
+  "object": "list",
+  "data": [
+    {}
+  ],
+  "pagination": {
+    "has_more": {},
+    "next_cursor": {},
+    "previous_cursor": {}
+  }
+}

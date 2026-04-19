@@ -1,0 +1,6 @@
+{
+  "email": "user@example.com",
+  "domain": "mail.example.com",
+  "reason": "example_value",
+  "expires_at": "2025-03-15T14:30:00Z"
+}

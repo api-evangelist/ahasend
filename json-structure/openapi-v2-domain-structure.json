@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-domain-structure.json",
+  "name": "Domain",
+  "description": "Domain schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "domain"
+      ],
+      "description": "Object type identifier",
+      "example": "domain"
+    },
+    "id": {
+      "type": "uuid",
+      "description": "Unique identifier for the domain",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "datetime",
+      "description": "When the domain was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "datetime",
+      "description": "When the domain was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "domain": {
+      "type": "string",
+      "description": "The domain name",
+      "example": "mail.example.com"
+    },
+    "account_id": {
+      "type": "uuid",
+      "description": "Account ID this domain belongs to",
+      "example": "500123"
+    },
+    "dns_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/DNSRecord"
+      },
+      "description": "DNS records required for domain verification",
+      "example": [
+        {
+          "type": "example_value",
+          "host": "example_value",
+          "content": "example_value",
+          "required": true,
+          "propagated": true
+        }
+      ]
+    },
+    "last_dns_check_at": {
+      "type": "datetime",
+      "nullable": true,
+      "description": "When DNS records were last checked",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "dns_valid": {
+      "type": "boolean",
+      "description": "Whether all required DNS records are properly configured",
+      "example": true
+    },
+    "tracking_subdomain": {
+      "type": "string",
+      "nullable": true,
+      "description": "Custom tracking subdomain. Null means the account or product default is used.",
+      "example": "mail.example.com"
+    },
+    "return_path_subdomain": {
+      "type": "string",
+      "nullable": true,
+      "description": "Custom return-path subdomain. Null means the account or product default is used.",
+      "example": "mail.example.com"
+    },
+    "subscription_subdomain": {
+      "type": "string",
+      "nullable": true,
+      "description": "Custom subscription management subdomain. Null means the account or product default is used.",
+      "example": "mail.example.com"
+    },
+    "media_subdomain": {
+      "type": "string",
+      "nullable": true,
+      "description": "Custom media subdomain. Null means the account or product default is used.",
+      "example": "mail.example.com"
+    },
+    "dkim_rotation_interval_days": {
+      "type": "int32",
+      "nullable": true,
+      "description": "Custom DKIM rotation interval in days. Null means the account default is used.",
+      "example": 1
+    },
+    "rotation_ready": {
+      "type": "boolean",
+      "description": "Whether the standby DKIM slot is ready for rotation.",
+      "example": true
+    }
+  },
+  "required": [
+    "object",
+    "id",
+    "created_at",
+    "updated_at",
+    "domain",
+    "account_id",
+    "dns_records",
+    "dns_valid"
+  ]
+}

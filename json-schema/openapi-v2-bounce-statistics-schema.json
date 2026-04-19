@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-bounce-statistics-schema.json",
+  "title": "BounceStatistics",
+  "description": "BounceStatistics schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "to_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "bounces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Bounce"
+      },
+      "description": "Bounce count per bounce classification",
+      "example": [
+        {
+          "classification": "example_value",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "required": [
+    "from_timestamp",
+    "to_timestamp",
+    "bounces"
+  ]
+}

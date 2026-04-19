@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-address-schema.json",
+  "title": "Address",
+  "description": "Address schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Valid email address from a domain defined in your account with valid DNS records",
+      "example": "user@example.com"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the sender",
+      "example": "Example Name"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "example": {
+    "email": "noreply@example.com",
+    "name": "Example Corp"
+  }
+}

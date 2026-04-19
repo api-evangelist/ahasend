@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-content-structure.json",
+  "name": "Content",
+  "description": "Content schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "subject": {
+      "type": "string",
+      "examples": [
+        "Sample subject"
+      ],
+      "example": "example_value"
+    },
+    "text_body": {
+      "type": "string",
+      "description": "Plaintext body of the email",
+      "examples": [
+        "Sample email body"
+      ],
+      "example": "example_value"
+    },
+    "html_body": {
+      "type": "string",
+      "description": "HTML body of the email",
+      "examples": [
+        "<p>Sample email body</p>"
+      ],
+      "example": "example_value"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Attachment"
+      },
+      "example": [
+        {
+          "data": "example_value",
+          "base64": true,
+          "content_type": "example_value",
+          "content_id": "500123",
+          "file_name": "Example Name"
+        }
+      ]
+    },
+    "reply_to": {
+      "$ref": "#/components/schemas/Contact"
+    },
+    "headers": {
+      "type": "object",
+      "description": "Specify arbitary headers.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "example": {
+        "X-My-Mail-ID": "12345",
+        "X-Comment-ID": "456789"
+      }
+    }
+  },
+  "required": [
+    "subject"
+  ]
+}

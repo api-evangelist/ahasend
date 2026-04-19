@@ -1,0 +1,6 @@
+{
+  "tracking_subdomain": "mail.example.com",
+  "return_path_subdomain": "mail.example.com",
+  "subscription_subdomain": "mail.example.com",
+  "media_subdomain": "mail.example.com"
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-message-structure.json",
+  "name": "Message",
+  "description": "Message schema from AhaSend API",
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/MessageSummary"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "nullable": true,
+          "description": "Original, raw email content (RFC822 format) - may be null if the message content is not available."
+        },
+        "content_parsed": {
+          "$ref": "#/components/schemas/MessageContentParsed",
+          "description": "Parsed and structured message content including parts, attachments, and headers - may be null if the message content is not available."
+        }
+      }
+    }
+  ]
+}

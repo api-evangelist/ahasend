@@ -1,0 +1,6 @@
+{
+  "name": "Example Name",
+  "url": "https://example.com",
+  "enabled": true,
+  "on_reception": true
+}

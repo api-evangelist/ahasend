@@ -1,0 +1,250 @@
+vocabulary: "1.0.0"
+
+info:
+  provider: "AhaSend"
+  description: "Complete taxonomy of AhaSend transactional email APIs covering operational resources, actions, schemas, and capability workflows."
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+operational:
+  apis:
+    - namespace: ahasend-v1
+      version: "1.0.1"
+      baseUrl: https://api.ahasend.com/v1
+      status: active
+    - namespace: ahasend-v2
+      version: "2.0.0"
+      baseUrl: https://api.ahasend.com
+      status: active
+
+  resources:
+    - name: messages
+      apis: [ahasend-v2]
+      actions: [list, send, get, cancel]
+      description: "Transactional email messages"
+    - name: domains
+      apis: [ahasend-v2]
+      actions: [list, create, get, update, delete, check-dns]
+      description: "Sending domains with DNS verification"
+    - name: webhooks
+      apis: [ahasend-v2]
+      actions: [list, create, get, update, delete]
+      description: "Event webhook configurations"
+    - name: routes
+      apis: [ahasend-v2]
+      actions: [list, create, get, update, delete]
+      description: "Inbound email routing rules"
+    - name: suppressions
+      apis: [ahasend-v2]
+      actions: [list, create, delete, wipe]
+      description: "Email suppression lists for bounces, complaints, and unsubscribes"
+    - name: smtp-credentials
+      apis: [ahasend-v2]
+      actions: [list, create, delete]
+      description: "SMTP relay credentials"
+    - name: api-keys
+      apis: [ahasend-v2]
+      actions: [list, create, get, update, delete]
+      description: "Scoped API keys for authentication"
+    - name: accounts
+      apis: [ahasend-v2]
+      actions: [get, update]
+      description: "Account and member management"
+    - name: statistics
+      apis: [ahasend-v2]
+      actions: [get-deliverability, get-bounce, get-delivery-time]
+      description: "Email delivery analytics and statistics"
+
+  actions:
+    - name: send
+      httpMethod: POST
+      pattern: write
+      description: "Send transactional email messages"
+    - name: list
+      httpMethod: GET
+      pattern: read
+      description: "List resources with cursor-based pagination"
+    - name: get
+      httpMethod: GET
+      pattern: read
+      description: "Retrieve a single resource by ID"
+    - name: create
+      httpMethod: POST
+      pattern: write
+      description: "Create a new resource"
+    - name: update
+      httpMethod: PUT
+      pattern: write
+      description: "Update an existing resource"
+    - name: delete
+      httpMethod: DELETE
+      pattern: destructive
+      description: "Delete a resource"
+    - name: cancel
+      httpMethod: POST
+      pattern: write
+      description: "Cancel a pending email message"
+    - name: check-dns
+      httpMethod: GET
+      pattern: read
+      description: "Check DNS configuration for a domain"
+
+  schemas:
+    core:
+      - name: Message
+        description: "Email message with recipients, subject, and body"
+        keyFields: [message_id, from, to, subject, status]
+      - name: Domain
+        description: "Sending domain configuration"
+        keyFields: [domain, status, dkim_enabled]
+      - name: Webhook
+        description: "Event webhook endpoint configuration"
+        keyFields: [webhook_id, url, events]
+      - name: Suppression
+        description: "Suppressed email address record"
+        keyFields: [email, reason, created_at]
+      - name: ApiKey
+        description: "API key with granular scope permissions"
+        keyFields: [key_id, name, scopes]
+    reporting:
+      - name: DeliverabilityStats
+        description: "Email deliverability statistics over time"
+      - name: BounceStats
+        description: "Bounce rate statistics"
+      - name: DeliveryTimeStats
+        description: "Email delivery time metrics"
+
+  parameters:
+    pagination:
+      - name: limit
+        type: integer
+        description: "Maximum results per page (default 100, max 100)"
+      - name: cursor
+        type: string
+        description: "Cursor for next page of results"
+    identifiers:
+      - name: account_id
+        type: string
+        description: "Account identifier for all resource paths"
+      - name: message_id
+        type: string
+        description: "Unique message identifier"
+      - name: domain
+        type: string
+        description: "Sending domain name"
+      - name: webhook_id
+        type: string
+        description: "Webhook identifier"
+
+  enums:
+    messageStatus:
+      - queued
+      - sending
+      - delivered
+      - bounced
+      - failed
+      - cancelled
+    suppressionReason:
+      - bounce
+      - complaint
+      - unsubscribe
+      - manual
+    webhookEvents:
+      - delivery.delivered
+      - delivery.bounced
+      - delivery.failed
+      - tracking.opened
+      - tracking.clicked
+      - suppression.added
+      - account.alert
+
+  authentication:
+    schemes:
+      - type: bearer
+        description: "64-character API key as Bearer token"
+        headerName: Authorization
+        format: "aha-sk-{64-char-key}"
+    scopes:
+      - name: "messages:send:all"
+        description: "Send messages from any domain"
+      - name: "messages:read:all"
+        description: "Read all messages"
+      - name: "domains:read"
+        description: "Read domain information"
+      - name: "webhooks:write:all"
+        description: "Create and update webhooks"
+      - name: "suppressions:read"
+        description: "Read suppression lists"
+      - name: "statistics-transactional:read:all"
+        description: "Read delivery statistics"
+
+capability:
+  workflows:
+    - name: "Email Operations"
+      file: capabilities/email-operations.yaml
+      description: "Send emails, manage domains, configure webhooks, and monitor delivery statistics"
+      apisCombined: [ahasend-v2]
+      toolCount: 6
+      personas: [Developer, DevOps Engineer]
+      domains: [Email Delivery, Developer Tools]
+
+  personas:
+    - id: developer
+      name: "Developer"
+      description: "Application developer integrating transactional email into their application"
+      workflows: ["Email Operations"]
+    - id: devops
+      name: "DevOps Engineer"
+      description: "Infrastructure engineer monitoring email delivery health and managing domains"
+      workflows: ["Email Operations"]
+
+  domains:
+    - name: "Email Delivery"
+      description: "Sending and tracking transactional emails"
+      resources: [messages, statistics]
+    - name: "Domain Management"
+      description: "Configuring and validating sending domains"
+      resources: [domains]
+    - name: "Event Integration"
+      description: "Webhook and route configuration for email events"
+      resources: [webhooks, routes]
+    - name: "List Management"
+      description: "Managing email suppression lists"
+      resources: [suppressions]
+
+  namespaces:
+    - name: ahasend
+      type: consumed
+      baseUri: https://api.ahasend.com
+    - name: ahasend-email-ops-api
+      type: rest-exposed
+      port: 8080
+    - name: ahasend-email-ops-mcp
+      type: mcp-exposed
+      port: 9080
+
+  binds:
+    - name: AHASEND_API_KEY
+      description: "Bearer token API key for authentication"
+      workflows: ["Email Operations"]
+    - name: AHASEND_ACCOUNT_ID
+      description: "Account ID used in all API paths"
+      workflows: ["Email Operations"]
+
+crossReference:
+  - resource: messages
+    operations: [list-messages, send-message, get-message, cancel-message]
+    workflows: ["Email Operations"]
+    personas: [Developer, DevOps Engineer]
+  - resource: domains
+    operations: [list-domains, create-domain, get-domain, check-dns]
+    workflows: ["Email Operations"]
+    personas: [Developer, DevOps Engineer]
+  - resource: webhooks
+    operations: [list-webhooks, create-webhook, delete-webhook]
+    workflows: ["Email Operations"]
+    personas: [Developer, DevOps Engineer]
+  - resource: statistics
+    operations: [get-deliverability-stats, get-bounce-stats, get-delivery-time-stats]
+    workflows: ["Email Operations"]
+    personas: [DevOps Engineer]

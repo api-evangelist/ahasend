@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-delivery-event-structure.json",
+  "name": "DeliveryEvent",
+  "description": "DeliveryEvent schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "time": {
+      "type": "datetime",
+      "description": "Timestamp of the delivery event",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "log": {
+      "type": "string",
+      "description": "Log message for the delivery event",
+      "example": "example_value"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of the delivery event",
+      "example": "example_value"
+    }
+  },
+  "required": [
+    "time",
+    "log",
+    "status"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-create-single-message-response-structure.json",
+  "name": "CreateSingleMessageResponse",
+  "description": "CreateSingleMessageResponse schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "message"
+      ],
+      "description": "Object type identifier",
+      "example": "message"
+    },
+    "id": {
+      "type": "string",
+      "nullable": true,
+      "description": "Message ID (null if the message was not sent)",
+      "example": "<uuid@example.com>"
+    },
+    "recipient": {
+      "$ref": "#/components/schemas/Recipient"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "scheduled",
+        "error"
+      ],
+      "description": "Status of the message",
+      "example": "queued"
+    },
+    "error": {
+      "type": "string",
+      "nullable": true,
+      "description": "Error message if the message was not sent",
+      "example": "example_value"
+    },
+    "schedule": {
+      "$ref": "#/components/schemas/MessageSchedule",
+      "description": "Provided if the request contained a schedule"
+    }
+  },
+  "required": [
+    "object",
+    "recipient",
+    "status"
+  ]
+}

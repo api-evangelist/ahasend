@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-message-content-part-structure.json",
+  "name": "MessageContentPart",
+  "description": "MessageContentPart schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "content_type": {
+      "type": "string",
+      "description": "MIME content type (e.g., \"text/plain\", \"text/html\")",
+      "example": "text/html"
+    },
+    "content": {
+      "type": "string",
+      "description": "The actual content for this part",
+      "example": "example_value"
+    }
+  },
+  "required": [
+    "content_type",
+    "content"
+  ]
+}

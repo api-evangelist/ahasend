@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-create-domain-request-structure.json",
+  "name": "CreateDomainRequest",
+  "description": "CreateDomainRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Fully qualified domain name",
+      "example": "mail.example.com"
+    },
+    "dkim_private_key": {
+      "type": "string",
+      "description": "DKIM Private Key for the domain. Only RSA keys with a minimum key size of 2048 bits are supported.\n\n**Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.\n",
+      "example": "aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "tracking_subdomain": {
+      "type": "string",
+      "description": "Optional custom tracking subdomain. Omit to use the default on create.",
+      "example": "mail.example.com"
+    },
+    "return_path_subdomain": {
+      "type": "string",
+      "description": "Optional custom return-path subdomain. Omit to use the default on create.",
+      "example": "mail.example.com"
+    },
+    "subscription_subdomain": {
+      "type": "string",
+      "description": "Optional custom subscription management subdomain. Omit to use the default on create.",
+      "example": "mail.example.com"
+    },
+    "media_subdomain": {
+      "type": "string",
+      "description": "Optional custom media subdomain. Omit to use the default on create.",
+      "example": "mail.example.com"
+    },
+    "dkim_rotation_interval_days": {
+      "type": "int32",
+      "description": "Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.",
+      "example": 1
+    }
+  },
+  "required": [
+    "domain"
+  ],
+  "example": {
+    "domain": "example.com",
+    "tracking_subdomain": "click",
+    "return_path_subdomain": "mail",
+    "subscription_subdomain": "preferences",
+    "media_subdomain": "media",
+    "dkim_rotation_interval_days": 45
+  }
+}

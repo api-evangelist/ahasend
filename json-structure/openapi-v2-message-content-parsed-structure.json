@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-message-content-parsed-structure.json",
+  "name": "MessageContentParsed",
+  "description": "MessageContentParsed schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "parts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/MessageContentPart"
+      },
+      "description": "Array of message content parts (text, HTML, etc.)",
+      "example": [
+        {
+          "content_type": "example_value",
+          "content": "example_value"
+        }
+      ]
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/MessageAttachment"
+      },
+      "description": "Array of message attachments",
+      "example": [
+        {
+          "filename": "Example Name",
+          "content": "example_value",
+          "content_type": "example_value",
+          "content_id": "500123"
+        }
+      ]
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "description": "Email headers as key-value pairs (values are arrays to handle multiple headers with same name)",
+      "example": {
+        "Content-Type": [
+          "text/html; charset=utf-8"
+        ],
+        "X-Custom-Header": [
+          "value1",
+          "value2"
+        ]
+      }
+    }
+  },
+  "required": [
+    "parts",
+    "attachments",
+    "headers"
+  ]
+}

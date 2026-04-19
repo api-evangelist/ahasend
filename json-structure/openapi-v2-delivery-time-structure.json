@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-delivery-time-structure.json",
+  "name": "DeliveryTime",
+  "description": "DeliveryTime schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "recipient_domain": {
+      "type": "string",
+      "description": "The recipient domain",
+      "example": "mail.example.com"
+    },
+    "delivery_time": {
+      "type": "double",
+      "description": "The average time from reception to delivery in seconds",
+      "example": 1.0
+    }
+  }
+}

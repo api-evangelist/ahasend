@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-message-attachment-schema.json",
+  "title": "MessageAttachment",
+  "description": "MessageAttachment schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "filename": {
+      "type": "string",
+      "description": "Original filename of the attachment",
+      "example": "document.pdf"
+    },
+    "content": {
+      "type": "string",
+      "description": "Base64 encoded attachment content",
+      "example": "example_value"
+    },
+    "content_type": {
+      "type": "string",
+      "description": "MIME content type of the attachment",
+      "example": "application/pdf"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "Content-ID for inline attachments",
+      "nullable": true,
+      "example": "image001@example.com"
+    }
+  },
+  "required": [
+    "filename",
+    "content",
+    "content_type"
+  ]
+}

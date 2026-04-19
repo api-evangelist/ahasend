@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-message-summary-structure.json",
+  "name": "MessageSummary",
+  "description": "MessageSummary schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "message"
+      ],
+      "description": "Object type identifier",
+      "example": "message"
+    },
+    "created_at": {
+      "type": "datetime",
+      "description": "When the message was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "datetime",
+      "description": "When the message was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "sent_at": {
+      "type": "datetime",
+      "nullable": true,
+      "description": "When the message was sent",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "delivered_at": {
+      "type": "datetime",
+      "nullable": true,
+      "description": "When the message was delivered",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "retain_until": {
+      "type": "datetime",
+      "description": "When the message data will be purged",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "incoming",
+        "outgoing"
+      ],
+      "description": "Message direction",
+      "example": "incoming"
+    },
+    "is_bounce_notification": {
+      "type": "boolean",
+      "description": "Whether this is a bounce notification",
+      "example": true
+    },
+    "bounce_classification": {
+      "type": "string",
+      "description": "Classification of bounce if applicable",
+      "example": "example_value"
+    },
+    "delivery_attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/DeliveryEvent"
+      },
+      "description": "List of delivery attempts for this message",
+      "example": [
+        {
+          "time": "2025-03-15T14:30:00Z",
+          "log": "example_value",
+          "status": "example_value"
+        }
+      ]
+    },
+    "message_id": {
+      "type": "string",
+      "description": "Message-ID header value",
+      "example": "500123"
+    },
+    "id": {
+      "type": "uuid",
+      "description": "API-generated message ID",
+      "example": "500123"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject",
+      "example": "example_value"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags associated with the message",
+      "example": [
+        "example_value"
+      ]
+    },
+    "sender": {
+      "type": "string",
+      "description": "Sender email address",
+      "example": "example_value"
+    },
+    "recipient": {
+      "type": "string",
+      "description": "Recipient email address",
+      "example": "example_value"
+    },
+    "status": {
+      "type": "string",
+      "description": "Current message status",
+      "example": "example_value"
+    },
+    "num_attempts": {
+      "type": "int32",
+      "description": "Number of delivery attempts",
+      "example": 1
+    },
+    "click_count": {
+      "type": "int32",
+      "description": "Number of clicks tracked for this message",
+      "example": 1
+    },
+    "open_count": {
+      "type": "int32",
+      "description": "Number of opens tracked for this message",
+      "example": 1
+    },
+    "reference_message_id": {
+      "type": "int64",
+      "description": "ID of the original message (for bounce messages)",
+      "example": 1
+    },
+    "domain_id": {
+      "type": "uuid",
+      "description": "Domain ID this message was sent from",
+      "example": "500123"
+    },
+    "account_id": {
+      "type": "uuid",
+      "description": "Account ID this message belongs to",
+      "example": "500123"
+    }
+  },
+  "required": [
+    "object",
+    "created_at",
+    "updated_at",
+    "retain_until",
+    "direction",
+    "is_bounce_notification",
+    "delivery_attempts",
+    "message_id",
+    "id",
+    "subject",
+    "tags",
+    "sender",
+    "recipient",
+    "status",
+    "num_attempts",
+    "click_count",
+    "open_count",
+    "domain_id",
+    "account_id"
+  ]
+}

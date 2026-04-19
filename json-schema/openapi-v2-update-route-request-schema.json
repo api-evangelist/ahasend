@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-update-route-request-schema.json",
+  "title": "UpdateRouteRequest",
+  "description": "UpdateRouteRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255,
+      "nullable": true,
+      "description": "Route name",
+      "example": "Example Name"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "nullable": true,
+      "description": "Webhook URL for the route",
+      "example": "https://example.com"
+    },
+    "recipient": {
+      "type": "string",
+      "maxLength": 255,
+      "nullable": true,
+      "description": "Recipient filter",
+      "example": "example_value"
+    },
+    "attachments": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to include attachments in webhooks",
+      "example": true
+    },
+    "headers": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to include headers in webhooks",
+      "example": true
+    },
+    "group_by_message_id": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to group by message ID",
+      "example": true
+    },
+    "strip_replies": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether to strip reply content",
+      "example": true
+    },
+    "enabled": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Whether the route is enabled",
+      "example": true
+    }
+  },
+  "example": {
+    "name": "Updated Support Route",
+    "enabled": false
+  }
+}

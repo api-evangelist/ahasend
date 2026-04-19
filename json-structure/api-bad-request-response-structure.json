@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/api-bad-request-response-structure.json",
+  "name": "BadRequestResponse",
+  "description": "BadRequestResponse schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "examples": [
+        "domain is not yours",
+        "domain DNS config is not valid"
+      ],
+      "example": "example_value"
+    }
+  },
+  "example": {
+    "status": "bad request"
+  }
+}

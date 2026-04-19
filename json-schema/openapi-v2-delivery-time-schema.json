@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-delivery-time-schema.json",
+  "title": "DeliveryTime",
+  "description": "DeliveryTime schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "recipient_domain": {
+      "type": "string",
+      "format": "fqdn",
+      "description": "The recipient domain",
+      "example": "mail.example.com"
+    },
+    "delivery_time": {
+      "type": "number",
+      "format": "double",
+      "description": "The average time from reception to delivery in seconds",
+      "example": 1.0
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-account-structure.json",
+  "name": "Account",
+  "description": "Account schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "object": {
+      "type": "string",
+      "enum": [
+        "account"
+      ],
+      "description": "Object type identifier",
+      "example": "account"
+    },
+    "id": {
+      "type": "uuid",
+      "description": "Unique identifier for the account",
+      "example": "500123"
+    },
+    "created_at": {
+      "type": "datetime",
+      "description": "When the account was created",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "updated_at": {
+      "type": "datetime",
+      "description": "When the account was last updated",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "name": {
+      "type": "string",
+      "description": "Account name",
+      "example": "Example Name"
+    },
+    "website": {
+      "type": "uri",
+      "nullable": true,
+      "description": "Account website URL",
+      "example": "https://example.com"
+    },
+    "about": {
+      "type": "string",
+      "nullable": true,
+      "description": "Account description",
+      "example": "example_value"
+    },
+    "track_opens": {
+      "type": "boolean",
+      "description": "Default open tracking setting",
+      "example": true
+    },
+    "track_clicks": {
+      "type": "boolean",
+      "description": "Default click tracking setting",
+      "example": true
+    },
+    "reject_bad_recipients": {
+      "type": "boolean",
+      "description": "Whether to reject bad recipients",
+      "example": true
+    },
+    "reject_mistyped_recipients": {
+      "type": "boolean",
+      "description": "Whether to reject mistyped recipients",
+      "example": true
+    },
+    "message_metadata_retention": {
+      "type": "int32",
+      "description": "Default message metadata retention in days",
+      "example": 1
+    },
+    "message_data_retention": {
+      "type": "int32",
+      "description": "Default message data retention in days",
+      "example": 1
+    }
+  },
+  "required": [
+    "object",
+    "id",
+    "created_at",
+    "updated_at",
+    "name"
+  ]
+}

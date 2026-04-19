@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-deliverability-statistics-schema.json",
+  "title": "DeliverabilityStatistics",
+  "description": "DeliverabilityStatistics schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "from_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "to_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End time of the statistics bucket",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "reception_count": {
+      "type": "integer",
+      "description": "Number of messages accepted for delivery",
+      "example": 1
+    },
+    "delivered_count": {
+      "type": "integer",
+      "description": "Number of messages delivered",
+      "example": 1
+    },
+    "deferred_count": {
+      "type": "integer",
+      "description": "Number of messages deferred",
+      "example": 1
+    },
+    "bounced_count": {
+      "type": "integer",
+      "description": "Number of messages bounced",
+      "example": 1
+    },
+    "failed_count": {
+      "type": "integer",
+      "description": "Number of messages failed",
+      "example": 1
+    },
+    "suppressed_count": {
+      "type": "integer",
+      "description": "Number of messages suppressed",
+      "example": 1
+    },
+    "opened_count": {
+      "type": "integer",
+      "description": "Number of messages opened at least once",
+      "example": 1
+    },
+    "clicked_count": {
+      "type": "integer",
+      "description": "Number of messages that have at least one link in them clicked.",
+      "example": 1
+    }
+  },
+  "required": [
+    "from_timestamp",
+    "to_timestamp"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-structure/openapi-v2-create-suppression-request-structure.json",
+  "name": "CreateSuppressionRequest",
+  "description": "CreateSuppressionRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Email address to suppress",
+      "example": "user@example.com"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain for which to suppress the email",
+      "example": "mail.example.com"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Reason for suppression",
+      "example": "example_value"
+    },
+    "expires_at": {
+      "type": "datetime",
+      "description": "When the suppression expires (RFC3339 format)",
+      "example": "2025-03-15T14:30:00Z"
+    }
+  },
+  "required": [
+    "email",
+    "expires_at"
+  ],
+  "example": {
+    "email": "user@example.com",
+    "domain": "example.com",
+    "reason": "User requested removal",
+    "expires_at": "2024-12-25T10:30:00Z"
+  }
+}

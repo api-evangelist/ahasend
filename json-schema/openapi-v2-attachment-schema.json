@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-attachment-schema.json",
+  "title": "Attachment",
+  "description": "Attachment schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "base64": {
+      "type": "boolean",
+      "description": "If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8",
+      "default": false,
+      "example": true
+    },
+    "data": {
+      "type": "string",
+      "description": "Either plaintext or base64 encoded attachment data (depending on base64 field)",
+      "example": "example_value"
+    },
+    "content_type": {
+      "type": "string",
+      "description": "The MIME type of the attachment",
+      "example": "example_value"
+    },
+    "content_disposition": {
+      "type": "string",
+      "description": "The disposition of the attachment",
+      "example": "example_value"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "The Content-ID of the attachment for inline images",
+      "example": "500123"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "The filename of the attachment",
+      "example": "Example Name"
+    }
+  },
+  "required": [
+    "data",
+    "content_type",
+    "file_name"
+  ],
+  "example": {
+    "base64": true,
+    "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
+    "content_type": "image/png",
+    "file_name": "pixel.png"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-message-schedule-schema.json",
+  "title": "MessageSchedule",
+  "description": "MessageSchedule schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "first_attempt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The time to make the first attempt for delivering the message (RFC3339 format)",
+      "example": "2025-03-15T14:30:00Z"
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expire and drop the message if not delivered by this time (RFC3339 format)",
+      "example": "2025-03-15T14:30:00Z"
+    }
+  },
+  "example": {
+    "first_attempt": "2023-12-25T10:30:00Z",
+    "expires": "2023-12-26T10:30:00Z"
+  }
+}

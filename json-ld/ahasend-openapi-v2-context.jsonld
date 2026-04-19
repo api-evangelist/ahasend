@@ -1,0 +1,599 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "ahasend": "https://ahasend.com/schema/",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "hasMore": {
+      "@id": "ahasend:has_more",
+      "@type": "xsd:boolean"
+    },
+    "nextCursor": {
+      "@id": "ahasend:next_cursor",
+      "@type": "xsd:string"
+    },
+    "previousCursor": {
+      "@id": "ahasend:previous_cursor",
+      "@type": "xsd:string"
+    },
+    "PaginationInfo": "ahasend:PaginationInfo",
+    "id": {
+      "@id": "ahasend:id",
+      "@type": "xsd:string"
+    },
+    "createdAt": "schema:dateCreated",
+    "updatedAt": "schema:dateModified",
+    "apiKeyId": {
+      "@id": "ahasend:api_key_id",
+      "@type": "xsd:string"
+    },
+    "scope": {
+      "@id": "ahasend:scope",
+      "@type": "xsd:string"
+    },
+    "domainId": {
+      "@id": "ahasend:domain_id",
+      "@type": "xsd:string"
+    },
+    "APIKeyScope": "ahasend:APIKeyScope",
+    "object": {
+      "@id": "ahasend:object",
+      "@type": "xsd:string"
+    },
+    "lastUsedAt": {
+      "@id": "ahasend:last_used_at",
+      "@type": "xsd:dateTime"
+    },
+    "accountId": {
+      "@id": "ahasend:account_id",
+      "@type": "xsd:string"
+    },
+    "label": {
+      "@id": "ahasend:label",
+      "@type": "xsd:string"
+    },
+    "publicKey": {
+      "@id": "ahasend:public_key",
+      "@type": "xsd:string"
+    },
+    "secretKey": {
+      "@id": "ahasend:secret_key",
+      "@type": "xsd:string"
+    },
+    "scopes": {
+      "@id": "ahasend:scopes",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "APIKey": "ahasend:APIKey",
+    "CreateAPIKeyRequest": "ahasend:CreateAPIKeyRequest",
+    "UpdateAPIKeyRequest": "ahasend:UpdateAPIKeyRequest",
+    "data": {
+      "@id": "ahasend:data",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "pagination": {
+      "@id": "ahasend:pagination",
+      "@type": "xsd:string"
+    },
+    "PaginatedAPIKeysResponse": "ahasend:PaginatedAPIKeysResponse",
+    "type": {
+      "@id": "ahasend:type",
+      "@type": "xsd:string"
+    },
+    "host": {
+      "@id": "ahasend:host",
+      "@type": "xsd:string"
+    },
+    "content": {
+      "@id": "ahasend:content",
+      "@type": "xsd:string"
+    },
+    "required": {
+      "@id": "ahasend:required",
+      "@type": "xsd:boolean"
+    },
+    "propagated": {
+      "@id": "ahasend:propagated",
+      "@type": "xsd:boolean"
+    },
+    "DNSRecord": "ahasend:DNSRecord",
+    "domain": {
+      "@id": "ahasend:domain",
+      "@type": "xsd:string"
+    },
+    "dnsRecords": {
+      "@id": "ahasend:dns_records",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "lastDnsCheckAt": {
+      "@id": "ahasend:last_dns_check_at",
+      "@type": "xsd:dateTime"
+    },
+    "dnsValid": {
+      "@id": "ahasend:dns_valid",
+      "@type": "xsd:boolean"
+    },
+    "trackingSubdomain": {
+      "@id": "ahasend:tracking_subdomain",
+      "@type": "xsd:string"
+    },
+    "returnPathSubdomain": {
+      "@id": "ahasend:return_path_subdomain",
+      "@type": "xsd:string"
+    },
+    "subscriptionSubdomain": {
+      "@id": "ahasend:subscription_subdomain",
+      "@type": "xsd:string"
+    },
+    "mediaSubdomain": {
+      "@id": "ahasend:media_subdomain",
+      "@type": "xsd:string"
+    },
+    "dkimRotationIntervalDays": {
+      "@id": "ahasend:dkim_rotation_interval_days",
+      "@type": "xsd:integer"
+    },
+    "rotationReady": {
+      "@id": "ahasend:rotation_ready",
+      "@type": "xsd:boolean"
+    },
+    "Domain": "ahasend:Domain",
+    "dkimPrivateKey": {
+      "@id": "ahasend:dkim_private_key",
+      "@type": "xsd:string"
+    },
+    "CreateDomainRequest": "ahasend:CreateDomainRequest",
+    "UpdateDomainRequest": "ahasend:UpdateDomainRequest",
+    "PaginatedDomainsResponse": "ahasend:PaginatedDomainsResponse",
+    "email": "schema:email",
+    "name": "schema:name",
+    "Address": "ahasend:Address",
+    "substitutions": {
+      "@id": "ahasend:substitutions",
+      "@type": "@id"
+    },
+    "Recipient": "ahasend:Recipient",
+    "base64": {
+      "@id": "ahasend:base64",
+      "@type": "xsd:boolean"
+    },
+    "contentType": {
+      "@id": "ahasend:content_type",
+      "@type": "xsd:string"
+    },
+    "contentDisposition": {
+      "@id": "ahasend:content_disposition",
+      "@type": "xsd:string"
+    },
+    "contentId": {
+      "@id": "ahasend:content_id",
+      "@type": "xsd:string"
+    },
+    "fileName": {
+      "@id": "ahasend:file_name",
+      "@type": "xsd:string"
+    },
+    "Attachment": "ahasend:Attachment",
+    "open": {
+      "@id": "ahasend:open",
+      "@type": "xsd:boolean"
+    },
+    "click": {
+      "@id": "ahasend:click",
+      "@type": "xsd:boolean"
+    },
+    "Tracking": "ahasend:Tracking",
+    "metadata": {
+      "@id": "ahasend:metadata",
+      "@type": "xsd:integer"
+    },
+    "Retention": "ahasend:Retention",
+    "firstAttempt": {
+      "@id": "ahasend:first_attempt",
+      "@type": "xsd:dateTime"
+    },
+    "expires": {
+      "@id": "ahasend:expires",
+      "@type": "xsd:dateTime"
+    },
+    "MessageSchedule": "ahasend:MessageSchedule",
+    "from": {
+      "@id": "ahasend:from",
+      "@type": "xsd:string"
+    },
+    "recipients": {
+      "@id": "ahasend:recipients",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "replyTo": {
+      "@id": "ahasend:reply_to",
+      "@type": "xsd:string"
+    },
+    "subject": {
+      "@id": "ahasend:subject",
+      "@type": "xsd:string"
+    },
+    "textContent": {
+      "@id": "ahasend:text_content",
+      "@type": "xsd:string"
+    },
+    "htmlContent": {
+      "@id": "ahasend:html_content",
+      "@type": "xsd:string"
+    },
+    "ampContent": {
+      "@id": "ahasend:amp_content",
+      "@type": "xsd:string"
+    },
+    "attachments": {
+      "@id": "ahasend:attachments",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "headers": {
+      "@id": "ahasend:headers",
+      "@type": "@id"
+    },
+    "CreateMessageRequest": "ahasend:CreateMessageRequest",
+    "tags": {
+      "@id": "ahasend:tags",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "sandbox": {
+      "@id": "ahasend:sandbox",
+      "@type": "xsd:boolean"
+    },
+    "sandboxResult": {
+      "@id": "ahasend:sandbox_result",
+      "@type": "xsd:string"
+    },
+    "tracking": {
+      "@id": "ahasend:tracking",
+      "@type": "xsd:string"
+    },
+    "retention": {
+      "@id": "ahasend:retention",
+      "@type": "xsd:string"
+    },
+    "schedule": {
+      "@id": "ahasend:schedule",
+      "@type": "xsd:string"
+    },
+    "to": {
+      "@id": "ahasend:to",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "cc": {
+      "@id": "ahasend:cc",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "bcc": {
+      "@id": "ahasend:bcc",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "CreateConversationMessageRequest": "ahasend:CreateConversationMessageRequest",
+    "recipient": {
+      "@id": "ahasend:recipient",
+      "@type": "xsd:string"
+    },
+    "status": {
+      "@id": "ahasend:status",
+      "@type": "xsd:string"
+    },
+    "error": {
+      "@id": "ahasend:error",
+      "@type": "xsd:string"
+    },
+    "CreateSingleMessageResponse": "ahasend:CreateSingleMessageResponse",
+    "CreateMessageResponse": "ahasend:CreateMessageResponse",
+    "time": {
+      "@id": "ahasend:time",
+      "@type": "xsd:dateTime"
+    },
+    "log": {
+      "@id": "ahasend:log",
+      "@type": "xsd:string"
+    },
+    "DeliveryEvent": "ahasend:DeliveryEvent",
+    "MessageContentPart": "ahasend:MessageContentPart",
+    "filename": {
+      "@id": "ahasend:filename",
+      "@type": "xsd:string"
+    },
+    "MessageAttachment": "ahasend:MessageAttachment",
+    "parts": {
+      "@id": "ahasend:parts",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "MessageContentParsed": "ahasend:MessageContentParsed",
+    "sentAt": {
+      "@id": "ahasend:sent_at",
+      "@type": "xsd:dateTime"
+    },
+    "deliveredAt": {
+      "@id": "ahasend:delivered_at",
+      "@type": "xsd:dateTime"
+    },
+    "retainUntil": {
+      "@id": "ahasend:retain_until",
+      "@type": "xsd:dateTime"
+    },
+    "direction": {
+      "@id": "ahasend:direction",
+      "@type": "xsd:string"
+    },
+    "isBounceNotification": {
+      "@id": "ahasend:is_bounce_notification",
+      "@type": "xsd:boolean"
+    },
+    "bounceClassification": {
+      "@id": "ahasend:bounce_classification",
+      "@type": "xsd:string"
+    },
+    "deliveryAttempts": {
+      "@id": "ahasend:delivery_attempts",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "messageId": {
+      "@id": "ahasend:message_id",
+      "@type": "xsd:string"
+    },
+    "sender": {
+      "@id": "ahasend:sender",
+      "@type": "xsd:string"
+    },
+    "numAttempts": {
+      "@id": "ahasend:num_attempts",
+      "@type": "xsd:integer"
+    },
+    "clickCount": {
+      "@id": "ahasend:click_count",
+      "@type": "xsd:integer"
+    },
+    "openCount": {
+      "@id": "ahasend:open_count",
+      "@type": "xsd:integer"
+    },
+    "referenceMessageId": {
+      "@id": "ahasend:reference_message_id",
+      "@type": "xsd:integer"
+    },
+    "MessageSummary": "ahasend:MessageSummary",
+    "PaginatedMessagesResponse": "ahasend:PaginatedMessagesResponse",
+    "website": {
+      "@id": "ahasend:website",
+      "@type": "@id"
+    },
+    "about": {
+      "@id": "ahasend:about",
+      "@type": "xsd:string"
+    },
+    "trackOpens": {
+      "@id": "ahasend:track_opens",
+      "@type": "xsd:boolean"
+    },
+    "trackClicks": {
+      "@id": "ahasend:track_clicks",
+      "@type": "xsd:boolean"
+    },
+    "rejectBadRecipients": {
+      "@id": "ahasend:reject_bad_recipients",
+      "@type": "xsd:boolean"
+    },
+    "rejectMistypedRecipients": {
+      "@id": "ahasend:reject_mistyped_recipients",
+      "@type": "xsd:boolean"
+    },
+    "messageMetadataRetention": {
+      "@id": "ahasend:message_metadata_retention",
+      "@type": "xsd:integer"
+    },
+    "messageDataRetention": {
+      "@id": "ahasend:message_data_retention",
+      "@type": "xsd:integer"
+    },
+    "Account": "ahasend:Account",
+    "UpdateAccountRequest": "ahasend:UpdateAccountRequest",
+    "userId": {
+      "@id": "ahasend:user_id",
+      "@type": "xsd:string"
+    },
+    "role": {
+      "@id": "ahasend:role",
+      "@type": "xsd:string"
+    },
+    "UserAccount": "ahasend:UserAccount",
+    "AccountMembersResponse": "ahasend:AccountMembersResponse",
+    "AddMemberRequest": "ahasend:AddMemberRequest",
+    "reason": {
+      "@id": "ahasend:reason",
+      "@type": "xsd:string"
+    },
+    "expiresAt": {
+      "@id": "ahasend:expires_at",
+      "@type": "xsd:dateTime"
+    },
+    "Suppression": "ahasend:Suppression",
+    "CreateSuppressionResponse": "ahasend:CreateSuppressionResponse",
+    "CreateSuppressionRequest": "ahasend:CreateSuppressionRequest",
+    "PaginatedSuppressionsResponse": "ahasend:PaginatedSuppressionsResponse",
+    "url": "schema:url",
+    "groupByMessageId": {
+      "@id": "ahasend:group_by_message_id",
+      "@type": "xsd:boolean"
+    },
+    "stripReplies": {
+      "@id": "ahasend:strip_replies",
+      "@type": "xsd:boolean"
+    },
+    "enabled": {
+      "@id": "ahasend:enabled",
+      "@type": "xsd:boolean"
+    },
+    "successCount": {
+      "@id": "ahasend:success_count",
+      "@type": "xsd:integer"
+    },
+    "errorCount": {
+      "@id": "ahasend:error_count",
+      "@type": "xsd:integer"
+    },
+    "errorsSinceLastSuccess": {
+      "@id": "ahasend:errors_since_last_success",
+      "@type": "xsd:integer"
+    },
+    "lastRequestAt": {
+      "@id": "ahasend:last_request_at",
+      "@type": "xsd:dateTime"
+    },
+    "Route": "ahasend:Route",
+    "CreateRouteRequest": "ahasend:CreateRouteRequest",
+    "UpdateRouteRequest": "ahasend:UpdateRouteRequest",
+    "PaginatedRoutesResponse": "ahasend:PaginatedRoutesResponse",
+    "onReception": {
+      "@id": "ahasend:on_reception",
+      "@type": "xsd:boolean"
+    },
+    "onDelivered": {
+      "@id": "ahasend:on_delivered",
+      "@type": "xsd:boolean"
+    },
+    "onTransientError": {
+      "@id": "ahasend:on_transient_error",
+      "@type": "xsd:boolean"
+    },
+    "onFailed": {
+      "@id": "ahasend:on_failed",
+      "@type": "xsd:boolean"
+    },
+    "onBounced": {
+      "@id": "ahasend:on_bounced",
+      "@type": "xsd:boolean"
+    },
+    "onSuppressed": {
+      "@id": "ahasend:on_suppressed",
+      "@type": "xsd:boolean"
+    },
+    "onOpened": {
+      "@id": "ahasend:on_opened",
+      "@type": "xsd:boolean"
+    },
+    "onClicked": {
+      "@id": "ahasend:on_clicked",
+      "@type": "xsd:boolean"
+    },
+    "onSuppressionCreated": {
+      "@id": "ahasend:on_suppression_created",
+      "@type": "xsd:boolean"
+    },
+    "onDnsError": {
+      "@id": "ahasend:on_dns_error",
+      "@type": "xsd:boolean"
+    },
+    "domains": {
+      "@id": "ahasend:domains",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "Webhook": "ahasend:Webhook",
+    "CreateWebhookRequest": "ahasend:CreateWebhookRequest",
+    "UpdateWebhookRequest": "ahasend:UpdateWebhookRequest",
+    "PaginatedWebhooksResponse": "ahasend:PaginatedWebhooksResponse",
+    "username": {
+      "@id": "ahasend:username",
+      "@type": "xsd:string"
+    },
+    "SMTPCredential": "ahasend:SMTPCredential",
+    "CreateSMTPCredentialRequest": "ahasend:CreateSMTPCredentialRequest",
+    "PaginatedSMTPCredentialsResponse": "ahasend:PaginatedSMTPCredentialsResponse",
+    "fromTimestamp": {
+      "@id": "ahasend:from_timestamp",
+      "@type": "xsd:dateTime"
+    },
+    "toTimestamp": {
+      "@id": "ahasend:to_timestamp",
+      "@type": "xsd:dateTime"
+    },
+    "receptionCount": {
+      "@id": "ahasend:reception_count",
+      "@type": "xsd:integer"
+    },
+    "deliveredCount": {
+      "@id": "ahasend:delivered_count",
+      "@type": "xsd:integer"
+    },
+    "deferredCount": {
+      "@id": "ahasend:deferred_count",
+      "@type": "xsd:integer"
+    },
+    "bouncedCount": {
+      "@id": "ahasend:bounced_count",
+      "@type": "xsd:integer"
+    },
+    "failedCount": {
+      "@id": "ahasend:failed_count",
+      "@type": "xsd:integer"
+    },
+    "suppressedCount": {
+      "@id": "ahasend:suppressed_count",
+      "@type": "xsd:integer"
+    },
+    "openedCount": {
+      "@id": "ahasend:opened_count",
+      "@type": "xsd:integer"
+    },
+    "clickedCount": {
+      "@id": "ahasend:clicked_count",
+      "@type": "xsd:integer"
+    },
+    "DeliverabilityStatistics": "ahasend:DeliverabilityStatistics",
+    "DeliverabilityStatisticsResponse": "ahasend:DeliverabilityStatisticsResponse",
+    "classification": {
+      "@id": "ahasend:classification",
+      "@type": "xsd:string"
+    },
+    "count": {
+      "@id": "ahasend:count",
+      "@type": "xsd:integer"
+    },
+    "Bounce": "ahasend:Bounce",
+    "bounces": {
+      "@id": "ahasend:bounces",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "BounceStatistics": "ahasend:BounceStatistics",
+    "BounceStatisticsResponse": "ahasend:BounceStatisticsResponse",
+    "avgDeliveryTime": {
+      "@id": "ahasend:avg_delivery_time",
+      "@type": "xsd:decimal"
+    },
+    "deliveryTimes": {
+      "@id": "ahasend:delivery_times",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "DeliveryTimeStatistics": "ahasend:DeliveryTimeStatistics",
+    "recipientDomain": {
+      "@id": "ahasend:recipient_domain",
+      "@type": "xsd:string"
+    },
+    "deliveryTime": {
+      "@id": "ahasend:delivery_time",
+      "@type": "xsd:decimal"
+    },
+    "DeliveryTime": "ahasend:DeliveryTime",
+    "DeliveryTimeStatisticsResponse": "ahasend:DeliveryTimeStatisticsResponse"
+  }
+}

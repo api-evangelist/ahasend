@@ -1,0 +1,10 @@
+{
+  "object": "message",
+  "id": "500123",
+  "recipient": {
+    "email": {},
+    "name": {},
+    "substitutions": {}
+  },
+  "status": "queued"
+}

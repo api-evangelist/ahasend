@@ -16,30 +16,30 @@ externalDocs:
   description: Find out more about AhaSend
   url: https://ahasend.com
 servers:
-  - url: https://api.ahasend.com/v1
+- url: https://api.ahasend.com/v1
 tags:
-  - name: Email
-    description: APIs for sending emails
-    externalDocs:
-      description: Find out more
-      url: https://ahasend.com
+- name: Email
+  description: APIs for sending emails
+  externalDocs:
+    description: Find out more
+    url: https://ahasend.com
 paths:
   /email/send:
     post:
       tags:
-        - Email
-      summary: AhaSend Send emails
+      - Email
+      summary: AhaSend Send Emails
       description: >-
         You can send emails to up to 100 recipients using this API at the same
         time.
       operationId: sendEmail
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-          description: Only application/json is supported
-          example: application/json
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        description: Only application/json is supported
+        example: application/json
       requestBody:
         description: Email object.
         content:
@@ -59,12 +59,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessfulResponse'
+              examples:
+                sendEmail201Example:
+                  summary: Default sendEmail 201 response
+                  x-microcks-default: true
+                  value:
+                    success_count: 1
+                    fail_count: 1
+                    failed_recipients:
+                    - example_value
+                    errors:
+                    - example_value
         '400':
           description: The request is malformed and could not be validated.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestResponse'
+              examples:
+                sendEmail400Example:
+                  summary: Default sendEmail 400 response
+                  x-microcks-default: true
+                  value:
+                    status: example_value
         '403':
           description: >-
             You are not allowed to send for any reason such as invalid
@@ -73,88 +90,113 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccessDeniedResponse'
+              examples:
+                sendEmail403Example:
+                  summary: Default sendEmail 403 response
+                  x-microcks-default: true
+                  value:
+                    status: example_value
       security:
-        - api_key:
-            - write:email
-            - read:email
+      - api_key:
+        - write:email
+        - read:email
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
 components:
   schemas:
     Contact:
       type: object
       required:
-        - email
+      - email
       properties:
         email:
           type: string
           examples:
-            - john@nasa.gov
-            - jane@nasa.gov
+          - john@nasa.gov
+          - jane@nasa.gov
+          example: user@example.com
         name:
           type: string
           examples:
-            - John Smith
-            - Jane Williams
+          - John Smith
+          - Jane Williams
+          example: Example Name
     Attachment:
       type: object
       required:
-        - data
-        - file_name
-        - content_type
+      - data
+      - file_name
+      - content_type
       properties:
         data:
           type: string
           examples:
-            - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+          - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
           description: >-
             The attachment data. If the base64 field is true, this data must be
             encoded using base64. Otherwise, it will be interpreted as UTF-8.
+          example: example_value
         base64:
           type: boolean
           examples:
-            - true
-            - false
+          - true
+          - false
           description: >-
             If set to true, data needs to be encoded using base64. Otherwise
             data will be interpreted as UTF-8.
+          example: true
         content_type:
           type: string
           examples:
-            - image/gif
+          - image/gif
+          example: example_value
         content_id:
           type: string
           examples:
-            - my-image
+          - my-image
           description: >-
             If specified, this attachment will be added as an inline attachment
             and a multipart/related MIME container will be generated in the
             message to hold it and the textual content.
+          example: '500123'
         file_name:
           type: string
           examples:
-            - my_image.gif
+          - my_image.gif
+          example: Example Name
     Content:
       type: object
       required:
-        - subject
+      - subject
       properties:
         subject:
           type: string
           examples:
-            - Sample subject
+          - Sample subject
+          example: example_value
         text_body:
           type: string
           description: Plaintext body of the email
           examples:
-            - Sample email body
+          - Sample email body
+          example: example_value
         html_body:
           type: string
           description: HTML body of the email
           examples:
-            - <p>Sample email body</p>
+          - <p>Sample email body</p>
+          example: example_value
         attachments:
           type: array
           items:
             $ref: '#/components/schemas/Attachment'
+          example:
+          - data: example_value
+            base64: true
+            content_type: example_value
+            content_id: '500123'
+            file_name: Example Name
         reply_to:
           $ref: '#/components/schemas/Contact'
         headers:
@@ -167,9 +209,9 @@ components:
             X-Comment-ID: '456789'
     Email:
       required:
-        - from
-        - recipients
-        - content
+      - from
+      - recipients
+      - content
       type: object
       properties:
         from:
@@ -179,6 +221,9 @@ components:
           description: Specifies the list of recipients to which message will be sent.
           items:
             $ref: '#/components/schemas/Contact'
+          example:
+          - email: user@example.com
+            name: Example Name
         content:
           $ref: '#/components/schemas/Content'
     SuccessfulResponse:
@@ -196,15 +241,15 @@ components:
           type: array
           description: List of email addresses that the email was not sent to.
           example:
-            - john@nasa.gov
+          - john@nasa.gov
           items:
             type: string
         errors:
           type: array
           example:
-            - >-
-              john@nasa.gov: The email account that you tried to reach does not
-              exist.
+          - >-
+            john@nasa.gov: The email account that you tried to reach does not
+            exist.
           items:
             type: string
             description: The reason the email failed to be sent to a recipient.
@@ -216,8 +261,9 @@ components:
         status:
           type: string
           examples:
-            - domain is not yours
-            - domain DNS config is not valid
+          - domain is not yours
+          - domain DNS config is not valid
+          example: example_value
     AccessDeniedResponse:
       type: object
       example:
@@ -227,8 +273,9 @@ components:
           type: string
           description: The reason your request failed.
           examples:
-            - invalid credentials
-            - domain DNS config is not valid
+          - invalid credentials
+          - domain DNS config is not valid
+          example: example_value
   requestBodies:
     Email:
       description: The email object that needs to be sent.

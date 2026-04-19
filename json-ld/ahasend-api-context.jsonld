@@ -1,0 +1,98 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "ahasend": "https://ahasend.com/schema/",
+    "schema": "https://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "email": "schema:email",
+    "name": "schema:name",
+    "Contact": "ahasend:Contact",
+    "data": {
+      "@id": "ahasend:data",
+      "@type": "xsd:string"
+    },
+    "base64": {
+      "@id": "ahasend:base64",
+      "@type": "xsd:boolean"
+    },
+    "contentType": {
+      "@id": "ahasend:content_type",
+      "@type": "xsd:string"
+    },
+    "contentId": {
+      "@id": "ahasend:content_id",
+      "@type": "xsd:string"
+    },
+    "fileName": {
+      "@id": "ahasend:file_name",
+      "@type": "xsd:string"
+    },
+    "Attachment": "ahasend:Attachment",
+    "subject": {
+      "@id": "ahasend:subject",
+      "@type": "xsd:string"
+    },
+    "textBody": {
+      "@id": "ahasend:text_body",
+      "@type": "xsd:string"
+    },
+    "htmlBody": {
+      "@id": "ahasend:html_body",
+      "@type": "xsd:string"
+    },
+    "attachments": {
+      "@id": "ahasend:attachments",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "replyTo": {
+      "@id": "ahasend:reply_to",
+      "@type": "xsd:string"
+    },
+    "headers": {
+      "@id": "ahasend:headers",
+      "@type": "@id"
+    },
+    "Content": "ahasend:Content",
+    "from": {
+      "@id": "ahasend:from",
+      "@type": "xsd:string"
+    },
+    "recipients": {
+      "@id": "ahasend:recipients",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "content": {
+      "@id": "ahasend:content",
+      "@type": "xsd:string"
+    },
+    "Email": "ahasend:Email",
+    "successCount": {
+      "@id": "ahasend:success_count",
+      "@type": "xsd:integer"
+    },
+    "failCount": {
+      "@id": "ahasend:fail_count",
+      "@type": "xsd:integer"
+    },
+    "failedRecipients": {
+      "@id": "ahasend:failed_recipients",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "errors": {
+      "@id": "ahasend:errors",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+    "SuccessfulResponse": "ahasend:SuccessfulResponse",
+    "status": {
+      "@id": "ahasend:status",
+      "@type": "xsd:string"
+    },
+    "BadRequestResponse": "ahasend:BadRequestResponse",
+    "AccessDeniedResponse": "ahasend:AccessDeniedResponse"
+  }
+}

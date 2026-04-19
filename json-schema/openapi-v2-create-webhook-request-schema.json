@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-create-webhook-request-schema.json",
+  "title": "CreateWebhookRequest",
+  "description": "CreateWebhookRequest schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Webhook name",
+      "example": "Example Name"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Webhook URL",
+      "example": "https://example.com"
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether the webhook is enabled",
+      "default": true,
+      "example": true
+    },
+    "on_reception": {
+      "type": "boolean",
+      "description": "Trigger on message reception",
+      "default": false,
+      "example": true
+    },
+    "on_delivered": {
+      "type": "boolean",
+      "description": "Trigger on message delivery",
+      "default": false,
+      "example": true
+    },
+    "on_transient_error": {
+      "type": "boolean",
+      "description": "Trigger on transient errors",
+      "default": false,
+      "example": true
+    },
+    "on_failed": {
+      "type": "boolean",
+      "description": "Trigger on permanent failures",
+      "default": false,
+      "example": true
+    },
+    "on_bounced": {
+      "type": "boolean",
+      "description": "Trigger on bounces",
+      "default": false,
+      "example": true
+    },
+    "on_suppressed": {
+      "type": "boolean",
+      "description": "Trigger on suppressions",
+      "default": false,
+      "example": true
+    },
+    "on_opened": {
+      "type": "boolean",
+      "description": "Trigger on opens",
+      "default": false,
+      "example": true
+    },
+    "on_clicked": {
+      "type": "boolean",
+      "description": "Trigger on clicks",
+      "default": false,
+      "example": true
+    },
+    "on_suppression_created": {
+      "type": "boolean",
+      "description": "Trigger on suppression creation",
+      "default": false,
+      "example": true
+    },
+    "on_dns_error": {
+      "type": "boolean",
+      "description": "Trigger on DNS errors",
+      "default": false,
+      "example": true
+    },
+    "scope": {
+      "type": "string",
+      "description": "Webhook scope",
+      "example": "example_value"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "nullable": true,
+      "description": "Domains this webhook applies to",
+      "example": [
+        "mail.example.com"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "url"
+  ],
+  "example": {
+    "name": "Delivery Webhook",
+    "url": "https://example.com/webhook",
+    "enabled": true,
+    "on_delivered": true
+  }
+}

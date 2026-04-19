@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/json-schema/openapi-v2-dns-record-schema.json",
+  "title": "DNSRecord",
+  "description": "DNSRecord schema from AhaSend API",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "DNS record type (e.g., CNAME, TXT, MX)",
+      "example": "example_value"
+    },
+    "host": {
+      "type": "string",
+      "description": "DNS record host/name",
+      "example": "example_value"
+    },
+    "content": {
+      "type": "string",
+      "description": "DNS record content/value",
+      "example": "example_value"
+    },
+    "required": {
+      "type": "boolean",
+      "description": "Whether this DNS record is required for domain verification",
+      "example": true
+    },
+    "propagated": {
+      "type": "boolean",
+      "description": "Whether this DNS record has been propagated and verified",
+      "example": true
+    }
+  },
+  "required": [
+    "type",
+    "host",
+    "content",
+    "required",
+    "propagated"
+  ]
+}
