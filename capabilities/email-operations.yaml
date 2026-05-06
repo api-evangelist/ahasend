@@ -1,179 +1,339 @@
-naftiko: "1.0.0-alpha1"
-
+naftiko: 1.0.0-alpha2
 info:
-  label: "AhaSend Email Operations"
-  description: "Unified workflow for sending transactional emails, managing domains, configuring webhooks, and monitoring delivery statistics. Used by developers integrating email notifications into applications."
+  label: AhaSend Email Operations
+  description: Unified workflow for sending transactional emails, managing domains, configuring webhooks, and monitoring delivery
+    statistics. Used by developers integrating email notifications into applications.
   tags:
-    - Email
-    - Transactional Email
-    - Developer Tools
-    - Webhooks
-    - Deliverability
-  created: "2026-04-19"
-  modified: "2026-04-19"
-
+  - Email
+  - Transactional Email
+  - Developer Tools
+  - Webhooks
+  - Deliverability
+  created: '2026-04-19'
+  modified: '2026-05-06'
 binds:
-  - namespace: env
-    keys:
-      AHASEND_API_KEY: AHASEND_API_KEY
-      AHASEND_ACCOUNT_ID: AHASEND_ACCOUNT_ID
-
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+    AHASEND_ACCOUNT_ID: AHASEND_ACCOUNT_ID
 capability:
   consumes:
-    - import: ahasend
-      location: ./shared/ahasend-api.yaml
-
+  - type: http
+    namespace: ahasend
+    baseUri: https://api.ahasend.com
+    description: AhaSend transactional email REST API v2
+    authentication:
+      type: bearer
+      token: '{{AHASEND_API_KEY}}'
+    resources:
+    - name: messages
+      path: /v2/accounts/{account_id}/messages
+      description: Send and manage transactional email messages
+      operations:
+      - name: list-messages
+        method: GET
+        description: List messages for an account
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        - name: limit
+          in: query
+          type: integer
+          required: false
+          description: Maximum number of items to return
+        - name: cursor
+          in: query
+          type: string
+          required: false
+          description: Pagination cursor
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: send-message
+        method: POST
+        description: Send a transactional email message
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        body:
+          type: json
+          data:
+            from: '{{tools.from}}'
+            to: '{{tools.to}}'
+            subject: '{{tools.subject}}'
+            html: '{{tools.html}}'
+    - name: domains
+      path: /v2/accounts/{account_id}/domains
+      description: Manage sending domains
+      operations:
+      - name: list-domains
+        method: GET
+        description: List all domains for an account
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: create-domain
+        method: POST
+        description: Add a new sending domain
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        body:
+          type: json
+          data:
+            domain: '{{tools.domain}}'
+    - name: webhooks
+      path: /v2/accounts/{account_id}/webhooks
+      description: Manage event webhooks
+      operations:
+      - name: list-webhooks
+        method: GET
+        description: List all webhooks for an account
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: create-webhook
+        method: POST
+        description: Create a new webhook
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        body:
+          type: json
+          data:
+            url: '{{tools.url}}'
+            events: '{{tools.events}}'
+    - name: suppressions
+      path: /v2/accounts/{account_id}/suppressions
+      description: Manage email suppression lists
+      operations:
+      - name: list-suppressions
+        method: GET
+        description: List suppressed email addresses
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: statistics
+      path: /v2/accounts/{account_id}/statistics/transactional/deliverability
+      description: Email delivery statistics and analytics
+      operations:
+      - name: get-deliverability-stats
+        method: GET
+        description: Get transactional email deliverability statistics
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          required: true
+          description: Account identifier
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
   exposes:
-    - type: rest
-      port: 8080
-      namespace: ahasend-email-ops-api
-      description: "Unified REST API for AhaSend email operations."
-      resources:
-        - path: /v1/messages
-          name: messages
-          description: "Send and retrieve transactional email messages"
-          operations:
-            - method: GET
-              name: list-messages
-              description: "List email messages"
-              call: "ahasend.list-messages"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-            - method: POST
-              name: send-message
-              description: "Send a transactional email"
-              call: "ahasend.send-message"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/domains
-          name: domains
-          description: "Manage sending domains"
-          operations:
-            - method: GET
-              name: list-domains
-              description: "List domains"
-              call: "ahasend.list-domains"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/webhooks
-          name: webhooks
-          description: "Manage event webhooks"
-          operations:
-            - method: GET
-              name: list-webhooks
-              description: "List webhooks"
-              call: "ahasend.list-webhooks"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/suppressions
-          name: suppressions
-          description: "Manage email suppressions"
-          operations:
-            - method: GET
-              name: list-suppressions
-              description: "List suppressed addresses"
-              call: "ahasend.list-suppressions"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-        - path: /v1/statistics/deliverability
-          name: statistics
-          description: "Email delivery statistics"
-          operations:
-            - method: GET
-              name: get-deliverability-stats
-              description: "Get deliverability statistics"
-              call: "ahasend.get-deliverability-stats"
-              with:
-                account_id: "rest.account_id"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-
-    - type: mcp
-      port: 9080
-      namespace: ahasend-email-ops-mcp
-      transport: http
-      description: "MCP server for AI-assisted transactional email operations."
-      tools:
-        - name: send-email
-          description: "Send a transactional email message via AhaSend"
-          hints:
-            readOnly: false
-            destructive: false
-            idempotent: false
-          call: "ahasend.send-message"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: list-messages
-          description: "List sent email messages with delivery status"
-          hints:
-            readOnly: true
-            openWorld: true
-          call: "ahasend.list-messages"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: list-domains
-          description: "List configured sending domains and their DNS verification status"
-          hints:
-            readOnly: true
-            openWorld: true
-          call: "ahasend.list-domains"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: list-webhooks
-          description: "List configured webhooks for email event notifications"
-          hints:
-            readOnly: true
-            openWorld: true
-          call: "ahasend.list-webhooks"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: list-suppressions
-          description: "List suppressed email addresses (bounces, complaints, unsubscribes)"
-          hints:
-            readOnly: true
-            openWorld: true
-          call: "ahasend.list-suppressions"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
-        - name: get-deliverability-stats
-          description: "Get transactional email deliverability statistics and metrics"
-          hints:
-            readOnly: true
-            openWorld: true
-          call: "ahasend.get-deliverability-stats"
-          with:
-            account_id: "tools.account_id"
-          outputParameters:
-            - type: object
-              mapping: "$."
+  - type: rest
+    port: 8080
+    namespace: ahasend-email-ops-api
+    description: Unified REST API for AhaSend email operations.
+    resources:
+    - path: /v1/messages
+      name: messages
+      description: Send and retrieve transactional email messages
+      operations:
+      - method: GET
+        name: list-messages
+        description: List email messages
+        call: ahasend.list-messages
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: send-message
+        description: Send a transactional email
+        call: ahasend.send-message
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/domains
+      name: domains
+      description: Manage sending domains
+      operations:
+      - method: GET
+        name: list-domains
+        description: List domains
+        call: ahasend.list-domains
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/webhooks
+      name: webhooks
+      description: Manage event webhooks
+      operations:
+      - method: GET
+        name: list-webhooks
+        description: List webhooks
+        call: ahasend.list-webhooks
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/suppressions
+      name: suppressions
+      description: Manage email suppressions
+      operations:
+      - method: GET
+        name: list-suppressions
+        description: List suppressed addresses
+        call: ahasend.list-suppressions
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/statistics/deliverability
+      name: statistics
+      description: Email delivery statistics
+      operations:
+      - method: GET
+        name: get-deliverability-stats
+        description: Get deliverability statistics
+        call: ahasend.get-deliverability-stats
+        with:
+          account_id: rest.account_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    port: 9080
+    namespace: ahasend-email-ops-mcp
+    transport: http
+    description: MCP server for AI-assisted transactional email operations.
+    tools:
+    - name: send-email
+      description: Send a transactional email message via AhaSend
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: ahasend.send-message
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: list-messages
+      description: List sent email messages with delivery status
+      hints:
+        readOnly: true
+        openWorld: true
+      call: ahasend.list-messages
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: list-domains
+      description: List configured sending domains and their DNS verification status
+      hints:
+        readOnly: true
+        openWorld: true
+      call: ahasend.list-domains
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: list-webhooks
+      description: List configured webhooks for email event notifications
+      hints:
+        readOnly: true
+        openWorld: true
+      call: ahasend.list-webhooks
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: list-suppressions
+      description: List suppressed email addresses (bounces, complaints, unsubscribes)
+      hints:
+        readOnly: true
+        openWorld: true
+      call: ahasend.list-suppressions
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-deliverability-stats
+      description: Get transactional email deliverability statistics and metrics
+      hints:
+        readOnly: true
+        openWorld: true
+      call: ahasend.get-deliverability-stats
+      with:
+        account_id: tools.account_id
+      outputParameters:
+      - type: object
+        mapping: $.
