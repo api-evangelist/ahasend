@@ -45,6 +45,10 @@ position: Consumer
 description: >-
   AhaSend is a developer-focused transactional email platform providing fast, reliable email delivery via REST API and SMTP relay. It offers features including email tracking, webhooks, email routing, suppression
   management, domain management, SMTP credentials, and detailed delivery statistics.
+integrations:
+  - name: light
+  - name: dark
+  - name: Screenshot of the webhooks dashboard
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
