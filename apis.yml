@@ -54,6 +54,8 @@ maintainers:
   email: kin@apievangelist.com
 specificationVersion: '0.19'
 common:
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/ahasend
 - name: AhaSend Pricing
   url: https://ahasend.com/pricing
   type: Pricing

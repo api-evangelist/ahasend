@@ -1,0 +1,272 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AhaSend API v2 — Statistics
+  description: 'AhaSend API v2 — Statistics. 3 operations. Lead operation: AhaSend Get Bounce Statistics. Self-contained Naftiko
+    capability covering one Ahasend business surface.'
+  tags:
+  - Ahasend
+  - Statistics
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: openapi-v2-statistics
+    baseUri: https://api.ahasend.com
+    description: AhaSend API v2 — Statistics business capability. Self-contained, no shared references.
+    resources:
+    - name: v2-accounts-account_id-statistics-transactional-bounce
+      path: /v2/accounts/{account_id}/statistics/transactional/bounce
+      operations:
+      - name: getbouncestatistics
+        method: GET
+        description: AhaSend Get Bounce Statistics
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: from_time
+          in: query
+          type: string
+          description: Filter statistics after this datetime (RFC3339 format)
+        - name: to_time
+          in: query
+          type: string
+          description: Filter statistics before this datetime (RFC3339 format)
+        - name: sender_domain
+          in: query
+          type: string
+          description: Filter by sender domain
+        - name: recipient_domains
+          in: query
+          type: string
+          description: Filter by a comma separated list of recipient domains
+        - name: tags
+          in: query
+          type: string
+          description: Filter by tags (comma-separated)
+        - name: group_by
+          in: query
+          type: string
+          description: Group by time period
+    - name: v2-accounts-account_id-statistics-transactional-deliverability
+      path: /v2/accounts/{account_id}/statistics/transactional/deliverability
+      operations:
+      - name: getdeliverabilitystatistics
+        method: GET
+        description: AhaSend Get Deliverability Statistics
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: from_time
+          in: query
+          type: string
+          description: Filter statistics after this datetime (RFC3339 format)
+        - name: to_time
+          in: query
+          type: string
+          description: Filter statistics before this datetime (RFC3339 format)
+        - name: sender_domain
+          in: query
+          type: string
+          description: Filter by sender domain
+        - name: recipient_domains
+          in: query
+          type: string
+          description: Filter by a comma separated list of recipient domains
+        - name: tags
+          in: query
+          type: string
+          description: Filter by tags (comma-separated)
+        - name: group_by
+          in: query
+          type: string
+          description: Group by time period
+    - name: v2-accounts-account_id-statistics-transactional-delivery-time
+      path: /v2/accounts/{account_id}/statistics/transactional/delivery-time
+      operations:
+      - name: getdeliverytimestatistics
+        method: GET
+        description: AhaSend Get Delivery Time Statistics
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: from_time
+          in: query
+          type: string
+          description: Filter statistics after this datetime (RFC3339 format)
+        - name: to_time
+          in: query
+          type: string
+          description: Filter statistics before this datetime (RFC3339 format)
+        - name: sender_domain
+          in: query
+          type: string
+          description: Filter by sender domain
+        - name: recipient_domains
+          in: query
+          type: string
+          description: Filter by a comma separated list of recipient domains
+        - name: tags
+          in: query
+          type: string
+          description: Filter by tags (comma-separated)
+        - name: group_by
+          in: query
+          type: string
+          description: Group by time period
+    authentication:
+      type: bearer
+      token: '{{env.AHASEND_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: openapi-v2-statistics-rest
+    port: 8080
+    description: REST adapter for AhaSend API v2 — Statistics. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v2/accounts/{account-id}/statistics/transactional/bounce
+      name: v2-accounts-account-id-statistics-transactional-bounce
+      description: REST surface for v2-accounts-account_id-statistics-transactional-bounce.
+      operations:
+      - method: GET
+        name: getbouncestatistics
+        description: AhaSend Get Bounce Statistics
+        call: openapi-v2-statistics.getbouncestatistics
+        with:
+          account_id: rest.account_id
+          from_time: rest.from_time
+          to_time: rest.to_time
+          sender_domain: rest.sender_domain
+          recipient_domains: rest.recipient_domains
+          tags: rest.tags
+          group_by: rest.group_by
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/statistics/transactional/deliverability
+      name: v2-accounts-account-id-statistics-transactional-deliverability
+      description: REST surface for v2-accounts-account_id-statistics-transactional-deliverability.
+      operations:
+      - method: GET
+        name: getdeliverabilitystatistics
+        description: AhaSend Get Deliverability Statistics
+        call: openapi-v2-statistics.getdeliverabilitystatistics
+        with:
+          account_id: rest.account_id
+          from_time: rest.from_time
+          to_time: rest.to_time
+          sender_domain: rest.sender_domain
+          recipient_domains: rest.recipient_domains
+          tags: rest.tags
+          group_by: rest.group_by
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/statistics/transactional/delivery-time
+      name: v2-accounts-account-id-statistics-transactional-delivery-time
+      description: REST surface for v2-accounts-account_id-statistics-transactional-delivery-time.
+      operations:
+      - method: GET
+        name: getdeliverytimestatistics
+        description: AhaSend Get Delivery Time Statistics
+        call: openapi-v2-statistics.getdeliverytimestatistics
+        with:
+          account_id: rest.account_id
+          from_time: rest.from_time
+          to_time: rest.to_time
+          sender_domain: rest.sender_domain
+          recipient_domains: rest.recipient_domains
+          tags: rest.tags
+          group_by: rest.group_by
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: openapi-v2-statistics-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AhaSend API v2 — Statistics. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: ahasend-get-bounce-statistics
+      description: AhaSend Get Bounce Statistics
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-statistics.getbouncestatistics
+      with:
+        account_id: tools.account_id
+        from_time: tools.from_time
+        to_time: tools.to_time
+        sender_domain: tools.sender_domain
+        recipient_domains: tools.recipient_domains
+        tags: tools.tags
+        group_by: tools.group_by
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-deliverability-statistics
+      description: AhaSend Get Deliverability Statistics
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-statistics.getdeliverabilitystatistics
+      with:
+        account_id: tools.account_id
+        from_time: tools.from_time
+        to_time: tools.to_time
+        sender_domain: tools.sender_domain
+        recipient_domains: tools.recipient_domains
+        tags: tools.tags
+        group_by: tools.group_by
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-delivery-time-statistics
+      description: AhaSend Get Delivery Time Statistics
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-statistics.getdeliverytimestatistics
+      with:
+        account_id: tools.account_id
+        from_time: tools.from_time
+        to_time: tools.to_time
+        sender_domain: tools.sender_domain
+        recipient_domains: tools.recipient_domains
+        tags: tools.tags
+        group_by: tools.group_by
+      outputParameters:
+      - type: object
+        mapping: $.

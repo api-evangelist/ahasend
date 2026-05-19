@@ -1,0 +1,346 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AhaSend API v2 — Webhooks
+  description: 'AhaSend API v2 — Webhooks. 5 operations. Lead operation: AhaSend Get Webhooks. Self-contained Naftiko capability
+    covering one Ahasend business surface.'
+  tags:
+  - Ahasend
+  - Webhooks
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: openapi-v2-webhooks
+    baseUri: https://api.ahasend.com
+    description: AhaSend API v2 — Webhooks business capability. Self-contained, no shared references.
+    resources:
+    - name: v2-accounts-account_id-webhooks
+      path: /v2/accounts/{account_id}/webhooks
+      operations:
+      - name: getwebhooks
+        method: GET
+        description: AhaSend Get Webhooks
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: enabled
+          in: query
+          type: boolean
+          description: Filter by enabled status
+        - name: on_reception
+          in: query
+          type: boolean
+          description: Filter by reception event trigger
+        - name: on_delivered
+          in: query
+          type: boolean
+          description: Filter by delivery event trigger
+        - name: on_transient_error
+          in: query
+          type: boolean
+          description: Filter by transient error event trigger
+        - name: on_failed
+          in: query
+          type: boolean
+          description: Filter by failure event trigger
+        - name: on_bounced
+          in: query
+          type: boolean
+          description: Filter by bounce event trigger
+        - name: on_suppressed
+          in: query
+          type: boolean
+          description: Filter by suppression event trigger
+        - name: on_opened
+          in: query
+          type: boolean
+          description: Filter by open event trigger
+        - name: on_clicked
+          in: query
+          type: boolean
+          description: Filter by click event trigger
+        - name: on_suppression_created
+          in: query
+          type: boolean
+          description: Filter by suppression creation event trigger
+        - name: on_dns_error
+          in: query
+          type: boolean
+          description: Filter by DNS error event trigger
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of items to return (1-100)
+        - name: after
+          in: query
+          type: string
+          description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        - name: before
+          in: query
+          type: string
+          description: Pagination cursor for the previous page.
+      - name: createwebhook
+        method: POST
+        description: AhaSend Create Webhook
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v2-accounts-account_id-webhooks-webhook_id
+      path: /v2/accounts/{account_id}/webhooks/{webhook_id}
+      operations:
+      - name: getwebhook
+        method: GET
+        description: AhaSend Get Webhook
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: webhook_id
+          in: path
+          type: string
+          description: Webhook ID
+          required: true
+      - name: updatewebhook
+        method: PUT
+        description: AhaSend Update Webhook
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: webhook_id
+          in: path
+          type: string
+          description: Webhook ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletewebhook
+        method: DELETE
+        description: AhaSend Delete Webhook
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: webhook_id
+          in: path
+          type: string
+          description: Webhook ID
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AHASEND_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: openapi-v2-webhooks-rest
+    port: 8080
+    description: REST adapter for AhaSend API v2 — Webhooks. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v2/accounts/{account-id}/webhooks
+      name: v2-accounts-account-id-webhooks
+      description: REST surface for v2-accounts-account_id-webhooks.
+      operations:
+      - method: GET
+        name: getwebhooks
+        description: AhaSend Get Webhooks
+        call: openapi-v2-webhooks.getwebhooks
+        with:
+          account_id: rest.account_id
+          enabled: rest.enabled
+          on_reception: rest.on_reception
+          on_delivered: rest.on_delivered
+          on_transient_error: rest.on_transient_error
+          on_failed: rest.on_failed
+          on_bounced: rest.on_bounced
+          on_suppressed: rest.on_suppressed
+          on_opened: rest.on_opened
+          on_clicked: rest.on_clicked
+          on_suppression_created: rest.on_suppression_created
+          on_dns_error: rest.on_dns_error
+          limit: rest.limit
+          after: rest.after
+          before: rest.before
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: createwebhook
+        description: AhaSend Create Webhook
+        call: openapi-v2-webhooks.createwebhook
+        with:
+          account_id: rest.account_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/webhooks/{webhook-id}
+      name: v2-accounts-account-id-webhooks-webhook-id
+      description: REST surface for v2-accounts-account_id-webhooks-webhook_id.
+      operations:
+      - method: GET
+        name: getwebhook
+        description: AhaSend Get Webhook
+        call: openapi-v2-webhooks.getwebhook
+        with:
+          account_id: rest.account_id
+          webhook_id: rest.webhook_id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updatewebhook
+        description: AhaSend Update Webhook
+        call: openapi-v2-webhooks.updatewebhook
+        with:
+          account_id: rest.account_id
+          webhook_id: rest.webhook_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletewebhook
+        description: AhaSend Delete Webhook
+        call: openapi-v2-webhooks.deletewebhook
+        with:
+          account_id: rest.account_id
+          webhook_id: rest.webhook_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: openapi-v2-webhooks-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AhaSend API v2 — Webhooks. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: ahasend-get-webhooks
+      description: AhaSend Get Webhooks
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-webhooks.getwebhooks
+      with:
+        account_id: tools.account_id
+        enabled: tools.enabled
+        on_reception: tools.on_reception
+        on_delivered: tools.on_delivered
+        on_transient_error: tools.on_transient_error
+        on_failed: tools.on_failed
+        on_bounced: tools.on_bounced
+        on_suppressed: tools.on_suppressed
+        on_opened: tools.on_opened
+        on_clicked: tools.on_clicked
+        on_suppression_created: tools.on_suppression_created
+        on_dns_error: tools.on_dns_error
+        limit: tools.limit
+        after: tools.after
+        before: tools.before
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-create-webhook
+      description: AhaSend Create Webhook
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: openapi-v2-webhooks.createwebhook
+      with:
+        account_id: tools.account_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-webhook
+      description: AhaSend Get Webhook
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-webhooks.getwebhook
+      with:
+        account_id: tools.account_id
+        webhook_id: tools.webhook_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-update-webhook
+      description: AhaSend Update Webhook
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: openapi-v2-webhooks.updatewebhook
+      with:
+        account_id: tools.account_id
+        webhook_id: tools.webhook_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-delete-webhook
+      description: AhaSend Delete Webhook
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: openapi-v2-webhooks.deletewebhook
+      with:
+        account_id: tools.account_id
+        webhook_id: tools.webhook_id
+      outputParameters:
+      - type: object
+        mapping: $.

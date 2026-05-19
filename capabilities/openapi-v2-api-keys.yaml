@@ -1,0 +1,280 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AhaSend API v2 — API Keys
+  description: 'AhaSend API v2 — API Keys. 5 operations. Lead operation: AhaSend Get API Keys. Self-contained Naftiko capability
+    covering one Ahasend business surface.'
+  tags:
+  - Ahasend
+  - API Keys
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: openapi-v2-api-keys
+    baseUri: https://api.ahasend.com
+    description: AhaSend API v2 — API Keys business capability. Self-contained, no shared references.
+    resources:
+    - name: v2-accounts-account_id-api-keys
+      path: /v2/accounts/{account_id}/api-keys
+      operations:
+      - name: getapikeys
+        method: GET
+        description: AhaSend Get API Keys
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of items to return
+        - name: after
+          in: query
+          type: string
+          description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        - name: before
+          in: query
+          type: string
+          description: Pagination cursor for the previous page.
+      - name: createapikey
+        method: POST
+        description: AhaSend Create API Key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v2-accounts-account_id-api-keys-key_id
+      path: /v2/accounts/{account_id}/api-keys/{key_id}
+      operations:
+      - name: getapikey
+        method: GET
+        description: AhaSend Get API Key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: key_id
+          in: path
+          type: string
+          description: API Key ID
+          required: true
+      - name: updateapikey
+        method: PUT
+        description: AhaSend Update API Key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: key_id
+          in: path
+          type: string
+          description: API Key ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deleteapikey
+        method: DELETE
+        description: AhaSend Delete API Key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: key_id
+          in: path
+          type: string
+          description: API Key ID
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AHASEND_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: openapi-v2-api-keys-rest
+    port: 8080
+    description: REST adapter for AhaSend API v2 — API Keys. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v2/accounts/{account-id}/api-keys
+      name: v2-accounts-account-id-api-keys
+      description: REST surface for v2-accounts-account_id-api-keys.
+      operations:
+      - method: GET
+        name: getapikeys
+        description: AhaSend Get API Keys
+        call: openapi-v2-api-keys.getapikeys
+        with:
+          account_id: rest.account_id
+          limit: rest.limit
+          after: rest.after
+          before: rest.before
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: createapikey
+        description: AhaSend Create API Key
+        call: openapi-v2-api-keys.createapikey
+        with:
+          account_id: rest.account_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/api-keys/{key-id}
+      name: v2-accounts-account-id-api-keys-key-id
+      description: REST surface for v2-accounts-account_id-api-keys-key_id.
+      operations:
+      - method: GET
+        name: getapikey
+        description: AhaSend Get API Key
+        call: openapi-v2-api-keys.getapikey
+        with:
+          account_id: rest.account_id
+          key_id: rest.key_id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updateapikey
+        description: AhaSend Update API Key
+        call: openapi-v2-api-keys.updateapikey
+        with:
+          account_id: rest.account_id
+          key_id: rest.key_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleteapikey
+        description: AhaSend Delete API Key
+        call: openapi-v2-api-keys.deleteapikey
+        with:
+          account_id: rest.account_id
+          key_id: rest.key_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: openapi-v2-api-keys-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AhaSend API v2 — API Keys. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: ahasend-get-api-keys
+      description: AhaSend Get API Keys
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-api-keys.getapikeys
+      with:
+        account_id: tools.account_id
+        limit: tools.limit
+        after: tools.after
+        before: tools.before
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-create-api-key
+      description: AhaSend Create API Key
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: openapi-v2-api-keys.createapikey
+      with:
+        account_id: tools.account_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-api-key
+      description: AhaSend Get API Key
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-api-keys.getapikey
+      with:
+        account_id: tools.account_id
+        key_id: tools.key_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-update-api-key
+      description: AhaSend Update API Key
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: openapi-v2-api-keys.updateapikey
+      with:
+        account_id: tools.account_id
+        key_id: tools.key_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-delete-api-key
+      description: AhaSend Delete API Key
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: openapi-v2-api-keys.deleteapikey
+      with:
+        account_id: tools.account_id
+        key_id: tools.key_id
+      outputParameters:
+      - type: object
+        mapping: $.

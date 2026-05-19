@@ -1,0 +1,335 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AhaSend API v2 — Messages
+  description: 'AhaSend API v2 — Messages. 5 operations. Lead operation: AhaSend Get Messages. Self-contained Naftiko capability
+    covering one Ahasend business surface.'
+  tags:
+  - Ahasend
+  - Messages
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: openapi-v2-messages
+    baseUri: https://api.ahasend.com
+    description: AhaSend API v2 — Messages business capability. Self-contained, no shared references.
+    resources:
+    - name: v2-accounts-account_id-messages
+      path: /v2/accounts/{account_id}/messages
+      operations:
+      - name: getmessages
+        method: GET
+        description: AhaSend Get Messages
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: status
+          in: query
+          type: string
+          description: Filter by comma-separated list of message statuses
+        - name: sender
+          in: query
+          type: string
+          description: Sender email address (must be from domain in API key scopes)
+        - name: recipient
+          in: query
+          type: string
+          description: Recipient email address
+        - name: subject
+          in: query
+          type: string
+          description: Filter by subject text
+        - name: message_id_header
+          in: query
+          type: string
+          description: Filter by message ID header (same ID returned by CreateMessage API)
+        - name: tags
+          in: query
+          type: string
+          description: Filter by comma-separated list of tags (max 20)
+        - name: from_time
+          in: query
+          type: string
+          description: Filter messages created after this time (RFC3339 format)
+        - name: to_time
+          in: query
+          type: string
+          description: Filter messages created before this time (RFC3339 format)
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of items to return (1-100)
+        - name: after
+          in: query
+          type: string
+          description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        - name: before
+          in: query
+          type: string
+          description: Pagination cursor for the previous page.
+      - name: createmessage
+        method: POST
+        description: AhaSend Create Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v2-accounts-account_id-messages-conversation
+      path: /v2/accounts/{account_id}/messages/conversation
+      operations:
+      - name: createconversationmessage
+        method: POST
+        description: AhaSend Create Conversational Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v2-accounts-account_id-messages-message_id
+      path: /v2/accounts/{account_id}/messages/{message_id}
+      operations:
+      - name: getmessage
+        method: GET
+        description: AhaSend Get Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: message_id
+          in: path
+          type: string
+          description: Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))
+          required: true
+    - name: v2-accounts-account_id-messages-message_id-cancel
+      path: /v2/accounts/{account_id}/messages/{message_id}/cancel
+      operations:
+      - name: cancelmessage
+        method: DELETE
+        description: AhaSend Cancel Message
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: message_id
+          in: path
+          type: string
+          description: Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AHASEND_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: openapi-v2-messages-rest
+    port: 8080
+    description: REST adapter for AhaSend API v2 — Messages. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v2/accounts/{account-id}/messages
+      name: v2-accounts-account-id-messages
+      description: REST surface for v2-accounts-account_id-messages.
+      operations:
+      - method: GET
+        name: getmessages
+        description: AhaSend Get Messages
+        call: openapi-v2-messages.getmessages
+        with:
+          account_id: rest.account_id
+          status: rest.status
+          sender: rest.sender
+          recipient: rest.recipient
+          subject: rest.subject
+          message_id_header: rest.message_id_header
+          tags: rest.tags
+          from_time: rest.from_time
+          to_time: rest.to_time
+          limit: rest.limit
+          after: rest.after
+          before: rest.before
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: createmessage
+        description: AhaSend Create Message
+        call: openapi-v2-messages.createmessage
+        with:
+          account_id: rest.account_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/messages/conversation
+      name: v2-accounts-account-id-messages-conversation
+      description: REST surface for v2-accounts-account_id-messages-conversation.
+      operations:
+      - method: POST
+        name: createconversationmessage
+        description: AhaSend Create Conversational Message
+        call: openapi-v2-messages.createconversationmessage
+        with:
+          account_id: rest.account_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/messages/{message-id}
+      name: v2-accounts-account-id-messages-message-id
+      description: REST surface for v2-accounts-account_id-messages-message_id.
+      operations:
+      - method: GET
+        name: getmessage
+        description: AhaSend Get Message
+        call: openapi-v2-messages.getmessage
+        with:
+          account_id: rest.account_id
+          message_id: rest.message_id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/messages/{message-id}/cancel
+      name: v2-accounts-account-id-messages-message-id-cancel
+      description: REST surface for v2-accounts-account_id-messages-message_id-cancel.
+      operations:
+      - method: DELETE
+        name: cancelmessage
+        description: AhaSend Cancel Message
+        call: openapi-v2-messages.cancelmessage
+        with:
+          account_id: rest.account_id
+          message_id: rest.message_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: openapi-v2-messages-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AhaSend API v2 — Messages. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: ahasend-get-messages
+      description: AhaSend Get Messages
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-messages.getmessages
+      with:
+        account_id: tools.account_id
+        status: tools.status
+        sender: tools.sender
+        recipient: tools.recipient
+        subject: tools.subject
+        message_id_header: tools.message_id_header
+        tags: tools.tags
+        from_time: tools.from_time
+        to_time: tools.to_time
+        limit: tools.limit
+        after: tools.after
+        before: tools.before
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-create-message
+      description: AhaSend Create Message
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: openapi-v2-messages.createmessage
+      with:
+        account_id: tools.account_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-create-conversational-message
+      description: AhaSend Create Conversational Message
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: openapi-v2-messages.createconversationmessage
+      with:
+        account_id: tools.account_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-message
+      description: AhaSend Get Message
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-messages.getmessage
+      with:
+        account_id: tools.account_id
+        message_id: tools.message_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-cancel-message
+      description: AhaSend Cancel Message
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: openapi-v2-messages.cancelmessage
+      with:
+        account_id: tools.account_id
+        message_id: tools.message_id
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,280 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AhaSend API v2 — Routes
+  description: 'AhaSend API v2 — Routes. 5 operations. Lead operation: AhaSend Get Routes. Self-contained Naftiko capability
+    covering one Ahasend business surface.'
+  tags:
+  - Ahasend
+  - Routes
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AHASEND_API_KEY: AHASEND_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: openapi-v2-routes
+    baseUri: https://api.ahasend.com
+    description: AhaSend API v2 — Routes business capability. Self-contained, no shared references.
+    resources:
+    - name: v2-accounts-account_id-routes
+      path: /v2/accounts/{account_id}/routes
+      operations:
+      - name: getroutes
+        method: GET
+        description: AhaSend Get Routes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of items to return (1-100)
+        - name: after
+          in: query
+          type: string
+          description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        - name: before
+          in: query
+          type: string
+          description: Pagination cursor for the previous page.
+      - name: createroute
+        method: POST
+        description: AhaSend Create Route
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v2-accounts-account_id-routes-route_id
+      path: /v2/accounts/{account_id}/routes/{route_id}
+      operations:
+      - name: getroute
+        method: GET
+        description: AhaSend Get Route
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: route_id
+          in: path
+          type: string
+          description: Route ID
+          required: true
+      - name: updateroute
+        method: PUT
+        description: AhaSend Update Route
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: route_id
+          in: path
+          type: string
+          description: Route ID
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deleteroute
+        method: DELETE
+        description: AhaSend Delete Route
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: account_id
+          in: path
+          type: string
+          description: Account ID
+          required: true
+        - name: route_id
+          in: path
+          type: string
+          description: Route ID
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AHASEND_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: openapi-v2-routes-rest
+    port: 8080
+    description: REST adapter for AhaSend API v2 — Routes. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v2/accounts/{account-id}/routes
+      name: v2-accounts-account-id-routes
+      description: REST surface for v2-accounts-account_id-routes.
+      operations:
+      - method: GET
+        name: getroutes
+        description: AhaSend Get Routes
+        call: openapi-v2-routes.getroutes
+        with:
+          account_id: rest.account_id
+          limit: rest.limit
+          after: rest.after
+          before: rest.before
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: createroute
+        description: AhaSend Create Route
+        call: openapi-v2-routes.createroute
+        with:
+          account_id: rest.account_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v2/accounts/{account-id}/routes/{route-id}
+      name: v2-accounts-account-id-routes-route-id
+      description: REST surface for v2-accounts-account_id-routes-route_id.
+      operations:
+      - method: GET
+        name: getroute
+        description: AhaSend Get Route
+        call: openapi-v2-routes.getroute
+        with:
+          account_id: rest.account_id
+          route_id: rest.route_id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updateroute
+        description: AhaSend Update Route
+        call: openapi-v2-routes.updateroute
+        with:
+          account_id: rest.account_id
+          route_id: rest.route_id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleteroute
+        description: AhaSend Delete Route
+        call: openapi-v2-routes.deleteroute
+        with:
+          account_id: rest.account_id
+          route_id: rest.route_id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: openapi-v2-routes-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AhaSend API v2 — Routes. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: ahasend-get-routes
+      description: AhaSend Get Routes
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-routes.getroutes
+      with:
+        account_id: tools.account_id
+        limit: tools.limit
+        after: tools.after
+        before: tools.before
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-create-route
+      description: AhaSend Create Route
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: openapi-v2-routes.createroute
+      with:
+        account_id: tools.account_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-get-route
+      description: AhaSend Get Route
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: openapi-v2-routes.getroute
+      with:
+        account_id: tools.account_id
+        route_id: tools.route_id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-update-route
+      description: AhaSend Update Route
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: openapi-v2-routes.updateroute
+      with:
+        account_id: tools.account_id
+        route_id: tools.route_id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: ahasend-delete-route
+      description: AhaSend Delete Route
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: openapi-v2-routes.deleteroute
+      with:
+        account_id: tools.account_id
+        route_id: tools.route_id
+      outputParameters:
+      - type: object
+        mapping: $.
