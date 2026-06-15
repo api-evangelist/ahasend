@@ -1,0 +1,271 @@
+{
+  "item": [
+    {
+      "id": "443581d0-dde0-4fb3-9d02-7bdb6dc9b87c",
+      "name": "Email",
+      "description": {
+        "content": "APIs for sending emails",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "dd71a843-50e0-4d38-a9cd-c0422d88fbfe",
+          "name": "AhaSend Send Emails",
+          "request": {
+            "name": "AhaSend Send Emails",
+            "description": {
+              "content": "You can send emails to up to 100 recipients using this API at the same time.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "email",
+                "send"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Api-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": {\n    \"email\": \"<string>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<string>\",\n      \"name\": \"<string>\"\n    },\n    {\n      \"email\": \"<string>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"content\": {\n    \"subject\": \"<string>\",\n    \"text_body\": \"<string>\",\n    \"html_body\": \"<string>\",\n    \"attachments\": [\n      {\n        \"data\": \"<string>\",\n        \"file_name\": \"<string>\",\n        \"content_type\": \"<string>\",\n        \"base64\": \"<boolean>\",\n        \"content_id\": \"<string>\"\n      },\n      {\n        \"data\": \"<string>\",\n        \"file_name\": \"<string>\",\n        \"content_type\": \"<string>\",\n        \"base64\": \"<boolean>\",\n        \"content_id\": \"<string>\"\n      }\n    ],\n    \"reply_to\": {\n      \"email\": \"<string>\",\n      \"name\": \"<string>\"\n    },\n    \"headers\": {\n      \"key_0\": \"<string>\",\n      \"key_1\": \"<string>\",\n      \"key_2\": \"<string>\",\n      \"key_3\": \"<string>\",\n      \"key_4\": \"<string>\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "4795c3e8-963f-41ce-9928-dae12b6236dd",
+              "name": "Request was accepted. This doesn't necessarily mean immediate delivery or even queueing of the emails for delivery. It just means that the request was well-formed and accepted, but you need to check the response for success_count and fail_count to make sure about the status of your request.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "email",
+                    "send"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Only application/json is supported",
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"from\": {\n    \"email\": \"user@example.com\",\n    \"name\": \"Example Name\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    }\n  ],\n  \"content\": {\n    \"subject\": \"example_value\",\n    \"text_body\": \"example_value\",\n    \"html_body\": \"example_value\",\n    \"attachments\": [\n      {\n        \"data\": \"example_value\",\n        \"base64\": true,\n        \"content_type\": \"example_value\",\n        \"content_id\": \"500123\",\n        \"file_name\": \"Example Name\"\n      }\n    ],\n    \"reply_to\": {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    },\n    \"headers\": {\n      \"X-My-Mail-ID\": \"12345\",\n      \"X-Comment-ID\": \"456789\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success_count\": 1,\n  \"fail_count\": 1,\n  \"failed_recipients\": [\n    \"example_value\"\n  ],\n  \"errors\": [\n    \"example_value\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "72aa13e4-c668-44dc-a250-5b623ba24fa8",
+              "name": "The request is malformed and could not be validated.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "email",
+                    "send"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Only application/json is supported",
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"from\": {\n    \"email\": \"user@example.com\",\n    \"name\": \"Example Name\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    }\n  ],\n  \"content\": {\n    \"subject\": \"example_value\",\n    \"text_body\": \"example_value\",\n    \"html_body\": \"example_value\",\n    \"attachments\": [\n      {\n        \"data\": \"example_value\",\n        \"base64\": true,\n        \"content_type\": \"example_value\",\n        \"content_id\": \"500123\",\n        \"file_name\": \"Example Name\"\n      }\n    ],\n    \"reply_to\": {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    },\n    \"headers\": {\n      \"X-My-Mail-ID\": \"12345\",\n      \"X-Comment-ID\": \"456789\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"example_value\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f0122446-83a3-4e6e-a59f-2e526867b071",
+              "name": "You are not allowed to send for any reason such as invalid credentials, not having access to the sending domain, etc.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "email",
+                    "send"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Api-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Only application/json is supported",
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"from\": {\n    \"email\": \"user@example.com\",\n    \"name\": \"Example Name\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    }\n  ],\n  \"content\": {\n    \"subject\": \"example_value\",\n    \"text_body\": \"example_value\",\n    \"html_body\": \"example_value\",\n    \"attachments\": [\n      {\n        \"data\": \"example_value\",\n        \"base64\": true,\n        \"content_type\": \"example_value\",\n        \"content_id\": \"500123\",\n        \"file_name\": \"Example Name\"\n      }\n    ],\n    \"reply_to\": {\n      \"email\": \"user@example.com\",\n      \"name\": \"Example Name\"\n    },\n    \"headers\": {\n      \"X-My-Mail-ID\": \"12345\",\n      \"X-Comment-ID\": \"456789\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"example_value\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ahasend.com/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "265e4d6e-1e96-4605-bff4-74ddb7fbe973",
+    "name": "AhaSend Email API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "This is the API documentation for sending emails via [AhaSend.com](https://ahasend.com). To use this API you need to get your API Key from your account under the API Keys page.\n\nContact Support:\n Email: support@ahasend.com",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend Email API",
+    "version": "1.0.1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Email",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Send Emails",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v1/email/send",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-Api-Key",
+              "value": "{{X-Api-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "You can send emails to up to 100 recipients using this API at the same time."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
