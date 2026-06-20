@@ -36,7 +36,7 @@ tags:
   - SMTP
   - Webhooks
 type: Index
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 access: 3rd-Party
 created: '2025-02-06'
 modified: '2026-04-19'
