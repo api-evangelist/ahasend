@@ -4,11 +4,11 @@
     {
       "source": "https://ahasend.com/blog",
       "feed_url": "https://ahasend.com/blog",
-      "title": "",
-      "saved": 0,
-      "method": "none"
+      "title": "AhaSend Blog",
+      "saved": 2,
+      "method": "html-scrape"
     }
   ],
-  "post_count": 2,
-  "fetched": "2026-06-14T20:42:17Z"
+  "post_count": 4,
+  "fetched": "2026-06-21T17:00:00Z"
 }
