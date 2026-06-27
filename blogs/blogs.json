@@ -3,12 +3,12 @@
   "feeds": [
     {
       "source": "https://ahasend.com/blog",
-      "feed_url": "https://ahasend.com/blog",
-      "title": "AhaSend Blog",
+      "feed_url": "",
       "saved": 2,
-      "method": "html-scrape"
+      "method": "agent-scrape"
     }
   ],
-  "post_count": 4,
-  "fetched": "2026-06-21T17:00:00Z"
+  "post_count": 6,
+  "fetched": "2026-06-27T12:21:01Z",
+  "agent_pulled": "2026-06-27"
 }

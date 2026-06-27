@@ -22,7 +22,7 @@ apis:
         type: OpenAPI
         title: AhaSend API v2
       - url: https://ahasend.com/docs/quickstart
-        type: Quickstart
+        type: GettingStarted
       - url: https://ahasend.com/docs/authentication
         type: Authentication
     description: >-
@@ -78,7 +78,7 @@ common:
     description: Terms and conditions for using AhaSend.
   - name: AhaSend Sign Up
     url: https://dash.ahasend.com/user/register
-    type: SignUp
+    type: Signup
     description: Create a free AhaSend account.
   - name: AhaSend Login
     url: https://dash.ahasend.com/user/login
@@ -90,7 +90,7 @@ common:
     description: Official AhaSend GitHub organization with SDKs and CLI tools.
   - name: AhaSend Go SDK
     url: https://github.com/AhaSend/ahasend-go
-    type: SDK
+    type: SDKs
     title: Go SDK
     description: Official Go SDK for AhaSend.
   - name: AhaSend CLI
@@ -103,7 +103,7 @@ common:
     description: WordPress plugin for sending emails via AhaSend API.
   - name: AhaSend Java Client
     url: https://github.com/AhaSend/ahasend-java-client
-    type: SDK
+    type: SDKs
     title: Java SDK
     description: Java client for AhaSend APIs generated using Swagger Codegen.
   - name: AhaSend Affiliate Program
