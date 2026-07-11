@@ -1,0 +1,23 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/ahasend-openapi-v2.yaml, openapi/ahasend-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+schemes:
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+  description: API key for authentication
+  sources:
+  - openapi/ahasend-openapi-v2.yaml
+- name: api_key
+  type: apiKey
+  in: header
+  parameter: X-Api-Key
+  sources:
+  - openapi/ahasend-openapi.yml

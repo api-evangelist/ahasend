@@ -54,6 +54,12 @@ maintainers:
     email: kin@apievangelist.com
 specificationVersion: '0.19'
 common:
+  - type: VulnerabilityDisclosure
+    url: security/ahasend-vulnerability-disclosure.yml
+  - type: DomainSecurity
+    url: security/ahasend-domain-security.yml
+  - type: Authentication
+    url: authentication/ahasend-authentication.yml
   - type: LinkedIn
     url: https://www.linkedin.com/company/ahasend
   - name: AhaSend Pricing
