@@ -1,0 +1,900 @@
+openapi: 3.1.0
+info:
+  title: AhaSend API v2 Accounts Statistics API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+
+
+    ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete all suppressions (dangerous)
+
+
+    ### SMTP Credentials Scopes
+
+    - `smtp-credentials:read:all` - Read all SMTP credentials
+
+    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
+
+    - `smtp-credentials:write:all` - Create SMTP credentials
+
+    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
+
+    - `smtp-credentials:delete:all` - Delete any SMTP credentials
+
+    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
+
+
+    ### Statistics Scopes
+
+    - `statistics-transactional:read:all` - Read all transactional statistics
+
+    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
+
+
+    ### API Key Scopes
+
+    - `api-keys:read` - Read API keys
+
+    - `api-keys:write` - Create and update API keys
+
+    - `api-keys:delete` - Delete API keys
+
+
+    ## Rate Limiting
+
+    - General API endpoints: 100 requests per second, 200 burst
+
+    - Statistics endpoints: 1 request per second, 1 burst
+
+
+    ## Pagination
+
+    List endpoints use cursor-based pagination with the following parameters:
+
+    - `limit`: Maximum number of items to return (default: 100, max: 100)
+
+    - `cursor`: Pagination cursor for the next page
+
+
+    ## Time Formats
+
+    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
+
+
+    ## Idempotency
+
+    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
+
+    - The same request can be safely retried multiple times
+
+    - Duplicate requests return the same response with `Idempotent-Replayed: true`
+
+    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
+
+    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
+
+    - Idempotency keys expire after 24 hours
+
+    '
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Statistics
+  description: Access transactional email statistics
+paths:
+  /v2/accounts/{account_id}/statistics/transactional/deliverability:
+    get:
+      summary: AhaSend Get Deliverability Statistics
+      description: 'Returns transactional deliverability statistics grouped by status
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domain
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)
+
+        '
+      operationId: getDeliverabilityStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: sender_domain
+        in: query
+        description: Filter by sender domain
+        schema:
+          type: string
+        example: mail.example.com
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+        example: example_value
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+        example: hour
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-time.Hour * 24 * 30)\n  // Call the ping endpoint\n  response, httpResp, err := client.StatisticsAPI.GetDeliverabilityStatistics(\n    ctx,\n    accountID,\n    requests.GetDeliverabilityStatisticsParams{\n      FromTime:         &fromTime,\n      SenderDomain:     ahasend.String(\"example.com\"),\n      RecipientDomains: ahasend.String(\"gmail.com\"),\n      GroupBy:          ahasend.String(\"week\"),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting deliverability statistics: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deliverability statistics: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Deliverability statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliverabilityStatisticsResponse'
+              examples:
+                getDeliverabilityStatistics200Example:
+                  summary: Default getDeliverabilityStatistics 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliverabilityStatistics400Example:
+                  summary: Default getDeliverabilityStatistics 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliverabilityStatistics401Example:
+                  summary: Default getDeliverabilityStatistics 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliverabilityStatistics403Example:
+                  summary: Default getDeliverabilityStatistics 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliverabilityStatistics429Example:
+                  summary: Default getDeliverabilityStatistics 429 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliverabilityStatistics500Example:
+                  summary: Default getDeliverabilityStatistics 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/statistics/transactional/bounce:
+    get:
+      summary: AhaSend Get Bounce Statistics
+      description: 'Returns transactional bounce statistics grouped by classification
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domain
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)
+
+        '
+      operationId: getBounceStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: sender_domain
+        in: query
+        description: Filter by sender domain
+        schema:
+          type: string
+        example: mail.example.com
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+        example: example_value
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+        example: hour
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-time.Hour * 24 * 30)\n  // Call the ping endpoint\n  response, httpResp, err := client.StatisticsAPI.GetBounceStatistics(\n    ctx,\n    accountID,\n    requests.GetBounceStatisticsParams{\n      FromTime:         &fromTime,\n      SenderDomain:     ahasend.String(\"example.com\"),\n      RecipientDomains: ahasend.String(\"gmail.com\"),\n      GroupBy:          ahasend.String(\"week\"),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting bounce statistics: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Bounce statistics: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Bounce statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceStatisticsResponse'
+              examples:
+                getBounceStatistics200Example:
+                  summary: Default getBounceStatistics 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getBounceStatistics400Example:
+                  summary: Default getBounceStatistics 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getBounceStatistics401Example:
+                  summary: Default getBounceStatistics 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getBounceStatistics403Example:
+                  summary: Default getBounceStatistics 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getBounceStatistics429Example:
+                  summary: Default getBounceStatistics 429 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getBounceStatistics500Example:
+                  summary: Default getBounceStatistics 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/statistics/transactional/delivery-time:
+    get:
+      summary: AhaSend Get Delivery Time Statistics
+      description: 'Returns transactional delivery time statistics grouped by recipient domain
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domains
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)
+
+        '
+      operationId: getDeliveryTimeStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: sender_domain
+        in: query
+        description: Filter by sender domain
+        schema:
+          type: string
+        example: mail.example.com
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+        example: example_value
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+        example: hour
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-time.Hour * 24 * 30)\n  // Call the ping endpoint\n  response, httpResp, err := client.StatisticsAPI.GetDeliveryTimeStatistics(\n    ctx,\n    accountID,\n    requests.GetDeliveryTimeStatisticsParams{\n      FromTime:         &fromTime,\n      SenderDomain:     ahasend.String(\"example.com\"),\n      RecipientDomains: ahasend.String(\"gmail.com\"),\n      GroupBy:          ahasend.String(\"week\"),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting delivery time statistics: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Delivery time statistics: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Delivery time statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryTimeStatisticsResponse'
+              examples:
+                getDeliveryTimeStatistics200Example:
+                  summary: Default getDeliveryTimeStatistics 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliveryTimeStatistics400Example:
+                  summary: Default getDeliveryTimeStatistics 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliveryTimeStatistics401Example:
+                  summary: Default getDeliveryTimeStatistics 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliveryTimeStatistics403Example:
+                  summary: Default getDeliveryTimeStatistics 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliveryTimeStatistics429Example:
+                  summary: Default getDeliveryTimeStatistics 429 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDeliveryTimeStatistics500Example:
+                  summary: Default getDeliveryTimeStatistics 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    DeliveryTime:
+      type: object
+      properties:
+        recipient_domain:
+          type: string
+          format: fqdn
+          description: The recipient domain
+          example: mail.example.com
+        delivery_time:
+          type: number
+          format: double
+          description: The average time from reception to delivery in seconds
+          example: 1.0
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: example_value
+      example:
+        message: Error message
+    DeliveryTimeStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTimeStatistics'
+          description: Array of delivery time statistics
+          example:
+          - from_timestamp: '2025-03-15T14:30:00Z'
+            to_timestamp: '2025-03-15T14:30:00Z'
+            avg_delivery_time: 1.0
+            delivered_count: 1
+            delivery_times:
+            - {}
+    BounceStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        bounces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bounce'
+          description: Bounce count per bounce classification
+          example:
+          - classification: example_value
+            count: 1
+      required:
+      - from_timestamp
+      - to_timestamp
+      - bounces
+    DeliverabilityStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        reception_count:
+          type: integer
+          description: Number of messages accepted for delivery
+          example: 1
+        delivered_count:
+          type: integer
+          description: Number of messages delivered
+          example: 1
+        deferred_count:
+          type: integer
+          description: Number of messages deferred
+          example: 1
+        bounced_count:
+          type: integer
+          description: Number of messages bounced
+          example: 1
+        failed_count:
+          type: integer
+          description: Number of messages failed
+          example: 1
+        suppressed_count:
+          type: integer
+          description: Number of messages suppressed
+          example: 1
+        opened_count:
+          type: integer
+          description: Number of messages opened at least once
+          example: 1
+        clicked_count:
+          type: integer
+          description: Number of messages that have at least one link in them clicked.
+          example: 1
+      required:
+      - from_timestamp
+      - to_timestamp
+    DeliverabilityStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliverabilityStatistics'
+          description: Array of deliverability statistics
+          example:
+          - from_timestamp: '2025-03-15T14:30:00Z'
+            to_timestamp: '2025-03-15T14:30:00Z'
+            reception_count: 1
+            delivered_count: 1
+            deferred_count: 1
+    DeliveryTimeStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        avg_delivery_time:
+          type: number
+          format: double
+          description: Average delivery time in seconds
+          example: 1.0
+        delivered_count:
+          type: integer
+          description: Number of messages
+          example: 1
+        delivery_times:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTime'
+            description: Delivery times per recipient domain
+          example:
+          - recipient_domain: mail.example.com
+            delivery_time: 1.0
+      required:
+      - from_timestamp
+      - to_timestamp
+      - avg_delivery_time
+      - delivered_count
+    BounceStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
+          example:
+          - from_timestamp: '2025-03-15T14:30:00Z'
+            to_timestamp: '2025-03-15T14:30:00Z'
+            bounces:
+            - {}
+    Bounce:
+      type: object
+      properties:
+        classification:
+          type: string
+          description: Bounce classification
+          example: example_value
+        count:
+          type: integer
+          description: Number of bounces
+          example: 1
+      required:
+      - classification
+      - count
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: API key for authentication

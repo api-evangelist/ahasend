@@ -1,0 +1,902 @@
+openapi: 3.1.0
+info:
+  title: AhaSend API v2 Accounts Suppressions API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+
+
+    ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete all suppressions (dangerous)
+
+
+    ### SMTP Credentials Scopes
+
+    - `smtp-credentials:read:all` - Read all SMTP credentials
+
+    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
+
+    - `smtp-credentials:write:all` - Create SMTP credentials
+
+    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
+
+    - `smtp-credentials:delete:all` - Delete any SMTP credentials
+
+    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
+
+
+    ### Statistics Scopes
+
+    - `statistics-transactional:read:all` - Read all transactional statistics
+
+    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
+
+
+    ### API Key Scopes
+
+    - `api-keys:read` - Read API keys
+
+    - `api-keys:write` - Create and update API keys
+
+    - `api-keys:delete` - Delete API keys
+
+
+    ## Rate Limiting
+
+    - General API endpoints: 100 requests per second, 200 burst
+
+    - Statistics endpoints: 1 request per second, 1 burst
+
+
+    ## Pagination
+
+    List endpoints use cursor-based pagination with the following parameters:
+
+    - `limit`: Maximum number of items to return (default: 100, max: 100)
+
+    - `cursor`: Pagination cursor for the next page
+
+
+    ## Time Formats
+
+    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
+
+
+    ## Idempotency
+
+    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
+
+    - The same request can be safely retried multiple times
+
+    - Duplicate requests return the same response with `Idempotent-Replayed: true`
+
+    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
+
+    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
+
+    - Idempotency keys expire after 24 hours
+
+    '
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Suppressions
+  description: Manage email suppressions
+paths:
+  /v2/accounts/{account_id}/suppressions:
+    get:
+      summary: AhaSend Get Suppressions
+      description: 'Returns a list of suppressions for the account
+
+
+        **Query Parameters:**
+
+        - `domain`: Filter by domain (optional)
+
+        - `email`: Filter by email (optional)
+
+        - `from_date`: Filter suppressions created after this date (RFC3339 format)
+
+        - `to_date`: Filter suppressions created before this date (RFC3339 format)
+
+        - `limit`: Maximum number of items to return (1-100, default: 100)
+
+        - `cursor`: Pagination cursor for the next page
+
+        '
+      operationId: getSuppressions
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: query
+        description: Filter by domain
+        schema:
+          type: string
+        example: mail.example.com
+      - name: email
+        in: query
+        required: true
+        description: Email address
+        schema:
+          type: string
+          format: email
+        example: user@example.com
+      - name: from_date
+        in: query
+        description: Filter suppressions created after this date (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: to_date
+        in: query
+        description: Filter suppressions created before this date (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2025-03-15T14:30:00Z'
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        example: 1
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        schema:
+          type: string
+        example: example_value
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.
+        schema:
+          type: string
+        example: example_value
+      security:
+      - BearerAuth:
+        - suppressions:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.SuppressionsAPI.GetSuppressions(\n    ctx,\n    accountID,\n    requests.GetSuppressionsParams{},\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting suppressions: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d suppressions\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: List of suppressions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSuppressionsResponse'
+              examples:
+                getSuppressions200Example:
+                  summary: Default getSuppressions 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+                    pagination:
+                      has_more: {}
+                      next_cursor: {}
+                      previous_cursor: {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getSuppressions400Example:
+                  summary: Default getSuppressions 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getSuppressions401Example:
+                  summary: Default getSuppressions 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getSuppressions403Example:
+                  summary: Default getSuppressions 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getSuppressions500Example:
+                  summary: Default getSuppressions 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    post:
+      summary: AhaSend Create Suppression
+      description: 'Creates a new suppression for an email address
+
+
+        **Validation Requirements:**
+
+        - `email` must be a valid email address
+
+        - `expires_at` must be in RFC3339 format
+
+        - `domain` is optional - if not provided, applies to all account domains
+
+        '
+      operationId: createSuppression
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - $ref: '#/components/parameters/IdempotencyKey'
+        example: example
+      security:
+      - BearerAuth:
+        - suppressions:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.SuppressionsAPI.CreateSuppression(\n    ctx,\n    accountID,\n    requests.CreateSuppressionRequest{\n      Email:     \"test@example.com\",\n      Reason:    ahasend.String(\"Inbox full\"),\n      ExpiresAt: time.Now().Add(time.Hour * 24 * 30),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating suppression: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created suppression: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSuppressionRequest'
+      responses:
+        '201':
+          description: Suppression created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSuppressionResponse'
+              examples:
+                createSuppression201Example:
+                  summary: Default createSuppression 201 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createSuppression400Example:
+                  summary: Default createSuppression 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createSuppression401Example:
+                  summary: Default createSuppression 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createSuppression403Example:
+                  summary: Default createSuppression 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '412':
+          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createSuppression500Example:
+                  summary: Default createSuppression 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    delete:
+      summary: AhaSend Delete Suppression
+      description: 'Deletes suppressions for an email address
+
+
+        **Query Parameters:**
+
+        - `email`: Required email address to delete from suppression list
+
+        - `domain`: Optional domain filter to delete suppressions for specific domain only
+
+        '
+      operationId: deleteSuppression
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: email
+        in: query
+        required: true
+        description: Email address
+        schema:
+          type: string
+          format: email
+        example: user@example.com
+      - name: domain
+        in: query
+        description: Optional domain filter
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - suppressions:delete
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.SuppressionsAPI.DeleteSuppression(\n    ctx,\n    accountID,\n    \"info@bigco.com\",\n    ahasend.String(\"notifications.example.com\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting suppression: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted the suppression, response: %s\\n\", len(response.Message))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Suppression deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                deleteSuppression200Example:
+                  summary: Default deleteSuppression 200 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteSuppression400Example:
+                  summary: Default deleteSuppression 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteSuppression401Example:
+                  summary: Default deleteSuppression 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteSuppression403Example:
+                  summary: Default deleteSuppression 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteSuppression500Example:
+                  summary: Default deleteSuppression 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/suppressions/all:
+    delete:
+      summary: AhaSend Delete All Suppressions
+      description: 'Deletes all suppressions for the account
+
+
+        **Query Parameters:**
+
+        - `domain`: Optional domain filter to delete suppressions for specific domain only
+
+        '
+      operationId: deleteAllSuppressions
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: query
+        description: Optional domain filter
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - suppressions:wipe
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.SuppressionsAPI.DeleteAllSuppressions(\n    ctx,\n    accountID,\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting all suppressions: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted all suppressions: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: All suppressions deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                deleteAllSuppressions200Example:
+                  summary: Default deleteAllSuppressions 200 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteAllSuppressions400Example:
+                  summary: Default deleteAllSuppressions 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteAllSuppressions401Example:
+                  summary: Default deleteAllSuppressions 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteAllSuppressions403Example:
+                  summary: Default deleteAllSuppressions 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteAllSuppressions500Example:
+                  summary: Default deleteAllSuppressions 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  responses:
+    IdempotencyConflict:
+      description: Request in progress - a request with this idempotency key is already being processed
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPreconditionFailed:
+      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: The original request with this idempotency key failed and cannot be retried
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: example_value
+      example:
+        message: Error message
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          example: example_value
+        previous_cursor:
+          type: string
+          description: Cursor for the previous page of results
+          example: example_value
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    Suppression:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - suppression
+          description: Object type identifier
+          example: suppression
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the suppression
+          example: '500123'
+        created_at:
+          type: string
+          format: date-time
+          description: When the suppression was created
+          example: '2025-03-15T14:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: When the suppression was last updated
+          example: '2025-03-15T14:30:00Z'
+        email:
+          type: string
+          format: email
+          description: Suppressed email address
+          example: user@example.com
+        domain:
+          type: string
+          nullable: true
+          description: Domain for which the email is suppressed
+          example: mail.example.com
+        reason:
+          type: string
+          nullable: true
+          description: Reason for suppression
+          example: example_value
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires
+          example: '2025-03-15T14:30:00Z'
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - email
+      - expires_at
+    PaginatedSuppressionsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+          example:
+          - object: suppression
+            id: '500123'
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            email: user@example.com
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: example_value
+      example:
+        message: Operation completed successfully
+    CreateSuppressionResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+          example:
+          - object: suppression
+            id: '500123'
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            email: user@example.com
+    CreateSuppressionRequest:
+      type: object
+      required:
+      - email
+      - expires_at
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to suppress
+          example: user@example.com
+        domain:
+          type: string
+          format: hostname
+          description: Domain for which to suppress the email
+          example: mail.example.com
+        reason:
+          type: string
+          maxLength: 255
+          description: Reason for suppression
+          example: example_value
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires (RFC3339 format)
+          example: '2025-03-15T14:30:00Z'
+      example:
+        email: user@example.com
+        domain: example.com
+        reason: User requested removal
+        expires_at: '2024-12-25T10:30:00Z'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        Requests with the same key will return the same response. Keys expire after 24 hours.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates whether this response is replayed from a previous identical request.
+
+        - `true`: Response was replayed from cache (duplicate request)
+
+        - `false`: Response from original processing or error state
+
+        '
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: API key for authentication

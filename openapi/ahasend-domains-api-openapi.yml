@@ -1,0 +1,1178 @@
+openapi: 3.1.0
+info:
+  title: AhaSend API v2 Accounts Domains API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+
+
+    ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete all suppressions (dangerous)
+
+
+    ### SMTP Credentials Scopes
+
+    - `smtp-credentials:read:all` - Read all SMTP credentials
+
+    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
+
+    - `smtp-credentials:write:all` - Create SMTP credentials
+
+    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
+
+    - `smtp-credentials:delete:all` - Delete any SMTP credentials
+
+    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
+
+
+    ### Statistics Scopes
+
+    - `statistics-transactional:read:all` - Read all transactional statistics
+
+    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
+
+
+    ### API Key Scopes
+
+    - `api-keys:read` - Read API keys
+
+    - `api-keys:write` - Create and update API keys
+
+    - `api-keys:delete` - Delete API keys
+
+
+    ## Rate Limiting
+
+    - General API endpoints: 100 requests per second, 200 burst
+
+    - Statistics endpoints: 1 request per second, 1 burst
+
+
+    ## Pagination
+
+    List endpoints use cursor-based pagination with the following parameters:
+
+    - `limit`: Maximum number of items to return (default: 100, max: 100)
+
+    - `cursor`: Pagination cursor for the next page
+
+
+    ## Time Formats
+
+    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
+
+
+    ## Idempotency
+
+    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
+
+    - The same request can be safely retried multiple times
+
+    - Duplicate requests return the same response with `Idempotent-Replayed: true`
+
+    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
+
+    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
+
+    - Idempotency keys expire after 24 hours
+
+    '
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Domains
+  description: Manage sending domains
+paths:
+  /v2/accounts/{account_id}/domains:
+    get:
+      summary: AhaSend Get Domains
+      description: Returns a list of domains for the account
+      operationId: getDomains
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: dns_valid
+        in: query
+        description: Filter results by DNS validation status
+        schema:
+          type: boolean
+          nullable: true
+        example: true
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        example: 1
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        schema:
+          type: string
+        example: example_value
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page.
+        schema:
+          type: string
+        example: example_value
+      security:
+      - BearerAuth:
+        - domains:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.GetDomains(\n    ctx,\n    accountID,\n    nil,\n    nil,\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting domains: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d domains\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: List of domains
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDomainsResponse'
+              examples:
+                getDomains200Example:
+                  summary: Default getDomains 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+                    pagination:
+                      has_more: {}
+                      next_cursor: {}
+                      previous_cursor: {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomains400Example:
+                  summary: Default getDomains 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomains401Example:
+                  summary: Default getDomains 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomains403Example:
+                  summary: Default getDomains 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomains500Example:
+                  summary: Default getDomains 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    post:
+      summary: AhaSend Create Domain
+      description: Creates a new domain
+      operationId: createDomain
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - $ref: '#/components/parameters/IdempotencyKey'
+        example: example
+      security:
+      - BearerAuth:
+        - domains:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.CreateDomain(\n    ctx,\n    accountID,\n    requests.CreateDomainRequest{\n      Domain: \"example.com\",\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDomainRequest'
+      responses:
+        '201':
+          description: Domain created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+              examples:
+                createDomain201Example:
+                  summary: Default createDomain 201 response
+                  x-microcks-default: true
+                  value:
+                    object: domain
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    domain: mail.example.com
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createDomain400Example:
+                  summary: Default createDomain 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createDomain401Example:
+                  summary: Default createDomain 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createDomain403Example:
+                  summary: Default createDomain 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '412':
+          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createDomain500Example:
+                  summary: Default createDomain 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/domains/{domain}:
+    get:
+      summary: AhaSend Get Domain
+      description: Returns a specific domain by name
+      operationId: getDomain
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: path
+        required: true
+        description: Domain name
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - domains:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.GetDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Domain details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+              examples:
+                getDomain200Example:
+                  summary: Default getDomain 200 response
+                  x-microcks-default: true
+                  value:
+                    object: domain
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    domain: mail.example.com
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomain400Example:
+                  summary: Default getDomain 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomain401Example:
+                  summary: Default getDomain 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomain403Example:
+                  summary: Default getDomain 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomain404Example:
+                  summary: Default getDomain 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getDomain500Example:
+                  summary: Default getDomain 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    put:
+      summary: AhaSend Update Domain
+      description: Updates DNS domain settings such as custom subdomains and DKIM rotation interval.
+      operationId: updateDomain
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: path
+        required: true
+        description: Domain name
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - domains:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  ahasend \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Update domain settings\n  response, httpResp, err := client.DomainsAPI.UpdateDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n    requests.UpdateDomainRequest{\n      TrackingSubdomain:        ahasend.String(\"click\"),\n      ReturnPathSubdomain:      ahasend.String(\"mail\"),\n      DKIMRotationIntervalDays: ahasend.Int(45),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating domain: %v\", err)\n  }\n\n  fmt.Printf(\"Status: %d\\n\", httpResp.StatusCode)\n  if response != nil {\n    fmt.Printf(\"Updated domain: %s\\n\", response.Domain)\n  }\n}\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDomainRequest'
+      responses:
+        '200':
+          description: Domain updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+              examples:
+                updateDomain200Example:
+                  summary: Default updateDomain 200 response
+                  x-microcks-default: true
+                  value:
+                    object: domain
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    domain: mail.example.com
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateDomain400Example:
+                  summary: Default updateDomain 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateDomain401Example:
+                  summary: Default updateDomain 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateDomain403Example:
+                  summary: Default updateDomain 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateDomain404Example:
+                  summary: Default updateDomain 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateDomain500Example:
+                  summary: Default updateDomain 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    delete:
+      summary: AhaSend Delete Domain
+      description: Deletes a domain
+      operationId: deleteDomain
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: path
+        required: true
+        description: Domain name
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - domains:delete:{domain}
+        - domains:delete:all
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.DeleteDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Domain deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                deleteDomain200Example:
+                  summary: Default deleteDomain 200 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteDomain400Example:
+                  summary: Default deleteDomain 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteDomain401Example:
+                  summary: Default deleteDomain 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteDomain403Example:
+                  summary: Default deleteDomain 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteDomain404Example:
+                  summary: Default deleteDomain 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                deleteDomain500Example:
+                  summary: Default deleteDomain 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/domains/{domain}/check-dns:
+    post:
+      summary: AhaSend Check Domain DNS
+      description: Triggers a DNS validation check for the domain. If the domain was checked within the last 60 seconds, the cached validation result is returned instead of performing a fresh lookup.
+      operationId: checkDomainDNS
+      tags:
+      - Domains
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: domain
+        in: path
+        required: true
+        description: Domain name
+        schema:
+          type: string
+        example: mail.example.com
+      security:
+      - BearerAuth:
+        - domains:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Trigger a DNS validation check\n  response, httpResp, err := client.DomainsAPI.CheckDomainDNS(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error checking domain DNS: %v\", err)\n  }\n\n  fmt.Printf(\"Status: %d\\n\", httpResp.StatusCode)\n  if response != nil {\n    fmt.Printf(\"DNS valid: %t\\n\", response.DNSValid)\n  }\n}\n"
+      responses:
+        '200':
+          description: Domain DNS status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+              examples:
+                checkDomainDNS200Example:
+                  summary: Default checkDomainDNS 200 response
+                  x-microcks-default: true
+                  value:
+                    object: domain
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    domain: mail.example.com
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                checkDomainDNS401Example:
+                  summary: Default checkDomainDNS 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                checkDomainDNS403Example:
+                  summary: Default checkDomainDNS 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                checkDomainDNS404Example:
+                  summary: Default checkDomainDNS 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                checkDomainDNS500Example:
+                  summary: Default checkDomainDNS 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '503':
+          description: Managed DNS is currently unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                checkDomainDNS503Example:
+                  summary: Default checkDomainDNS 503 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  responses:
+    IdempotencyConflict:
+      description: Request in progress - a request with this idempotency key is already being processed
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPreconditionFailed:
+      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: The original request with this idempotency key failed and cannot be retried
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: example_value
+      example:
+        message: Error message
+    Domain:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - domain
+          description: Object type identifier
+          example: domain
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the domain
+          example: '500123'
+        created_at:
+          type: string
+          format: date-time
+          description: When the domain was created
+          example: '2025-03-15T14:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: When the domain was last updated
+          example: '2025-03-15T14:30:00Z'
+        domain:
+          type: string
+          description: The domain name
+          example: mail.example.com
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this domain belongs to
+          example: '500123'
+        dns_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/DNSRecord'
+          description: DNS records required for domain verification
+          example:
+          - type: example_value
+            host: example_value
+            content: example_value
+            required: true
+            propagated: true
+        last_dns_check_at:
+          type: string
+          nullable: true
+          format: date-time
+          description: When DNS records were last checked
+          example: '2025-03-15T14:30:00Z'
+        dns_valid:
+          type: boolean
+          description: Whether all required DNS records are properly configured
+          example: true
+        tracking_subdomain:
+          type: string
+          nullable: true
+          description: Custom tracking subdomain. Null means the account or product default is used.
+          example: mail.example.com
+        return_path_subdomain:
+          type: string
+          nullable: true
+          description: Custom return-path subdomain. Null means the account or product default is used.
+          example: mail.example.com
+        subscription_subdomain:
+          type: string
+          nullable: true
+          description: Custom subscription management subdomain. Null means the account or product default is used.
+          example: mail.example.com
+        media_subdomain:
+          type: string
+          nullable: true
+          description: Custom media subdomain. Null means the account or product default is used.
+          example: mail.example.com
+        dkim_rotation_interval_days:
+          type: integer
+          nullable: true
+          description: Custom DKIM rotation interval in days. Null means the account default is used.
+          example: 1
+        rotation_ready:
+          type: boolean
+          description: Whether the standby DKIM slot is ready for rotation.
+          example: true
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - domain
+      - account_id
+      - dns_records
+      - dns_valid
+    CreateDomainRequest:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          format: hostname
+          description: Fully qualified domain name
+          example: mail.example.com
+        dkim_private_key:
+          type: string
+          description: 'DKIM Private Key for the domain. Only RSA keys with a minimum key size of 2048 bits are supported.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+            '
+          example: aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to use the default on create.
+          example: mail.example.com
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to use the default on create.
+          example: mail.example.com
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to use the default on create.
+          example: mail.example.com
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to use the default on create.
+          example: mail.example.com
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.
+          example: 1
+      example:
+        domain: example.com
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+    DNSRecord:
+      type: object
+      properties:
+        type:
+          type: string
+          description: DNS record type (e.g., CNAME, TXT, MX)
+          example: example_value
+        host:
+          type: string
+          description: DNS record host/name
+          example: example_value
+        content:
+          type: string
+          description: DNS record content/value
+          example: example_value
+        required:
+          type: boolean
+          description: Whether this DNS record is required for domain verification
+          example: true
+        propagated:
+          type: boolean
+          description: Whether this DNS record has been propagated and verified
+          example: true
+      required:
+      - type
+      - host
+      - content
+      - required
+      - propagated
+    UpdateDomainRequest:
+      type: object
+      properties:
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to leave the current value unchanged.
+          example: mail.example.com
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to leave the current value unchanged.
+          example: mail.example.com
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to leave the current value unchanged.
+          example: mail.example.com
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to leave the current value unchanged.
+          example: mail.example.com
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.
+          example: 1
+      example:
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: example_value
+      example:
+        message: Operation completed successfully
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          example: example_value
+        previous_cursor:
+          type: string
+          description: Cursor for the previous page of results
+          example: example_value
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    PaginatedDomainsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain'
+          description: Array of domains
+          example:
+          - object: domain
+            id: '500123'
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            domain: mail.example.com
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        Requests with the same key will return the same response. Keys expire after 24 hours.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates whether this response is replayed from a previous identical request.
+
+        - `true`: Response was replayed from cache (duplicate request)
+
+        - `false`: Response from original processing or error state
+
+        '
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: API key for authentication

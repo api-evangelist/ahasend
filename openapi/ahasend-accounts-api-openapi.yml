@@ -1,0 +1,1005 @@
+openapi: 3.1.0
+info:
+  title: AhaSend API v2 Accounts API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+
+
+    ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete all suppressions (dangerous)
+
+
+    ### SMTP Credentials Scopes
+
+    - `smtp-credentials:read:all` - Read all SMTP credentials
+
+    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
+
+    - `smtp-credentials:write:all` - Create SMTP credentials
+
+    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
+
+    - `smtp-credentials:delete:all` - Delete any SMTP credentials
+
+    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
+
+
+    ### Statistics Scopes
+
+    - `statistics-transactional:read:all` - Read all transactional statistics
+
+    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
+
+
+    ### API Key Scopes
+
+    - `api-keys:read` - Read API keys
+
+    - `api-keys:write` - Create and update API keys
+
+    - `api-keys:delete` - Delete API keys
+
+
+    ## Rate Limiting
+
+    - General API endpoints: 100 requests per second, 200 burst
+
+    - Statistics endpoints: 1 request per second, 1 burst
+
+
+    ## Pagination
+
+    List endpoints use cursor-based pagination with the following parameters:
+
+    - `limit`: Maximum number of items to return (default: 100, max: 100)
+
+    - `cursor`: Pagination cursor for the next page
+
+
+    ## Time Formats
+
+    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
+
+
+    ## Idempotency
+
+    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
+
+    - The same request can be safely retried multiple times
+
+    - Duplicate requests return the same response with `Idempotent-Replayed: true`
+
+    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
+
+    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
+
+    - Idempotency keys expire after 24 hours
+
+    '
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Accounts
+  description: Manage account settings and members
+paths:
+  /v2/accounts/{account_id}:
+    get:
+      summary: AhaSend Get Account
+      description: Returns account information
+      operationId: getAccount
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      security:
+      - BearerAuth:
+        - accounts:read
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+              examples:
+                getAccount200Example:
+                  summary: Default getAccount 200 response
+                  x-microcks-default: true
+                  value:
+                    object: account
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    name: Example Name
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccount400Example:
+                  summary: Default getAccount 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccount401Example:
+                  summary: Default getAccount 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccount403Example:
+                  summary: Default getAccount 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccount404Example:
+                  summary: Default getAccount 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccount500Example:
+                  summary: Default getAccount 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    put:
+      summary: AhaSend Update Account
+      description: 'Updates account settings
+
+
+        **Validation Requirements:**
+
+        - `name` must be maximum 255 characters
+
+        - `website` must be a valid URL
+
+        - `message_metadata_retention` must be between 1 and 30 days
+
+        - `message_data_retention` must be between 0 and 30 days
+
+        '
+      operationId: updateAccount
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      security:
+      - BearerAuth:
+        - accounts:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountRequest'
+      responses:
+        '200':
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+              examples:
+                updateAccount200Example:
+                  summary: Default updateAccount 200 response
+                  x-microcks-default: true
+                  value:
+                    object: account
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    name: Example Name
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateAccount400Example:
+                  summary: Default updateAccount 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateAccount401Example:
+                  summary: Default updateAccount 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateAccount403Example:
+                  summary: Default updateAccount 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateAccount404Example:
+                  summary: Default updateAccount 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                updateAccount500Example:
+                  summary: Default updateAccount 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/members:
+    get:
+      summary: AhaSend Get Account Members
+      description: Returns a list of account members
+      operationId: getAccountMembers
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      security:
+      - BearerAuth:
+        - accounts:members:read
+      responses:
+        '200':
+          description: List of account members
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountMembersResponse'
+              examples:
+                getAccountMembers200Example:
+                  summary: Default getAccountMembers 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccountMembers400Example:
+                  summary: Default getAccountMembers 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccountMembers401Example:
+                  summary: Default getAccountMembers 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccountMembers403Example:
+                  summary: Default getAccountMembers 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getAccountMembers500Example:
+                  summary: Default getAccountMembers 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    post:
+      summary: AhaSend Add Account Member
+      description: 'Adds a new member to the account
+
+
+        **Validation Requirements:**
+
+        - `email` must be a valid email address
+
+        - `role` must be one of: Administrator, Developer, Analyst, Billing Manager
+
+        '
+      operationId: addAccountMember
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - $ref: '#/components/parameters/IdempotencyKey'
+        example: example
+      security:
+      - BearerAuth:
+        - accounts:members:add
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+      responses:
+        '200':
+          description: Member added successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+              examples:
+                addAccountMember200Example:
+                  summary: Default addAccountMember 200 response
+                  x-microcks-default: true
+                  value:
+                    id: '500123'
+                    created_at: '2025-03-15T14:30:00Z'
+                    updated_at: '2025-03-15T14:30:00Z'
+                    user_id: '500123'
+                    account_id: '500123'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                addAccountMember400Example:
+                  summary: Default addAccountMember 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                addAccountMember401Example:
+                  summary: Default addAccountMember 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                addAccountMember403Example:
+                  summary: Default addAccountMember 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '412':
+          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                addAccountMember500Example:
+                  summary: Default addAccountMember 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/members/{user_id}:
+    delete:
+      summary: AhaSend Remove Account Member
+      description: 'Removes a member from the account
+
+
+        **Restrictions:**
+
+        - You cannot delete yourself
+
+        - You cannot delete the account owner
+
+        '
+      operationId: removeAccountMember
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      security:
+      - BearerAuth:
+        - accounts:members:remove
+      responses:
+        '200':
+          description: Member removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                removeAccountMember200Example:
+                  summary: Default removeAccountMember 200 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                removeAccountMember400Example:
+                  summary: Default removeAccountMember 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                removeAccountMember401Example:
+                  summary: Default removeAccountMember 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                removeAccountMember403Example:
+                  summary: Default removeAccountMember 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                removeAccountMember404Example:
+                  summary: Default removeAccountMember 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                removeAccountMember500Example:
+                  summary: Default removeAccountMember 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  responses:
+    IdempotencyConflict:
+      description: Request in progress - a request with this idempotency key is already being processed
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPreconditionFailed:
+      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: The original request with this idempotency key failed and cannot be retried
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: example_value
+      example:
+        message: Error message
+    AccountMembersResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+          description: Array of account members
+          example:
+          - id: '500123'
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            user_id: '500123'
+            account_id: '500123'
+    AddMemberRequest:
+      type: object
+      required:
+      - email
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to add
+          example: user@example.com
+        name:
+          type: string
+          description: Display name for the user
+          example: Example Name
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: Role to assign to the user
+          example: Administrator
+      example:
+        email: user@example.com
+        name: John Doe
+        role: Developer
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: example_value
+      example:
+        message: Operation completed successfully
+    UserAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user account relationship
+          example: '500123'
+        created_at:
+          type: string
+          format: date-time
+          description: When the relationship was created
+          example: '2025-03-15T14:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: When the relationship was last updated
+          example: '2025-03-15T14:30:00Z'
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+          example: '500123'
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID
+          example: '500123'
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: User role in the account
+          example: Administrator
+      required:
+      - id
+      - created_at
+      - updated_at
+      - user_id
+      - account_id
+      - role
+    Account:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - account
+          description: Object type identifier
+          example: account
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the account
+          example: '500123'
+        created_at:
+          type: string
+          format: date-time
+          description: When the account was created
+          example: '2025-03-15T14:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: When the account was last updated
+          example: '2025-03-15T14:30:00Z'
+        name:
+          type: string
+          description: Account name
+          example: Example Name
+        website:
+          type: string
+          format: uri
+          nullable: true
+          description: Account website URL
+          example: https://example.com
+        about:
+          type: string
+          nullable: true
+          description: Account description
+          example: example_value
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+          example: true
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+          example: true
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+          example: true
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+          example: true
+        message_metadata_retention:
+          type: integer
+          description: Default message metadata retention in days
+          example: 1
+        message_data_retention:
+          type: integer
+          description: Default message data retention in days
+          example: 1
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - name
+    UpdateAccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Account name
+          example: Example Name
+        website:
+          type: string
+          format: uri
+          description: Account website URL
+          example: https://example.com
+        about:
+          type: string
+          description: Account description (used for account verification)
+          example: example_value
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+          example: true
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+          example: true
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+          example: true
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+          example: true
+        message_metadata_retention:
+          type: integer
+          minimum: 1
+          maximum: 30
+          description: Default message metadata retention in days
+          example: 1
+        message_data_retention:
+          type: integer
+          minimum: 0
+          maximum: 30
+          description: Default message data retention in days
+          example: 1
+      example:
+        name: Updated Company Name
+        website: https://example.com
+        track_opens: true
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        Requests with the same key will return the same response. Keys expire after 24 hours.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates whether this response is replayed from a previous identical request.
+
+        - `true`: Response was replayed from cache (duplicate request)
+
+        - `false`: Response from original processing or error state
+
+        '
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: API key for authentication

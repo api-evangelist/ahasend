@@ -1,0 +1,1606 @@
+openapi: 3.1.0
+info:
+  title: AhaSend API v2 Accounts Messages API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+
+
+    ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete all suppressions (dangerous)
+
+
+    ### SMTP Credentials Scopes
+
+    - `smtp-credentials:read:all` - Read all SMTP credentials
+
+    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
+
+    - `smtp-credentials:write:all` - Create SMTP credentials
+
+    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
+
+    - `smtp-credentials:delete:all` - Delete any SMTP credentials
+
+    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
+
+
+    ### Statistics Scopes
+
+    - `statistics-transactional:read:all` - Read all transactional statistics
+
+    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
+
+
+    ### API Key Scopes
+
+    - `api-keys:read` - Read API keys
+
+    - `api-keys:write` - Create and update API keys
+
+    - `api-keys:delete` - Delete API keys
+
+
+    ## Rate Limiting
+
+    - General API endpoints: 100 requests per second, 200 burst
+
+    - Statistics endpoints: 1 request per second, 1 burst
+
+
+    ## Pagination
+
+    List endpoints use cursor-based pagination with the following parameters:
+
+    - `limit`: Maximum number of items to return (default: 100, max: 100)
+
+    - `cursor`: Pagination cursor for the next page
+
+
+    ## Time Formats
+
+    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
+
+
+    ## Idempotency
+
+    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
+
+    - The same request can be safely retried multiple times
+
+    - Duplicate requests return the same response with `Idempotent-Replayed: true`
+
+    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
+
+    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
+
+    - Idempotency keys expire after 24 hours
+
+    '
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Messages
+  description: Send and manage transactional messages
+paths:
+  /v2/accounts/{account_id}/messages:
+    get:
+      summary: AhaSend Get Messages
+      description: 'Returns a list of message summaries for the account. Can be filtered by various parameters.
+
+        '
+      operationId: getMessages
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: status
+        in: query
+        description: Filter by comma-separated list of message statuses
+        schema:
+          type: string
+        example: Bounced,Failed
+      - name: sender
+        in: query
+        description: Sender email address (must be from domain in API key scopes)
+        schema:
+          type: string
+          format: email
+        example: example_value
+      - name: recipient
+        in: query
+        description: Recipient email address
+        schema:
+          type: string
+          format: email
+        example: example_value
+      - name: subject
+        in: query
+        description: Filter by subject text
+        schema:
+          type: string
+        example: example_value
+      - name: message_id_header
+        in: query
+        description: Filter by message ID header (same ID returned by CreateMessage API)
+        schema:
+          type: string
+        example: '500123'
+      - name: tags
+        in: query
+        description: Filter by comma-separated list of tags (max 20)
+        schema:
+          type: string
+        example: billing,urgent
+      - name: from_time
+        in: query
+        description: Filter messages created after this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2023-12-25T10:30:00Z'
+      - name: to_time
+        in: query
+        description: Filter messages created before this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2023-12-26T10:30:00Z'
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        example: 1
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        schema:
+          type: string
+        example: example_value
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page.
+        schema:
+          type: string
+        example: example_value
+      security:
+      - BearerAuth:
+        - messages:read:all
+        - messages:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.MessagesAPI.GetMessages(\n    ctx,\n    accountID,\n    requests.GetMessagesParams{\n      Status: ahasend.String(\"bounced,failed\"),\n      Sender: ahasend.String(\"info@example.com\"),\n      Tags:   []string{\"billing\", \"urgent\"},\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting messages: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d messages\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMessagesResponse'
+              examples:
+                getMessages200Example:
+                  summary: Default getMessages 200 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+                    pagination:
+                      has_more: {}
+                      next_cursor: {}
+                      previous_cursor: {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessages400Example:
+                  summary: Default getMessages 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessages401Example:
+                  summary: Default getMessages 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessages403Example:
+                  summary: Default getMessages 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessages500Example:
+                  summary: Default getMessages 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+    post:
+      summary: AhaSend Create Message
+      description: 'Creates and sends a message to one or more recipients. This API cannot be used if you want to send a conversational/P2P message and set CC or BCC. Use [Create Conversation Message](https://ahasend.com/docs/api-reference/messages/create-conversation) instead.
+
+
+        **Validation Requirements:**
+
+        - Either `text_content` or `html_content` is required
+
+        - `from.email` must be from a domain you own with valid DNS records
+
+        - `retention.metadata` must be between 1 and 30 days
+
+        - `retention.data` must be between 0 and 30 days
+
+        - If `reply_to` is provided, do not include `reply-to` in headers
+
+        - `message-id` header will be ignored and automatically generated
+
+        - Schedule times must be in RFC3339 format
+
+        '
+      operationId: createMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - $ref: '#/components/parameters/IdempotencyKey'
+        example: example
+      security:
+      - BearerAuth:
+        - messages:send:all
+        - messages:send:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.MessagesAPI.CreateMessage(\n    ctx,\n    accountID,\n    requests.CreateMessageRequest{\n      From: common.Address{\n        Email: \"info@example.com\",\n        Name:  ahasend.String(\"Example Corp.\"),\n      },\n      Recipients: []common.Recipient{\n        {\n          Email: \"john@example.com\",\n          Name:  ahasend.String(\"John Smith\"),\n        },\n      },\n      Subject:     \"Hello\",\n      TextContent: ahasend.String(\"Hello world!\"),\n      Sandbox:     ahasend.Bool(true),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error sending message: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Send successful! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Message ID: %s\\n\", *response.Data[0].ID)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '202':
+          description: Message created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+              examples:
+                createMessage202Example:
+                  summary: Default createMessage 202 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createMessage400Example:
+                  summary: Default createMessage 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createMessage401Example:
+                  summary: Default createMessage 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createMessage403Example:
+                  summary: Default createMessage 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '412':
+          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createMessage500Example:
+                  summary: Default createMessage 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/messages/conversation:
+    post:
+      summary: AhaSend Create Conversational Message
+      description: 'Creates and sends a conversational message (with support for CC and BCC) to one or more recipients. This API does not support template substitutions, use [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) instead if you need substitutions.
+
+
+        **Validation Requirements:**
+
+        - Either `text_content` or `html_content` is required
+
+        - `from.email` must be from a domain you own with valid DNS records
+
+        - `retention.metadata` must be between 1 and 30 days
+
+        - `retention.data` must be between 0 and 30 days
+
+        - If the `reply_to` parameter is provided, do not include `reply-to` in headers
+
+        - If the `cc` parameter is provided, do not include `cc` in headers
+
+        - `message-id` header will be ignored and automatically generated
+
+        - Schedule times must be in RFC3339 format
+
+        '
+      operationId: createConversationMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - $ref: '#/components/parameters/IdempotencyKey'
+        example: example
+      security:
+      - BearerAuth:
+        - messages:send:all
+        - messages:send:{domain}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationMessageRequest'
+      responses:
+        '202':
+          description: Message created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+              examples:
+                createConversationMessage202Example:
+                  summary: Default createConversationMessage 202 response
+                  x-microcks-default: true
+                  value:
+                    object: list
+                    data:
+                    - {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createConversationMessage400Example:
+                  summary: Default createConversationMessage 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createConversationMessage401Example:
+                  summary: Default createConversationMessage 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createConversationMessage403Example:
+                  summary: Default createConversationMessage 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '412':
+          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                createConversationMessage500Example:
+                  summary: Default createConversationMessage 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/messages/{message_id}:
+    get:
+      summary: AhaSend Get Message
+      description: 'Returns the complete message by its ID, including raw content and parsed content structure.
+
+        '
+      operationId: getMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: message_id
+        in: path
+        required: true
+        description: Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      security:
+      - BearerAuth:
+        - messages:read:all
+        - messages:read:{domain}
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                getMessage200Example:
+                  summary: Default getMessage 200 response
+                  x-microcks-default: true
+                  value: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessage400Example:
+                  summary: Default getMessage 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessage401Example:
+                  summary: Default getMessage 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessage403Example:
+                  summary: Default getMessage 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessage404Example:
+                  summary: Default getMessage 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                getMessage500Example:
+                  summary: Default getMessage 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+  /v2/accounts/{account_id}/messages/{message_id}/cancel:
+    delete:
+      summary: AhaSend Cancel Message
+      description: Cancels a scheduled message
+      operationId: cancelMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+        example: '500123'
+      - name: message_id
+        in: path
+        required: true
+        description: Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))
+        schema:
+          type: string
+        example: '500123'
+      security:
+      - BearerAuth:
+        - messages:cancel:all
+        - messages:cancel:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.MessagesAPI.CancelMessage(\n    ctx,\n    accountID,\n    \"<uuid@example.com>\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error canceling message: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Successfully canceled! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Message canceled: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      responses:
+        '200':
+          description: Scheduled message is cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                cancelMessage200Example:
+                  summary: Default cancelMessage 200 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cancelMessage400Example:
+                  summary: Default cancelMessage 400 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cancelMessage401Example:
+                  summary: Default cancelMessage 401 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cancelMessage403Example:
+                  summary: Default cancelMessage 403 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cancelMessage404Example:
+                  summary: Default cancelMessage 404 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                cancelMessage500Example:
+                  summary: Default cancelMessage 500 response
+                  x-microcks-default: true
+                  value:
+                    message: example_value
+      x-microcks-operation:
+        delay: 0
+        dispatcher: FALLBACK
+components:
+  schemas:
+    CreateMessageResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSingleMessageResponse'
+          description: List of messages and their statuses
+          example:
+          - object: message
+            id: '500123'
+            recipient: {}
+            status: queued
+            error: example_value
+    MessageSchedule:
+      type: object
+      properties:
+        first_attempt:
+          type: string
+          format: date-time
+          description: The time to make the first attempt for delivering the message (RFC3339 format)
+          example: '2025-03-15T14:30:00Z'
+        expires:
+          type: string
+          format: date-time
+          description: Expire and drop the message if not delivered by this time (RFC3339 format)
+          example: '2025-03-15T14:30:00Z'
+      example:
+        first_attempt: '2023-12-25T10:30:00Z'
+        expires: '2023-12-26T10:30:00Z'
+    CreateConversationMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        to:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          description: This parameter can set the `To` header to multiple addresses.
+          example:
+          - email: user@example.com
+            name: Example Name
+        cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          description: This parameter can set the `CC` header to multiple addresses. Do not include `cc` in the headers array.
+          example:
+          - email: user@example.com
+            name: Example Name
+        bcc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          description: This parameter can set the `To` header to multiple addresses.
+          example:
+          - email: user@example.com
+            name: Example Name
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: Email subject line
+          example: example_value
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+          example: example_value
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+          example: example_value
+        amp_content:
+          type: string
+          description: AMP HTML content
+          example: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments
+          example:
+          - base64: true
+            data: example_value
+            content_type: example_value
+            content_disposition: example_value
+            content_id: '500123'
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. `cc` and `reply-to` headers cannot be provided if `reply_to` or `cc` parameters are provided, message-id will be ignored and automatically generated
+          example: {}
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+          example:
+          - example_value
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+          example: true
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+          example: deliver
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        to:
+        - email: user@example.com
+          name: John Doe
+        - email: someone@example.com
+          name: Jane Doe
+        cc:
+        - email: hr@example.com
+          name: Example Corp HR
+        bcc:
+        - email: bcc@example.com
+          name: BCC Recipient
+        subject: Welcome to Example Corp
+        html_content: <h1>Dear John and Jane, welcome to Example Corp!</h1>
+        text_content: Dear John and Jane, welcome to Example Corp!
+    Recipient:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Recipient email address
+          example: user@example.com
+        name:
+          type: string
+          description: Display name for the recipient
+          example: Example Name
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content
+          example: {}
+      example:
+        email: user@example.com
+        name: John Doe
+        substitutions:
+          first_name: John
+          order_id: '12345'
+    CreateSingleMessageResponse:
+      type: object
+      required:
+      - object
+      - recipient
+      - status
+      properties:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+          example: message
+        id:
+          type: string
+          nullable: true
+          description: Message ID (null if the message was not sent)
+          example: <uuid@example.com>
+        recipient:
+          $ref: '#/components/schemas/Recipient'
+        status:
+          type: string
+          enum:
+          - queued
+          - scheduled
+          - error
+          description: Status of the message
+          example: queued
+        error:
+          type: string
+          nullable: true
+          description: Error message if the message was not sent
+          example: example_value
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Provided if the request contained a schedule
+    Message:
+      allOf:
+      - $ref: '#/components/schemas/MessageSummary'
+      - type: object
+        properties:
+          content:
+            type: string
+            nullable: true
+            description: Original, raw email content (RFC822 format) - may be null if the message content is not available.
+          content_parsed:
+            $ref: '#/components/schemas/MessageContentParsed'
+            description: Parsed and structured message content including parts, attachments, and headers - may be null if the message content is not available.
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Valid email address from a domain defined in your account with valid DNS records
+          example: user@example.com
+        name:
+          type: string
+          description: Display name for the sender
+          example: Example Name
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: example_value
+      example:
+        message: Operation completed successfully
+    CreateMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+          example:
+          - email: user@example.com
+            name: Example Name
+            substitutions: {}
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: Email subject line
+          example: example_value
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+          example: example_value
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+          example: example_value
+        amp_content:
+          type: string
+          description: AMP HTML content
+          example: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments
+          example:
+          - base64: true
+            data: example_value
+            content_type: example_value
+            content_disposition: example_value
+            content_id: '500123'
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
+          example: {}
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Global substitutions, recipient substitutions override global
+          example: {}
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+          example:
+          - example_value
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+          example: true
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+          example: deliver
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        recipients:
+        - email: user@example.com
+          name: John Doe
+        subject: Welcome to Example Corp
+        html_content: <h1>Welcome {{first_name}}!</h1>
+        text_content: Welcome {{first_name}}!
+        substitutions:
+          first_name: John
+    DeliveryEvent:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+          description: Timestamp of the delivery event
+          example: '2025-03-15T14:30:00Z'
+        log:
+          type: string
+          description: Log message for the delivery event
+          example: example_value
+        status:
+          type: string
+          description: Status of the delivery event
+          example: example_value
+      required:
+      - time
+      - log
+      - status
+    Retention:
+      type: object
+      nullable: true
+      properties:
+        metadata:
+          type: integer
+          nullable: true
+          description: Number of days to retain metadata
+          minimum: 1
+          maximum: 30
+          example: 1
+        data:
+          type: integer
+          nullable: true
+          description: Number of days to retain data
+          minimum: 0
+          maximum: 30
+          example: 1
+      example:
+        metadata: 1
+        data: 0
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          example: example_value
+        previous_cursor:
+          type: string
+          description: Cursor for the previous page of results
+          example: example_value
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    MessageAttachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Original filename of the attachment
+          example: document.pdf
+        content:
+          type: string
+          description: Base64 encoded attachment content
+          example: example_value
+        content_type:
+          type: string
+          description: MIME content type of the attachment
+          example: application/pdf
+        content_id:
+          type: string
+          description: Content-ID for inline attachments
+          nullable: true
+          example: image001@example.com
+      required:
+      - filename
+      - content
+      - content_type
+    MessageContentPart:
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: MIME content type (e.g., "text/plain", "text/html")
+          example: text/html
+        content:
+          type: string
+          description: The actual content for this part
+          example: example_value
+      required:
+      - content_type
+      - content
+    Attachment:
+      type: object
+      required:
+      - data
+      - content_type
+      - file_name
+      properties:
+        base64:
+          type: boolean
+          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
+          default: false
+          example: true
+        data:
+          type: string
+          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
+          example: example_value
+        content_type:
+          type: string
+          description: The MIME type of the attachment
+          example: example_value
+        content_disposition:
+          type: string
+          description: The disposition of the attachment
+          example: example_value
+        content_id:
+          type: string
+          description: The Content-ID of the attachment for inline images
+          example: '500123'
+        file_name:
+          type: string
+          description: The filename of the attachment
+          example: Example Name
+      example:
+        base64: true
+        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+        content_type: image/png
+        file_name: pixel.png
+    Tracking:
+      type: object
+      nullable: true
+      properties:
+        open:
+          type: boolean
+          nullable: true
+          description: Whether to track opens
+          example: true
+        click:
+          type: boolean
+          nullable: true
+          description: Whether to track clicks
+          example: true
+      example:
+        open: true
+        click: true
+    MessageContentParsed:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContentPart'
+          description: Array of message content parts (text, HTML, etc.)
+          example:
+          - content_type: example_value
+            content: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+          description: Array of message attachments
+          example:
+          - filename: Example Name
+            content: example_value
+            content_type: example_value
+            content_id: '500123'
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
+          example:
+            Content-Type:
+            - text/html; charset=utf-8
+            X-Custom-Header:
+            - value1
+            - value2
+      required:
+      - parts
+      - attachments
+      - headers
+    PaginatedMessagesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageSummary'
+          description: Array of message summaries (content and content_parsed fields omitted for performance)
+          example:
+          - object: message
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            sent_at: '2025-03-15T14:30:00Z'
+            delivered_at: '2025-03-15T14:30:00Z'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    MessageSummary:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+          example: message
+        created_at:
+          type: string
+          format: date-time
+          description: When the message was created
+          example: '2025-03-15T14:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: When the message was last updated
+          example: '2025-03-15T14:30:00Z'
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the message was sent
+          example: '2025-03-15T14:30:00Z'
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the message was delivered
+          example: '2025-03-15T14:30:00Z'
+        retain_until:
+          type: string
+          format: date-time
+          description: When the message data will be purged
+          example: '2025-03-15T14:30:00Z'
+        direction:
+          type: string
+          enum:
+          - incoming
+          - outgoing
+          description: Message direction
+          example: incoming
+        is_bounce_notification:
+          type: boolean
+          description: Whether this is a bounce notification
+          example: true
+        bounce_classification:
+          type: string
+          description: Classification of bounce if applicable
+          example: example_value
+        delivery_attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryEvent'
+          description: List of delivery attempts for this message
+          example:
+          - time: '2025-03-15T14:30:00Z'
+            log: example_value
+            status: example_value
+        message_id:
+          type: string
+          description: Message-ID header value
+          example: '500123'
+        id:
+          type: string
+          format: uuid
+          description: API-generated message ID
+          example: '500123'
+        subject:
+          type: string
+          description: Message subject
+          example: example_value
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the message
+          example:
+          - example_value
+        sender:
+          type: string
+          format: email
+          description: Sender email address
+          example: example_value
+        recipient:
+          type: string
+          format: email
+          description: Recipient email address
+          example: example_value
+        status:
+          type: string
+          description: Current message status
+          example: example_value
+        num_attempts:
+          type: integer
+          description: Number of delivery attempts
+          example: 1
+        click_count:
+          type: integer
+          description: Number of clicks tracked for this message
+          example: 1
+        open_count:
+          type: integer
+          description: Number of opens tracked for this message
+          example: 1
+        reference_message_id:
+          type: integer
+          format: int64
+          description: ID of the original message (for bounce messages)
+          example: 1
+        domain_id:
+          type: string
+          format: uuid
+          description: Domain ID this message was sent from
+          example: '500123'
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this message belongs to
+          example: '500123'
+      required:
+      - object
+      - created_at
+      - updated_at
+      - retain_until
+      - direction
+      - is_bounce_notification
+      - delivery_attempts
+      - message_id
+      - id
+      - subject
+      - tags
+      - sender
+      - recipient
+      - status
+      - num_attempts
+      - click_count
+      - open_count
+      - domain_id
+      - account_id
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+          example: example_value
+      example:
+        message: Error message
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        Requests with the same key will return the same response. Keys expire after 24 hours.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates whether this response is replayed from a previous identical request.
+
+        - `true`: Response was replayed from cache (duplicate request)
+
+        - `false`: Response from original processing or error state
+
+        '
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+  responses:
+    IdempotencyPreconditionFailed:
+      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: The original request with this idempotency key failed and cannot be retried
+    IdempotencyConflict:
+      description: Request in progress - a request with this idempotency key is already being processed
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: API key for authentication
