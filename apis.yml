@@ -1,33 +1,193 @@
 aid: ahasend
 url: https://raw.githubusercontent.com/api-evangelist/ahasend/refs/heads/main/apis.yml
 apis:
-  - aid: ahasend:ahasend
-    name: AhaSend
-    tags:
-      - Email
-      - Transactional Email
-      - REST API
-      - SMTP
-      - Webhooks
-    humanURL: https://ahasend.com/docs
-    properties:
-      - url: https://ahasend.com/docs
-        type: Documentation
-      - url: https://ahasend.com/docs/api-reference
-        type: APIReference
-      - url: openapi/ahasend-openapi.yml
-        type: OpenAPI
-        title: AhaSend Email API v1
-      - url: openapi/ahasend-openapi-v2.yaml
-        type: OpenAPI
-        title: AhaSend API v2
-      - url: https://ahasend.com/docs/quickstart
-        type: GettingStarted
-      - url: https://ahasend.com/docs/authentication
-        type: Authentication
-    description: >-
-      Send, receive, and track transactional emails with the AhaSend REST API. Supports sending messages, managing
-      domains, webhooks, routes, API keys, suppressions, SMTP credentials, and viewing delivery statistics.
+- aid: ahasend:ahasend-accounts-api
+  name: AhaSend Accounts API
+  description: Manage account settings and members
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-accounts-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-api-keys-api
+  name: AhaSend API Keys API
+  description: Manage API keys for authentication and access control
+  humanURL: https://ahasend.com/docs
+  tags:
+  - API Keys
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-api-keys-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-domains-api
+  name: AhaSend Domains API
+  description: Manage sending domains
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Domains
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-domains-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-email-api
+  name: AhaSend Email API
+  description: APIs for sending emails
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Email
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-email-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-messages-api
+  name: AhaSend Messages API
+  description: Send and manage transactional messages
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Messages
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-messages-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-routes-api
+  name: AhaSend Routes API
+  description: Manage inbound email routing
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Routes
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-routes-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-smtp-credentials-api
+  name: AhaSend SMTP Credentials API
+  description: Manage SMTP authentication credentials
+  humanURL: https://ahasend.com/docs
+  tags:
+  - SMTP Credentials
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-smtp-credentials-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-statistics-api
+  name: AhaSend Statistics API
+  description: Access transactional email statistics
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Statistics
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-statistics-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-suppressions-api
+  name: AhaSend Suppressions API
+  description: Manage email suppressions
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Suppressions
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-suppressions-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-utility-api
+  name: AhaSend Utility API
+  description: Utility endpoints for health checks and diagnostics
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Utility
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-utility-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
+- aid: ahasend:ahasend-webhooks-api
+  name: AhaSend Webhooks API
+  description: Manage webhook notifications
+  humanURL: https://ahasend.com/docs
+  tags:
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-webhooks-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/authentication
 name: AhaSend
 tags:
   - Email
@@ -36,7 +196,20 @@ tags:
   - SMTP
   - Webhooks
 type: Index
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: freemium
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  label: Freemium · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ahasend.png
 access: 3rd-Party
 created: '2025-02-06'
 modified: '2026-04-19'
@@ -54,6 +227,8 @@ maintainers:
     email: kin@apievangelist.com
 specificationVersion: '0.19'
 common:
+  - type: PostmanWorkspace
+    url: https://www.postman.com/kinlaneapi/ahasend/overview
   - type: AgenticAccess
     url: agentic-access/ahasend-agentic-access.yml
   - type: VulnerabilityDisclosure
