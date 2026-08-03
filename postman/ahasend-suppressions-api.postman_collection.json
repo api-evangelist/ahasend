@@ -1,0 +1,1904 @@
+{
+  "info": {
+    "_postman_id": "e836cc8c-90eb-4238-ad16-3321baf96123",
+    "name": "AhaSend API v2 Accounts Suppressions API",
+    "description": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:29:20.000Z",
+    "updatedAt": "2026-07-28T00:29:21.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-e836cc8c-90eb-4238-ad16-3321baf96123"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "{account_id}",
+              "item": [
+                {
+                  "name": "suppressions",
+                  "item": [
+                    {
+                      "name": "all",
+                      "item": [
+                        {
+                          "name": "AhaSend Delete All Suppressions",
+                          "id": "fb1d1347-7c54-48a0-bb5f-ab583854394f",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions",
+                                "all"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "id": "ae16ee17-2f1d-4506-99b3-d87e86159e2c",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                }
+                              ]
+                            },
+                            "description": "Deletes all suppressions for the account\n\n**Query Parameters:**\n- `domain`: Optional domain filter to delete suppressions for specific domain only\n"
+                          },
+                          "response": [
+                            {
+                              "id": "1ad64b37-2cc6-45c1-8d15-aeadfa506a1a",
+                              "name": "All suppressions deleted successfully",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "suppressions",
+                                    "all"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Optional domain filter",
+                                      "key": "domain",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:21.000Z",
+                              "updatedAt": "2026-07-28T00:29:21.000Z",
+                              "uid": "35240-1ad64b37-2cc6-45c1-8d15-aeadfa506a1a"
+                            },
+                            {
+                              "id": "f240a9cc-4b62-4952-8c94-31cdbd7ad2e5",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "suppressions",
+                                    "all"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Optional domain filter",
+                                      "key": "domain",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:21.000Z",
+                              "updatedAt": "2026-07-28T00:29:21.000Z",
+                              "uid": "35240-f240a9cc-4b62-4952-8c94-31cdbd7ad2e5"
+                            },
+                            {
+                              "id": "03b61be4-e9ff-47ad-88bc-94a31ffed327",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "suppressions",
+                                    "all"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Optional domain filter",
+                                      "key": "domain",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:21.000Z",
+                              "updatedAt": "2026-07-28T00:29:21.000Z",
+                              "uid": "35240-03b61be4-e9ff-47ad-88bc-94a31ffed327"
+                            },
+                            {
+                              "id": "b000b312-de08-4b9a-8548-e819f9ca67e9",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "suppressions",
+                                    "all"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Optional domain filter",
+                                      "key": "domain",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:21.000Z",
+                              "updatedAt": "2026-07-28T00:29:21.000Z",
+                              "uid": "35240-b000b312-de08-4b9a-8548-e819f9ca67e9"
+                            },
+                            {
+                              "id": "f42b1a06-e614-46a5-aeea-d2e05cbdf89a",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions/all?domain=<string>",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "suppressions",
+                                    "all"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Optional domain filter",
+                                      "key": "domain",
+                                      "value": "<string>"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:21.000Z",
+                              "updatedAt": "2026-07-28T00:29:21.000Z",
+                              "uid": "35240-f42b1a06-e614-46a5-aeea-d2e05cbdf89a"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-fb1d1347-7c54-48a0-bb5f-ab583854394f"
+                        }
+                      ],
+                      "id": "98dd4c97-7d1f-47a5-af8d-811a3a45d57b",
+                      "createdAt": "2026-07-28T00:29:21.000Z",
+                      "updatedAt": "2026-07-28T00:29:21.000Z",
+                      "uid": "35240-98dd4c97-7d1f-47a5-af8d-811a3a45d57b"
+                    },
+                    {
+                      "name": "AhaSend Get Suppressions",
+                      "id": "cfbe946d-505d-4edd-afb9-0624c757a4cc",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "suppressions"
+                          ],
+                          "query": [
+                            {
+                              "description": "Filter by domain",
+                              "key": "domain",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "(Required) Email address",
+                              "key": "email",
+                              "value": "<email>"
+                            },
+                            {
+                              "description": "Filter suppressions created after this date (RFC3339 format)",
+                              "key": "from_date",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Filter suppressions created before this date (RFC3339 format)",
+                              "key": "to_date",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Maximum number of items to return (1-100)",
+                              "key": "limit",
+                              "value": "100"
+                            },
+                            {
+                              "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                              "key": "after",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                              "key": "before",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "0096f79d-6ddd-4564-b3a7-fbee79318c0b",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Returns a list of suppressions for the account\n\n**Query Parameters:**\n- `domain`: Filter by domain (optional)\n- `email`: Filter by email (optional)\n- `from_date`: Filter suppressions created after this date (RFC3339 format)\n- `to_date`: Filter suppressions created before this date (RFC3339 format)\n- `limit`: Maximum number of items to return (1-100, default: 100)\n- `cursor`: Pagination cursor for the next page\n"
+                      },
+                      "response": [
+                        {
+                          "id": "17ea345f-60fc-4cf1-abfb-7e73cc841d39",
+                          "name": "List of suppressions",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by domain",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter suppressions created after this date (RFC3339 format)",
+                                  "key": "from_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter suppressions created before this date (RFC3339 format)",
+                                  "key": "to_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"suppression\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"email\": \"<email>\",\n      \"expires_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"reason\": \"<string>\"\n    },\n    {\n      \"object\": \"suppression\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"email\": \"<email>\",\n      \"expires_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"reason\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": \"<boolean>\",\n    \"next_cursor\": \"<string>\",\n    \"previous_cursor\": \"<string>\"\n  }\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-17ea345f-60fc-4cf1-abfb-7e73cc841d39"
+                        },
+                        {
+                          "id": "015be28f-0153-4c7d-841f-d10bebaa1f45",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by domain",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter suppressions created after this date (RFC3339 format)",
+                                  "key": "from_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter suppressions created before this date (RFC3339 format)",
+                                  "key": "to_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-015be28f-0153-4c7d-841f-d10bebaa1f45"
+                        },
+                        {
+                          "id": "f1c6663f-d760-40e4-9dc7-437cd4f63a33",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by domain",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter suppressions created after this date (RFC3339 format)",
+                                  "key": "from_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter suppressions created before this date (RFC3339 format)",
+                                  "key": "to_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-f1c6663f-d760-40e4-9dc7-437cd4f63a33"
+                        },
+                        {
+                          "id": "7b2d7720-9beb-4422-bb39-b031f4ce7120",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by domain",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter suppressions created after this date (RFC3339 format)",
+                                  "key": "from_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter suppressions created before this date (RFC3339 format)",
+                                  "key": "to_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-7b2d7720-9beb-4422-bb39-b031f4ce7120"
+                        },
+                        {
+                          "id": "bde8eef5-54f9-4067-8174-6b6f99531245",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?domain=<string>&email=<email>&from_date=<dateTime>&to_date=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by domain",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter suppressions created after this date (RFC3339 format)",
+                                  "key": "from_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter suppressions created before this date (RFC3339 format)",
+                                  "key": "to_date",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-bde8eef5-54f9-4067-8174-6b6f99531245"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:21.000Z",
+                      "updatedAt": "2026-07-28T00:29:21.000Z",
+                      "uid": "35240-cfbe946d-505d-4edd-afb9-0624c757a4cc"
+                    },
+                    {
+                      "name": "AhaSend Create Suppression",
+                      "id": "c174b082-7f92-425d-ac2f-a8270a62c8d4",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                            "key": "Idempotency-Key",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "suppressions"
+                          ],
+                          "variable": [
+                            {
+                              "id": "7af965b6-7b99-4be2-a545-068a1a7d8868",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Creates a new suppression for an email address\n\n**Validation Requirements:**\n- `email` must be a valid email address\n- `expires_at` must be in RFC3339 format\n- `domain` is optional - if not provided, applies to all account domains\n"
+                      },
+                      "response": [
+                        {
+                          "id": "c38172a8-8d38-4a44-85fd-21e7e0aea4d4",
+                          "name": "Suppression created successfully",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Created",
+                          "code": 201,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"suppression\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"email\": \"<email>\",\n      \"expires_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"reason\": \"<string>\"\n    },\n    {\n      \"object\": \"suppression\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"email\": \"<email>\",\n      \"expires_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"reason\": \"<string>\"\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-c38172a8-8d38-4a44-85fd-21e7e0aea4d4"
+                        },
+                        {
+                          "id": "76bf6380-29d5-4191-8dfa-b8584de9aeb0",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-76bf6380-29d5-4191-8dfa-b8584de9aeb0"
+                        },
+                        {
+                          "id": "b1fae804-92a0-49b8-8e4d-7f80d18ea791",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-b1fae804-92a0-49b8-8e4d-7f80d18ea791"
+                        },
+                        {
+                          "id": "6556f4c1-9bb5-4c75-b0df-fbbad60b5948",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-6556f4c1-9bb5-4c75-b0df-fbbad60b5948"
+                        },
+                        {
+                          "id": "c353dcc3-86e1-4e32-9dd4-5efebbdb97e6",
+                          "name": "Request in progress - a request with this idempotency key is already being processed",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-c353dcc3-86e1-4e32-9dd4-5efebbdb97e6"
+                        },
+                        {
+                          "id": "83e0aa53-cd6e-4ddf-8e0d-6579511c7996",
+                          "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Precondition Failed",
+                          "code": 412,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-83e0aa53-cd6e-4ddf-8e0d-6579511c7996"
+                        },
+                        {
+                          "id": "436fde32-514c-4d5e-a40f-918de014b3d3",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"email\": \"<email>\",\n  \"expires_at\": \"<dateTime>\",\n  \"domain\": \"<hostname>\",\n  \"reason\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-436fde32-514c-4d5e-a40f-918de014b3d3"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:21.000Z",
+                      "updatedAt": "2026-07-28T00:29:21.000Z",
+                      "uid": "35240-c174b082-7f92-425d-ac2f-a8270a62c8d4"
+                    },
+                    {
+                      "name": "AhaSend Delete Suppression",
+                      "id": "46e500a1-6552-4f22-aa55-84dffc4f1bc8",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "suppressions"
+                          ],
+                          "query": [
+                            {
+                              "description": "(Required) Email address",
+                              "key": "email",
+                              "value": "<email>"
+                            },
+                            {
+                              "description": "Optional domain filter",
+                              "key": "domain",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "97d22db0-29b9-467e-ac26-708a73ba74af",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Deletes suppressions for an email address\n\n**Query Parameters:**\n- `email`: Required email address to delete from suppression list\n- `domain`: Optional domain filter to delete suppressions for specific domain only\n"
+                      },
+                      "response": [
+                        {
+                          "id": "3f56de46-0dd2-4d38-9610-21d16e764cb9",
+                          "name": "Suppression deleted successfully",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-3f56de46-0dd2-4d38-9610-21d16e764cb9"
+                        },
+                        {
+                          "id": "62f79416-3d20-4cb3-9a93-6dfca3243f69",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-62f79416-3d20-4cb3-9a93-6dfca3243f69"
+                        },
+                        {
+                          "id": "eec94c87-b08e-4c89-9ce5-52d5ebf76fa2",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-eec94c87-b08e-4c89-9ce5-52d5ebf76fa2"
+                        },
+                        {
+                          "id": "ca14731d-b49d-4ca7-b092-12e32efb0489",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-ca14731d-b49d-4ca7-b092-12e32efb0489"
+                        },
+                        {
+                          "id": "aab21686-04c4-4c01-abfb-84acc8cd5f70",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/suppressions?email=<email>&domain=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "suppressions"
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) Email address",
+                                  "key": "email",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Optional domain filter",
+                                  "key": "domain",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:21.000Z",
+                          "updatedAt": "2026-07-28T00:29:21.000Z",
+                          "uid": "35240-aab21686-04c4-4c01-abfb-84acc8cd5f70"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:21.000Z",
+                      "updatedAt": "2026-07-28T00:29:21.000Z",
+                      "uid": "35240-46e500a1-6552-4f22-aa55-84dffc4f1bc8"
+                    }
+                  ],
+                  "id": "4d0c734f-f0ed-488a-b148-5cad4793ab17",
+                  "createdAt": "2026-07-28T00:29:21.000Z",
+                  "updatedAt": "2026-07-28T00:29:21.000Z",
+                  "uid": "35240-4d0c734f-f0ed-488a-b148-5cad4793ab17"
+                }
+              ],
+              "id": "dd44ba4b-ee16-4458-9b26-0fd2c91f69f0",
+              "createdAt": "2026-07-28T00:29:21.000Z",
+              "updatedAt": "2026-07-28T00:29:21.000Z",
+              "uid": "35240-dd44ba4b-ee16-4458-9b26-0fd2c91f69f0"
+            }
+          ],
+          "id": "af69a4e5-7999-4610-8072-2905709b6477",
+          "createdAt": "2026-07-28T00:29:21.000Z",
+          "updatedAt": "2026-07-28T00:29:21.000Z",
+          "uid": "35240-af69a4e5-7999-4610-8072-2905709b6477"
+        }
+      ],
+      "id": "2bfdb8d4-d373-408f-a999-20b151d7b8cb",
+      "createdAt": "2026-07-28T00:29:21.000Z",
+      "updatedAt": "2026-07-28T00:29:21.000Z",
+      "uid": "35240-2bfdb8d4-d373-408f-a999-20b151d7b8cb"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ahasend.com"
+    }
+  ]
+}

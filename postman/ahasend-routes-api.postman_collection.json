@@ -1,0 +1,2307 @@
+{
+  "info": {
+    "_postman_id": "d06f83cd-6a00-49fa-9dd0-6190985ef734",
+    "name": "AhaSend API v2 Accounts Routes API",
+    "description": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:29:17.000Z",
+    "updatedAt": "2026-07-28T00:29:17.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-d06f83cd-6a00-49fa-9dd0-6190985ef734"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "{account_id}",
+              "item": [
+                {
+                  "name": "routes",
+                  "item": [
+                    {
+                      "name": "{route_id}",
+                      "item": [
+                        {
+                          "name": "AhaSend Get Route",
+                          "id": "5d15a7c0-bc88-4060-a215-339eb5da493f",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes",
+                                ":route_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "a24ff3ca-1c0b-4048-a88a-9446eb817b4b",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "013f9ca8-c04b-4501-ae2a-3a0ddcc083a5",
+                                  "key": "route_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Route ID"
+                                }
+                              ]
+                            },
+                            "description": "Returns a specific route by ID"
+                          },
+                          "response": [
+                            {
+                              "id": "96cb7a02-c317-4d42-bd43-d8097f094a40",
+                              "name": "Route details",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"route\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-96cb7a02-c317-4d42-bd43-d8097f094a40"
+                            },
+                            {
+                              "id": "37233dfe-78d6-4561-a240-1275793eaf26",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-37233dfe-78d6-4561-a240-1275793eaf26"
+                            },
+                            {
+                              "id": "a8c8c89a-8489-4664-8f15-398f0b595222",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-a8c8c89a-8489-4664-8f15-398f0b595222"
+                            },
+                            {
+                              "id": "1b2bbd7b-20bf-4e1d-a948-de856e267a0a",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-1b2bbd7b-20bf-4e1d-a948-de856e267a0a"
+                            },
+                            {
+                              "id": "286ff68f-4417-4e3c-b46c-db7315f28a5b",
+                              "name": "Route not found",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-286ff68f-4417-4e3c-b46c-db7315f28a5b"
+                            },
+                            {
+                              "id": "fce98457-7ecc-48b4-9991-f205a123f193",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-fce98457-7ecc-48b4-9991-f205a123f193"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-5d15a7c0-bc88-4060-a215-339eb5da493f"
+                        },
+                        {
+                          "name": "AhaSend Update Route",
+                          "id": "2716ad38-88f5-4fe6-9f42-27e10b81a0be",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PUT",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes",
+                                ":route_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "2b121cb8-d5e4-450b-8fed-bb802d23e5dd",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "216b51a7-4448-4a55-8e08-3455266c7afa",
+                                  "key": "route_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Route ID"
+                                }
+                              ]
+                            },
+                            "description": "Updates an existing route"
+                          },
+                          "response": [
+                            {
+                              "id": "cdf0f099-50a9-4726-ab73-304f77844943",
+                              "name": "Route updated successfully",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"route\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-cdf0f099-50a9-4726-ab73-304f77844943"
+                            },
+                            {
+                              "id": "35f26a8e-20e8-468b-8d18-3e9c1cc31f4c",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-35f26a8e-20e8-468b-8d18-3e9c1cc31f4c"
+                            },
+                            {
+                              "id": "c8d04f2a-574f-45a9-ab54-c85435c3c81b",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-c8d04f2a-574f-45a9-ab54-c85435c3c81b"
+                            },
+                            {
+                              "id": "f3a3181c-dc2f-489f-82e6-64d0774bc4af",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-f3a3181c-dc2f-489f-82e6-64d0774bc4af"
+                            },
+                            {
+                              "id": "fe9a8284-e941-488b-8935-6a440ca94598",
+                              "name": "Route not found",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-fe9a8284-e941-488b-8935-6a440ca94598"
+                            },
+                            {
+                              "id": "c0e9f66c-f556-48a0-8daa-dc598f7ca8b9",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"enabled\": \"<boolean>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-c0e9f66c-f556-48a0-8daa-dc598f7ca8b9"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-2716ad38-88f5-4fe6-9f42-27e10b81a0be"
+                        },
+                        {
+                          "name": "AhaSend Delete Route",
+                          "id": "d2821734-2a38-4728-af66-d9e82df31704",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes",
+                                ":route_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "8f87375f-c6ee-4f01-80df-02a1524e9b09",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "b2d289b0-1197-415f-8e7b-90f7699faa06",
+                                  "key": "route_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Route ID"
+                                }
+                              ]
+                            },
+                            "description": "Deletes a route"
+                          },
+                          "response": [
+                            {
+                              "id": "d164a65f-d359-4d05-a50b-c97a12f7ca09",
+                              "name": "Route deleted successfully",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-d164a65f-d359-4d05-a50b-c97a12f7ca09"
+                            },
+                            {
+                              "id": "753e6bcd-11f5-4b03-aa2a-db979f7b396d",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-753e6bcd-11f5-4b03-aa2a-db979f7b396d"
+                            },
+                            {
+                              "id": "15a3fbf9-b99c-483b-9840-1bbbad63eac8",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-15a3fbf9-b99c-483b-9840-1bbbad63eac8"
+                            },
+                            {
+                              "id": "b7a838ff-7cde-4513-a9f2-c2ed2019ce47",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-b7a838ff-7cde-4513-a9f2-c2ed2019ce47"
+                            },
+                            {
+                              "id": "96df6d73-152a-474d-af2c-ad22419e3c52",
+                              "name": "Route not found",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-96df6d73-152a-474d-af2c-ad22419e3c52"
+                            },
+                            {
+                              "id": "5a0fd70f-1680-4b5e-b39c-0f0bcc4a0254",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/routes/:route_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "routes",
+                                    ":route_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "route_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:17.000Z",
+                              "updatedAt": "2026-07-28T00:29:17.000Z",
+                              "uid": "35240-5a0fd70f-1680-4b5e-b39c-0f0bcc4a0254"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-d2821734-2a38-4728-af66-d9e82df31704"
+                        }
+                      ],
+                      "id": "45fbea7e-8b98-4161-8aaa-a7b01f5645d7",
+                      "createdAt": "2026-07-28T00:29:17.000Z",
+                      "updatedAt": "2026-07-28T00:29:17.000Z",
+                      "uid": "35240-45fbea7e-8b98-4161-8aaa-a7b01f5645d7"
+                    },
+                    {
+                      "name": "AhaSend Get Routes",
+                      "id": "6381ad3c-e08c-4f9a-aa55-aad7e5322028",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "routes"
+                          ],
+                          "query": [
+                            {
+                              "description": "Maximum number of items to return (1-100)",
+                              "key": "limit",
+                              "value": "100"
+                            },
+                            {
+                              "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                              "key": "after",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Pagination cursor for the previous page.",
+                              "key": "before",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "a534eda1-ad0e-4ad9-8cff-3dbf3e462323",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Returns a list of routes for the account"
+                      },
+                      "response": [
+                        {
+                          "id": "0fab5bfd-958e-43e1-ab2b-19990ee92f78",
+                          "name": "List of routes",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"route\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"name\": \"<string>\",\n      \"url\": \"<uri>\",\n      \"enabled\": \"<boolean>\",\n      \"recipient\": \"<string>\",\n      \"attachments\": \"<boolean>\",\n      \"headers\": \"<boolean>\",\n      \"group_by_message_id\": \"<boolean>\",\n      \"strip_replies\": \"<boolean>\",\n      \"success_count\": \"<integer>\",\n      \"error_count\": \"<integer>\",\n      \"errors_since_last_success\": \"<integer>\",\n      \"last_request_at\": \"<dateTime>\"\n    },\n    {\n      \"object\": \"route\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"name\": \"<string>\",\n      \"url\": \"<uri>\",\n      \"enabled\": \"<boolean>\",\n      \"recipient\": \"<string>\",\n      \"attachments\": \"<boolean>\",\n      \"headers\": \"<boolean>\",\n      \"group_by_message_id\": \"<boolean>\",\n      \"strip_replies\": \"<boolean>\",\n      \"success_count\": \"<integer>\",\n      \"error_count\": \"<integer>\",\n      \"errors_since_last_success\": \"<integer>\",\n      \"last_request_at\": \"<dateTime>\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": \"<boolean>\",\n    \"next_cursor\": \"<string>\",\n    \"previous_cursor\": \"<string>\"\n  }\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-0fab5bfd-958e-43e1-ab2b-19990ee92f78"
+                        },
+                        {
+                          "id": "c88d2b36-8105-4449-add2-bbfacecdc654",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-c88d2b36-8105-4449-add2-bbfacecdc654"
+                        },
+                        {
+                          "id": "a99ce95f-46ce-4eda-84f5-4cad57f07aaf",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-a99ce95f-46ce-4eda-84f5-4cad57f07aaf"
+                        },
+                        {
+                          "id": "27873a57-f0a8-47b1-b7f5-c36b71a4d2cf",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-27873a57-f0a8-47b1-b7f5-c36b71a4d2cf"
+                        },
+                        {
+                          "id": "83920098-e5ef-4b1e-86f4-f6628e400068",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes?limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-83920098-e5ef-4b1e-86f4-f6628e400068"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:17.000Z",
+                      "updatedAt": "2026-07-28T00:29:17.000Z",
+                      "uid": "35240-6381ad3c-e08c-4f9a-aa55-aad7e5322028"
+                    },
+                    {
+                      "name": "AhaSend Create Route",
+                      "id": "80b80c86-ec14-45b8-bcd6-e77fc0aa9489",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                            "key": "Idempotency-Key",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "routes"
+                          ],
+                          "variable": [
+                            {
+                              "id": "fcfa2f0e-5933-42b0-acfd-a1d096cf794e",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Creates a new route for inbound email routing"
+                      },
+                      "response": [
+                        {
+                          "id": "e1d84d9c-fe01-483f-a49b-d7bad8f5e96c",
+                          "name": "Route created successfully",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Created",
+                          "code": 201,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"route\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": \"<boolean>\",\n  \"headers\": \"<boolean>\",\n  \"group_by_message_id\": \"<boolean>\",\n  \"strip_replies\": \"<boolean>\",\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-e1d84d9c-fe01-483f-a49b-d7bad8f5e96c"
+                        },
+                        {
+                          "id": "a66d1c7b-10bc-4617-9797-b49299679f93",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-a66d1c7b-10bc-4617-9797-b49299679f93"
+                        },
+                        {
+                          "id": "7a356f8f-d280-4dbf-bd07-637df9231c1c",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-7a356f8f-d280-4dbf-bd07-637df9231c1c"
+                        },
+                        {
+                          "id": "a946c425-f346-4e9b-92b0-79c152067f93",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-a946c425-f346-4e9b-92b0-79c152067f93"
+                        },
+                        {
+                          "id": "75d9af1c-effe-4c38-a97a-af914bb8d1d6",
+                          "name": "Request in progress - a request with this idempotency key is already being processed",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-75d9af1c-effe-4c38-a97a-af914bb8d1d6"
+                        },
+                        {
+                          "id": "1b5b84ef-2675-4c02-b6dd-2feb2b10bafe",
+                          "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Precondition Failed",
+                          "code": 412,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-1b5b84ef-2675-4c02-b6dd-2feb2b10bafe"
+                        },
+                        {
+                          "id": "b9402bee-6ab2-4c16-8b85-caacb6005fb7",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"recipient\": \"<string>\",\n  \"attachments\": false,\n  \"headers\": false,\n  \"group_by_message_id\": false,\n  \"strip_replies\": false,\n  \"enabled\": true\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/routes",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "routes"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:17.000Z",
+                          "updatedAt": "2026-07-28T00:29:17.000Z",
+                          "uid": "35240-b9402bee-6ab2-4c16-8b85-caacb6005fb7"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:17.000Z",
+                      "updatedAt": "2026-07-28T00:29:17.000Z",
+                      "uid": "35240-80b80c86-ec14-45b8-bcd6-e77fc0aa9489"
+                    }
+                  ],
+                  "id": "4974de8b-80c4-464c-9b26-96204d016940",
+                  "createdAt": "2026-07-28T00:29:17.000Z",
+                  "updatedAt": "2026-07-28T00:29:17.000Z",
+                  "uid": "35240-4974de8b-80c4-464c-9b26-96204d016940"
+                }
+              ],
+              "id": "2b8aa6ea-ef54-42ac-a679-0ec508d9a525",
+              "createdAt": "2026-07-28T00:29:17.000Z",
+              "updatedAt": "2026-07-28T00:29:17.000Z",
+              "uid": "35240-2b8aa6ea-ef54-42ac-a679-0ec508d9a525"
+            }
+          ],
+          "id": "072abd42-b628-4f4b-b0dc-f18479e39f01",
+          "createdAt": "2026-07-28T00:29:17.000Z",
+          "updatedAt": "2026-07-28T00:29:17.000Z",
+          "uid": "35240-072abd42-b628-4f4b-b0dc-f18479e39f01"
+        }
+      ],
+      "id": "3c528c30-ebd3-454c-94d4-be84855edaff",
+      "createdAt": "2026-07-28T00:29:17.000Z",
+      "updatedAt": "2026-07-28T00:29:17.000Z",
+      "uid": "35240-3c528c30-ebd3-454c-94d4-be84855edaff"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ahasend.com"
+    }
+  ]
+}

@@ -1,0 +1,2680 @@
+{
+  "info": {
+    "_postman_id": "e8c2dfab-d9f2-4258-9b60-6b5873189793",
+    "name": "AhaSend API v2 Accounts Messages API",
+    "description": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:29:16.000Z",
+    "updatedAt": "2026-07-28T00:29:16.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-e8c2dfab-d9f2-4258-9b60-6b5873189793"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "{account_id}",
+              "item": [
+                {
+                  "name": "messages",
+                  "item": [
+                    {
+                      "name": "conversation",
+                      "item": [
+                        {
+                          "name": "AhaSend Create Conversational Message",
+                          "id": "8419db2b-8bf0-4c36-98fd-e43cf5723533",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages",
+                                "conversation"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "dac67cc2-7e54-4787-a028-d633c51d61bd",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                }
+                              ]
+                            },
+                            "description": "Creates and sends a conversational message (with support for CC and BCC) to one or more recipients. This API does not support template substitutions, use [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) instead if you need substitutions.\n\n**Validation Requirements:**\n- Either `text_content` or `html_content` is required\n- `from.email` must be from a domain you own with valid DNS records\n- `retention.metadata` must be between 1 and 30 days\n- `retention.data` must be between 0 and 30 days\n- If the `reply_to` parameter is provided, do not include `reply-to` in headers\n- If the `cc` parameter is provided, do not include `cc` in headers\n- `message-id` header will be ignored and automatically generated\n- Schedule times must be in RFC3339 format\n"
+                          },
+                          "response": [
+                            {
+                              "id": "5e460cd8-f00a-4617-b154-a671f76334d5",
+                              "name": "Message created successfully",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Accepted",
+                              "code": 202,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                },
+                                {
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "",
+                                    "type": "text/plain"
+                                  },
+                                  "key": "Idempotent-Replayed",
+                                  "value": ""
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"message\",\n      \"recipient\": {\n        \"email\": \"<email>\",\n        \"name\": \"<string>\",\n        \"substitutions\": {\n          \"in__\": \"elit\",\n          \"veniam65d\": 65096908,\n          \"veniam_a\": false,\n          \"sunt_617\": -30558385.68790312\n        }\n      },\n      \"status\": \"error\",\n      \"id\": \"<string>\",\n      \"error\": \"<string>\",\n      \"schedule\": {\n        \"first_attempt\": \"<dateTime>\",\n        \"expires\": \"<dateTime>\"\n      }\n    },\n    {\n      \"object\": \"message\",\n      \"recipient\": {\n        \"email\": \"<email>\",\n        \"name\": \"<string>\",\n        \"substitutions\": {\n          \"id4\": true,\n          \"pariatur3\": \"magna ut commodo\",\n          \"dolore_1\": true\n        }\n      },\n      \"status\": \"scheduled\",\n      \"id\": \"<string>\",\n      \"error\": \"<string>\",\n      \"schedule\": {\n        \"first_attempt\": \"<dateTime>\",\n        \"expires\": \"<dateTime>\"\n      }\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-5e460cd8-f00a-4617-b154-a671f76334d5"
+                            },
+                            {
+                              "id": "cc5843f3-3e83-4bf7-8f13-0aac42d5512a",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-cc5843f3-3e83-4bf7-8f13-0aac42d5512a"
+                            },
+                            {
+                              "id": "6c9c73f4-2803-4a0e-8ebf-0985ae81ad60",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-6c9c73f4-2803-4a0e-8ebf-0985ae81ad60"
+                            },
+                            {
+                              "id": "db47c94e-3f97-4a62-b97b-ff3536989505",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-db47c94e-3f97-4a62-b97b-ff3536989505"
+                            },
+                            {
+                              "id": "e96e4ce9-439c-4c63-9618-e565aa58cd5b",
+                              "name": "Request in progress - a request with this idempotency key is already being processed",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Conflict",
+                              "code": 409,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                },
+                                {
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "",
+                                    "type": "text/plain"
+                                  },
+                                  "key": "Idempotent-Replayed",
+                                  "value": ""
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-e96e4ce9-439c-4c63-9618-e565aa58cd5b"
+                            },
+                            {
+                              "id": "a3312197-aa95-4c70-8e45-dbf4d46ffaab",
+                              "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Precondition Failed",
+                              "code": 412,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                },
+                                {
+                                  "disabled": false,
+                                  "description": {
+                                    "content": "",
+                                    "type": "text/plain"
+                                  },
+                                  "key": "Idempotent-Replayed",
+                                  "value": ""
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-a3312197-aa95-4c70-8e45-dbf4d46ffaab"
+                            },
+                            {
+                              "id": "543a0e06-0f8f-4f5d-8464-bc6de6dff20c",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                    "key": "Idempotency-Key",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"subject\": \"<string>\",\n  \"to\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"cc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"bcc\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\"\n    }\n  ],\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"aute_2\": \"<string>\"\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"fail\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/conversation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    "conversation"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-543a0e06-0f8f-4f5d-8464-bc6de6dff20c"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-8419db2b-8bf0-4c36-98fd-e43cf5723533"
+                        }
+                      ],
+                      "id": "b8f9b98a-5f84-4342-8d13-c2cec6de8ef9",
+                      "createdAt": "2026-07-28T00:29:16.000Z",
+                      "updatedAt": "2026-07-28T00:29:16.000Z",
+                      "uid": "35240-b8f9b98a-5f84-4342-8d13-c2cec6de8ef9"
+                    },
+                    {
+                      "name": "{message_id}",
+                      "item": [
+                        {
+                          "name": "cancel",
+                          "item": [
+                            {
+                              "name": "AhaSend Cancel Message",
+                              "id": "de4cadbd-7e9b-485e-9bcb-4c03c7303aa2",
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              },
+                              "request": {
+                                "auth": {
+                                  "type": "bearer",
+                                  "bearer": [
+                                    {
+                                      "key": "token",
+                                      "value": "{{bearerToken}}",
+                                      "type": "string"
+                                    }
+                                  ]
+                                },
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id",
+                                    "cancel"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "id": "843030e7-70dc-4d2a-89e1-f66cc2701b0c",
+                                      "key": "account_id",
+                                      "value": "<uuid>",
+                                      "description": "(Required) Account ID"
+                                    },
+                                    {
+                                      "id": "3b25dffa-0a76-4cc6-b812-427c27bc5a98",
+                                      "key": "message_id",
+                                      "value": "<string>",
+                                      "description": "(Required) Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))"
+                                    }
+                                  ]
+                                },
+                                "description": "Cancels a scheduled message"
+                              },
+                              "response": [
+                                {
+                                  "id": "7ab09f5e-3ef1-4eba-a62f-7e5ee3086db1",
+                                  "name": "Scheduled message is cancelled",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-7ab09f5e-3ef1-4eba-a62f-7e5ee3086db1"
+                                },
+                                {
+                                  "id": "18ae67d9-3fab-4572-9431-1f8c28966329",
+                                  "name": "Bad request",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Bad Request",
+                                  "code": 400,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-18ae67d9-3fab-4572-9431-1f8c28966329"
+                                },
+                                {
+                                  "id": "af253337-597b-4c01-a4e0-e163731e1663",
+                                  "name": "Unauthorized",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Unauthorized",
+                                  "code": 401,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-af253337-597b-4c01-a4e0-e163731e1663"
+                                },
+                                {
+                                  "id": "9f8a5cf3-0bee-4b13-90f5-9fca5a400031",
+                                  "name": "Forbidden",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Forbidden",
+                                  "code": 403,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-9f8a5cf3-0bee-4b13-90f5-9fca5a400031"
+                                },
+                                {
+                                  "id": "d2ea94fa-6a90-4a83-9e12-accef3e4d785",
+                                  "name": "Message not found",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Not Found",
+                                  "code": 404,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-d2ea94fa-6a90-4a83-9e12-accef3e4d785"
+                                },
+                                {
+                                  "id": "d1003e89-f945-4a88-a689-42e55108629e",
+                                  "name": "Internal server error",
+                                  "originalRequest": {
+                                    "method": "DELETE",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id/cancel",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "messages",
+                                        ":message_id",
+                                        "cancel"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "message_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Internal Server Error",
+                                  "code": 500,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:16.000Z",
+                                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                                  "uid": "35240-d1003e89-f945-4a88-a689-42e55108629e"
+                                }
+                              ],
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-de4cadbd-7e9b-485e-9bcb-4c03c7303aa2"
+                            }
+                          ],
+                          "id": "2eefe71b-7b6a-42d5-9ff1-f2568340bd76",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-2eefe71b-7b6a-42d5-9ff1-f2568340bd76"
+                        },
+                        {
+                          "name": "AhaSend Get Message",
+                          "id": "43a3f6a2-4eca-42b5-9621-87dff0e64c28",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages",
+                                ":message_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "cf8dc654-2233-490f-ad60-a538f2bf707c",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "7964e0a8-d5db-431b-946f-de65631b12d7",
+                                  "key": "message_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))"
+                                }
+                              ]
+                            },
+                            "description": "Returns the complete message by its ID, including raw content and parsed content structure.\n"
+                          },
+                          "response": [
+                            {
+                              "id": "7637e021-1665-41e3-ac6f-4cceb3203b40",
+                              "name": "Message details",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"message\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"retain_until\": \"<dateTime>\",\n  \"direction\": \"outgoing\",\n  \"is_bounce_notification\": \"<boolean>\",\n  \"delivery_attempts\": [\n    {\n      \"time\": \"<dateTime>\",\n      \"log\": \"<string>\",\n      \"status\": \"<string>\"\n    },\n    {\n      \"time\": \"<dateTime>\",\n      \"log\": \"<string>\",\n      \"status\": \"<string>\"\n    }\n  ],\n  \"message_id\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"subject\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sender\": \"<email>\",\n  \"recipient\": \"<email>\",\n  \"status\": \"<string>\",\n  \"num_attempts\": \"<integer>\",\n  \"click_count\": \"<integer>\",\n  \"open_count\": \"<integer>\",\n  \"domain_id\": \"<uuid>\",\n  \"account_id\": \"<uuid>\",\n  \"sent_at\": \"<dateTime>\",\n  \"delivered_at\": \"<dateTime>\",\n  \"bounce_classification\": \"<string>\",\n  \"reference_message_id\": \"<long>\",\n  \"content\": \"<string>\",\n  \"content_parsed\": {\n    \"parts\": [\n      {\n        \"content_type\": \"<string>\",\n        \"content\": \"<string>\"\n      },\n      {\n        \"content_type\": \"<string>\",\n        \"content\": \"<string>\"\n      }\n    ],\n    \"attachments\": [\n      {\n        \"filename\": \"<string>\",\n        \"content\": \"<string>\",\n        \"content_type\": \"<string>\",\n        \"content_id\": \"<string>\"\n      },\n      {\n        \"filename\": \"<string>\",\n        \"content\": \"<string>\",\n        \"content_type\": \"<string>\",\n        \"content_id\": \"<string>\"\n      }\n    ],\n    \"headers\": {\n      \"in_21\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"proident_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  }\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-7637e021-1665-41e3-ac6f-4cceb3203b40"
+                            },
+                            {
+                              "id": "6003abd4-e74d-4c3f-80ef-5cc99fbe8c9b",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-6003abd4-e74d-4c3f-80ef-5cc99fbe8c9b"
+                            },
+                            {
+                              "id": "7a78d721-0670-4b50-9047-ea6280cca4e7",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-7a78d721-0670-4b50-9047-ea6280cca4e7"
+                            },
+                            {
+                              "id": "2da33e77-627f-4dee-b039-12520ae54b1d",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-2da33e77-627f-4dee-b039-12520ae54b1d"
+                            },
+                            {
+                              "id": "c7976204-4a1e-49c6-810c-cc4bb56c2552",
+                              "name": "Message not found",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-c7976204-4a1e-49c6-810c-cc4bb56c2552"
+                            },
+                            {
+                              "id": "539efa58-0818-41e6-b0fc-f449ba617166",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/messages/:message_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "messages",
+                                    ":message_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "message_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:16.000Z",
+                              "updatedAt": "2026-07-28T00:29:16.000Z",
+                              "uid": "35240-539efa58-0818-41e6-b0fc-f449ba617166"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-43a3f6a2-4eca-42b5-9621-87dff0e64c28"
+                        }
+                      ],
+                      "id": "77e9f968-72a7-4044-8146-054456d047e4",
+                      "createdAt": "2026-07-28T00:29:16.000Z",
+                      "updatedAt": "2026-07-28T00:29:16.000Z",
+                      "uid": "35240-77e9f968-72a7-4044-8146-054456d047e4"
+                    },
+                    {
+                      "name": "AhaSend Get Messages",
+                      "id": "0e5bda58-5974-4c6d-8775-a9c93a56c649",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "messages"
+                          ],
+                          "query": [
+                            {
+                              "description": "Filter by comma-separated list of message statuses",
+                              "key": "status",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Sender email address (must be from domain in API key scopes)",
+                              "key": "sender",
+                              "value": "<email>"
+                            },
+                            {
+                              "description": "Recipient email address",
+                              "key": "recipient",
+                              "value": "<email>"
+                            },
+                            {
+                              "description": "Filter by subject text",
+                              "key": "subject",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                              "key": "message_id_header",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by comma-separated list of tags (max 20)",
+                              "key": "tags",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter messages created after this time (RFC3339 format)",
+                              "key": "from_time",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Filter messages created before this time (RFC3339 format)",
+                              "key": "to_time",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Maximum number of items to return (1-100)",
+                              "key": "limit",
+                              "value": "100"
+                            },
+                            {
+                              "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                              "key": "after",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Pagination cursor for the previous page.",
+                              "key": "before",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "c0b308ba-892c-4a46-a5d9-ebc75328a6c9",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Returns a list of message summaries for the account. Can be filtered by various parameters.\n"
+                      },
+                      "response": [
+                        {
+                          "id": "ff7d5fee-16c9-4a9c-b903-3ba3d87cc473",
+                          "name": "List of messages",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by comma-separated list of message statuses",
+                                  "key": "status",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Sender email address (must be from domain in API key scopes)",
+                                  "key": "sender",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Recipient email address",
+                                  "key": "recipient",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter by subject text",
+                                  "key": "subject",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                                  "key": "message_id_header",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by comma-separated list of tags (max 20)",
+                                  "key": "tags",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter messages created after this time (RFC3339 format)",
+                                  "key": "from_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter messages created before this time (RFC3339 format)",
+                                  "key": "to_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"message\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"retain_until\": \"<dateTime>\",\n      \"direction\": \"incoming\",\n      \"is_bounce_notification\": \"<boolean>\",\n      \"delivery_attempts\": [\n        {\n          \"time\": \"<dateTime>\",\n          \"log\": \"<string>\",\n          \"status\": \"<string>\"\n        },\n        {\n          \"time\": \"<dateTime>\",\n          \"log\": \"<string>\",\n          \"status\": \"<string>\"\n        }\n      ],\n      \"message_id\": \"<string>\",\n      \"id\": \"<uuid>\",\n      \"subject\": \"<string>\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"sender\": \"<email>\",\n      \"recipient\": \"<email>\",\n      \"status\": \"<string>\",\n      \"num_attempts\": \"<integer>\",\n      \"click_count\": \"<integer>\",\n      \"open_count\": \"<integer>\",\n      \"domain_id\": \"<uuid>\",\n      \"account_id\": \"<uuid>\",\n      \"sent_at\": \"<dateTime>\",\n      \"delivered_at\": \"<dateTime>\",\n      \"bounce_classification\": \"<string>\",\n      \"reference_message_id\": \"<long>\"\n    },\n    {\n      \"object\": \"message\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"retain_until\": \"<dateTime>\",\n      \"direction\": \"incoming\",\n      \"is_bounce_notification\": \"<boolean>\",\n      \"delivery_attempts\": [\n        {\n          \"time\": \"<dateTime>\",\n          \"log\": \"<string>\",\n          \"status\": \"<string>\"\n        },\n        {\n          \"time\": \"<dateTime>\",\n          \"log\": \"<string>\",\n          \"status\": \"<string>\"\n        }\n      ],\n      \"message_id\": \"<string>\",\n      \"id\": \"<uuid>\",\n      \"subject\": \"<string>\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"sender\": \"<email>\",\n      \"recipient\": \"<email>\",\n      \"status\": \"<string>\",\n      \"num_attempts\": \"<integer>\",\n      \"click_count\": \"<integer>\",\n      \"open_count\": \"<integer>\",\n      \"domain_id\": \"<uuid>\",\n      \"account_id\": \"<uuid>\",\n      \"sent_at\": \"<dateTime>\",\n      \"delivered_at\": \"<dateTime>\",\n      \"bounce_classification\": \"<string>\",\n      \"reference_message_id\": \"<long>\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": \"<boolean>\",\n    \"next_cursor\": \"<string>\",\n    \"previous_cursor\": \"<string>\"\n  }\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-ff7d5fee-16c9-4a9c-b903-3ba3d87cc473"
+                        },
+                        {
+                          "id": "e399e3b3-a778-44ae-899f-d13e9ba08f05",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by comma-separated list of message statuses",
+                                  "key": "status",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Sender email address (must be from domain in API key scopes)",
+                                  "key": "sender",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Recipient email address",
+                                  "key": "recipient",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter by subject text",
+                                  "key": "subject",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                                  "key": "message_id_header",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by comma-separated list of tags (max 20)",
+                                  "key": "tags",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter messages created after this time (RFC3339 format)",
+                                  "key": "from_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter messages created before this time (RFC3339 format)",
+                                  "key": "to_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-e399e3b3-a778-44ae-899f-d13e9ba08f05"
+                        },
+                        {
+                          "id": "196b4233-e1e3-47e6-b4a5-dd060f6533b0",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by comma-separated list of message statuses",
+                                  "key": "status",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Sender email address (must be from domain in API key scopes)",
+                                  "key": "sender",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Recipient email address",
+                                  "key": "recipient",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter by subject text",
+                                  "key": "subject",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                                  "key": "message_id_header",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by comma-separated list of tags (max 20)",
+                                  "key": "tags",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter messages created after this time (RFC3339 format)",
+                                  "key": "from_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter messages created before this time (RFC3339 format)",
+                                  "key": "to_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-196b4233-e1e3-47e6-b4a5-dd060f6533b0"
+                        },
+                        {
+                          "id": "0dbddfb4-e5ee-4e59-a3b8-bf17095bcfb6",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by comma-separated list of message statuses",
+                                  "key": "status",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Sender email address (must be from domain in API key scopes)",
+                                  "key": "sender",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Recipient email address",
+                                  "key": "recipient",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter by subject text",
+                                  "key": "subject",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                                  "key": "message_id_header",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by comma-separated list of tags (max 20)",
+                                  "key": "tags",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter messages created after this time (RFC3339 format)",
+                                  "key": "from_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter messages created before this time (RFC3339 format)",
+                                  "key": "to_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-0dbddfb4-e5ee-4e59-a3b8-bf17095bcfb6"
+                        },
+                        {
+                          "id": "e753e49a-0bf9-4685-ab0e-c359ff33ea9a",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages?status=<string>&sender=<email>&recipient=<email>&subject=<string>&message_id_header=<string>&tags=<string>&from_time=<dateTime>&to_time=<dateTime>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by comma-separated list of message statuses",
+                                  "key": "status",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Sender email address (must be from domain in API key scopes)",
+                                  "key": "sender",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Recipient email address",
+                                  "key": "recipient",
+                                  "value": "<email>"
+                                },
+                                {
+                                  "description": "Filter by subject text",
+                                  "key": "subject",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by message ID header (same ID returned by CreateMessage API)",
+                                  "key": "message_id_header",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter by comma-separated list of tags (max 20)",
+                                  "key": "tags",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Filter messages created after this time (RFC3339 format)",
+                                  "key": "from_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Filter messages created before this time (RFC3339 format)",
+                                  "key": "to_time",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-e753e49a-0bf9-4685-ab0e-c359ff33ea9a"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:16.000Z",
+                      "updatedAt": "2026-07-28T00:29:16.000Z",
+                      "uid": "35240-0e5bda58-5974-4c6d-8775-a9c93a56c649"
+                    },
+                    {
+                      "name": "AhaSend Create Message",
+                      "id": "4180f254-2a57-42ea-bd57-61b50675c7fa",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                            "key": "Idempotency-Key",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "messages"
+                          ],
+                          "variable": [
+                            {
+                              "id": "d2cf8423-804f-456b-bac2-7a654195fb4a",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Creates and sends a message to one or more recipients. This API cannot be used if you want to send a conversational/P2P message and set CC or BCC. Use [Create Conversation Message](https://ahasend.com/docs/api-reference/messages/create-conversation) instead.\n\n**Validation Requirements:**\n- Either `text_content` or `html_content` is required\n- `from.email` must be from a domain you own with valid DNS records\n- `retention.metadata` must be between 1 and 30 days\n- `retention.data` must be between 0 and 30 days\n- If `reply_to` is provided, do not include `reply-to` in headers\n- `message-id` header will be ignored and automatically generated\n- Schedule times must be in RFC3339 format\n"
+                      },
+                      "response": [
+                        {
+                          "id": "07eb3073-806a-413a-8b07-97f9d898ba0b",
+                          "name": "Message created successfully",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Accepted",
+                          "code": 202,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"message\",\n      \"recipient\": {\n        \"email\": \"<email>\",\n        \"name\": \"<string>\",\n        \"substitutions\": {\n          \"in__\": \"elit\",\n          \"veniam65d\": 65096908,\n          \"veniam_a\": false,\n          \"sunt_617\": -30558385.68790312\n        }\n      },\n      \"status\": \"error\",\n      \"id\": \"<string>\",\n      \"error\": \"<string>\",\n      \"schedule\": {\n        \"first_attempt\": \"<dateTime>\",\n        \"expires\": \"<dateTime>\"\n      }\n    },\n    {\n      \"object\": \"message\",\n      \"recipient\": {\n        \"email\": \"<email>\",\n        \"name\": \"<string>\",\n        \"substitutions\": {\n          \"id4\": true,\n          \"pariatur3\": \"magna ut commodo\",\n          \"dolore_1\": true\n        }\n      },\n      \"status\": \"scheduled\",\n      \"id\": \"<string>\",\n      \"error\": \"<string>\",\n      \"schedule\": {\n        \"first_attempt\": \"<dateTime>\",\n        \"expires\": \"<dateTime>\"\n      }\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-07eb3073-806a-413a-8b07-97f9d898ba0b"
+                        },
+                        {
+                          "id": "28c0e8f4-51b1-47fd-92a6-534c6775e50c",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-28c0e8f4-51b1-47fd-92a6-534c6775e50c"
+                        },
+                        {
+                          "id": "803f9448-2d8f-485c-a990-bcf7808d782c",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-803f9448-2d8f-485c-a990-bcf7808d782c"
+                        },
+                        {
+                          "id": "f6972669-a9e0-486c-8ae4-5867f477a214",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-f6972669-a9e0-486c-8ae4-5867f477a214"
+                        },
+                        {
+                          "id": "8d0a32a6-e9e8-49db-8e6e-42bad755e437",
+                          "name": "Request in progress - a request with this idempotency key is already being processed",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-8d0a32a6-e9e8-49db-8e6e-42bad755e437"
+                        },
+                        {
+                          "id": "39854548-d6e0-4f95-a6c9-a7a5f2d0c480",
+                          "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Precondition Failed",
+                          "code": 412,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-39854548-d6e0-4f95-a6c9-a7a5f2d0c480"
+                        },
+                        {
+                          "id": "1c98671d-a6bd-4683-bcdb-c58cf97ab810",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"from\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"recipients\": [\n    {\n      \"email\": \"<email>\",\n      \"name\": \"<string>\",\n      \"substitutions\": {\n        \"in5d1\": true,\n        \"cillum_1\": false\n      }\n    }\n  ],\n  \"subject\": \"<string>\",\n  \"reply_to\": {\n    \"email\": \"<email>\",\n    \"name\": \"<string>\"\n  },\n  \"text_content\": \"<string>\",\n  \"html_content\": \"<string>\",\n  \"amp_content\": \"<string>\",\n  \"attachments\": [\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"content_type\": \"<string>\",\n      \"file_name\": \"<string>\",\n      \"base64\": false,\n      \"content_disposition\": \"<string>\",\n      \"content_id\": \"<string>\"\n    }\n  ],\n  \"headers\": {\n    \"irurea\": \"<string>\",\n    \"ut6f5\": \"<string>\"\n  },\n  \"substitutions\": {\n    \"adipisicing_24\": 61040781,\n    \"aute_284\": \"sunt\",\n    \"fugiat_85\": true\n  },\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"sandbox\": false,\n  \"sandbox_result\": \"bounce\",\n  \"tracking\": {\n    \"open\": \"<boolean>\",\n    \"click\": \"<boolean>\"\n  },\n  \"retention\": {\n    \"metadata\": \"<integer>\",\n    \"data\": \"<integer>\"\n  },\n  \"schedule\": {\n    \"first_attempt\": \"<dateTime>\",\n    \"expires\": \"<dateTime>\"\n  }\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/messages",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "messages"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:16.000Z",
+                          "updatedAt": "2026-07-28T00:29:16.000Z",
+                          "uid": "35240-1c98671d-a6bd-4683-bcdb-c58cf97ab810"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:16.000Z",
+                      "updatedAt": "2026-07-28T00:29:16.000Z",
+                      "uid": "35240-4180f254-2a57-42ea-bd57-61b50675c7fa"
+                    }
+                  ],
+                  "id": "fc2c0eb9-2721-44dd-ae93-6154de800881",
+                  "createdAt": "2026-07-28T00:29:16.000Z",
+                  "updatedAt": "2026-07-28T00:29:16.000Z",
+                  "uid": "35240-fc2c0eb9-2721-44dd-ae93-6154de800881"
+                }
+              ],
+              "id": "651a76d2-1f0e-4465-969a-9677b4df0573",
+              "createdAt": "2026-07-28T00:29:16.000Z",
+              "updatedAt": "2026-07-28T00:29:16.000Z",
+              "uid": "35240-651a76d2-1f0e-4465-969a-9677b4df0573"
+            }
+          ],
+          "id": "c1573df8-bb45-4f09-9759-f28718dd3ca5",
+          "createdAt": "2026-07-28T00:29:16.000Z",
+          "updatedAt": "2026-07-28T00:29:16.000Z",
+          "uid": "35240-c1573df8-bb45-4f09-9759-f28718dd3ca5"
+        }
+      ],
+      "id": "9048f07f-b5e7-4261-b710-cab83337d5d2",
+      "createdAt": "2026-07-28T00:29:16.000Z",
+      "updatedAt": "2026-07-28T00:29:16.000Z",
+      "uid": "35240-9048f07f-b5e7-4261-b710-cab83337d5d2"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ahasend.com"
+    }
+  ]
+}

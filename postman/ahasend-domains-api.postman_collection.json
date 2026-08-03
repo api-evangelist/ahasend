@@ -1,0 +1,2736 @@
+{
+  "info": {
+    "_postman_id": "7927db12-4136-4053-b2c7-379cd50e2169",
+    "name": "AhaSend API v2 Accounts Domains API",
+    "description": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:29:14.000Z",
+    "updatedAt": "2026-07-28T00:29:14.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-7927db12-4136-4053-b2c7-379cd50e2169"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "{account_id}",
+              "item": [
+                {
+                  "name": "domains",
+                  "item": [
+                    {
+                      "name": "{domain}",
+                      "item": [
+                        {
+                          "name": "check-dns",
+                          "item": [
+                            {
+                              "name": "AhaSend Check Domain DNS",
+                              "id": "11a61724-eb6b-4218-8ca6-26dbbec7062f",
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              },
+                              "request": {
+                                "auth": {
+                                  "type": "bearer",
+                                  "bearer": [
+                                    {
+                                      "key": "token",
+                                      "value": "{{bearerToken}}",
+                                      "type": "string"
+                                    }
+                                  ]
+                                },
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain",
+                                    "check-dns"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "id": "c59a5692-814b-4ff2-bbf7-0371beed1ccf",
+                                      "key": "account_id",
+                                      "value": "<uuid>",
+                                      "description": "(Required) Account ID"
+                                    },
+                                    {
+                                      "id": "d87c0b21-d42f-4391-8f72-be77038144c5",
+                                      "key": "domain",
+                                      "value": "<string>",
+                                      "description": "(Required) Domain name"
+                                    }
+                                  ]
+                                },
+                                "description": "Triggers a DNS validation check for the domain. If the domain was checked within the last 60 seconds, the cached validation result is returned instead of performing a fresh lookup."
+                              },
+                              "response": [
+                                {
+                                  "id": "4e3d068d-4455-4407-937a-35b538ffb997",
+                                  "name": "Domain DNS status",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"object\": \"domain\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"domain\": \"<string>\",\n  \"account_id\": \"<uuid>\",\n  \"dns_records\": [\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    }\n  ],\n  \"dns_valid\": \"<boolean>\",\n  \"last_dns_check_at\": \"<dateTime>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\",\n  \"rotation_ready\": \"<boolean>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-4e3d068d-4455-4407-937a-35b538ffb997"
+                                },
+                                {
+                                  "id": "f4ca8fcd-b2be-42c5-b4d8-103868fd8625",
+                                  "name": "Unauthorized",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Unauthorized",
+                                  "code": 401,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-f4ca8fcd-b2be-42c5-b4d8-103868fd8625"
+                                },
+                                {
+                                  "id": "71936523-c5eb-49ba-949e-fc8589817bf9",
+                                  "name": "Forbidden",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Forbidden",
+                                  "code": 403,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-71936523-c5eb-49ba-949e-fc8589817bf9"
+                                },
+                                {
+                                  "id": "50e5efb9-bdb6-4ce7-a65c-e1007722eae5",
+                                  "name": "Domain not found",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Not Found",
+                                  "code": 404,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-50e5efb9-bdb6-4ce7-a65c-e1007722eae5"
+                                },
+                                {
+                                  "id": "db6a862c-691a-45f2-9c10-79a3ca0c0821",
+                                  "name": "Internal server error",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Internal Server Error",
+                                  "code": 500,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-db6a862c-691a-45f2-9c10-79a3ca0c0821"
+                                },
+                                {
+                                  "id": "1c40d0ec-1bfa-4b23-b9a2-f48d556673be",
+                                  "name": "Managed DNS is currently unavailable",
+                                  "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain/check-dns",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v2",
+                                        "accounts",
+                                        ":account_id",
+                                        "domains",
+                                        ":domain",
+                                        "check-dns"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "account_id"
+                                        },
+                                        {
+                                          "key": "domain"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Service Unavailable",
+                                  "code": 503,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"message\": \"<string>\"\n}",
+                                  "createdAt": "2026-07-28T00:29:14.000Z",
+                                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                                  "uid": "35240-1c40d0ec-1bfa-4b23-b9a2-f48d556673be"
+                                }
+                              ],
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-11a61724-eb6b-4218-8ca6-26dbbec7062f"
+                            }
+                          ],
+                          "id": "61e11dfb-111b-4872-8a64-aefe17bd320d",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-61e11dfb-111b-4872-8a64-aefe17bd320d"
+                        },
+                        {
+                          "name": "AhaSend Get Domain",
+                          "id": "9d7382cc-3824-42d8-9fbe-1c9eb76b46bc",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains",
+                                ":domain"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "90fc73fc-505a-41a3-b9fe-9a2e0a1bc2fa",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "630032d4-db0a-44d7-a6fb-026c39e3c0ec",
+                                  "key": "domain",
+                                  "value": "<string>",
+                                  "description": "(Required) Domain name"
+                                }
+                              ]
+                            },
+                            "description": "Returns a specific domain by name"
+                          },
+                          "response": [
+                            {
+                              "id": "7805f701-55b0-4b91-a9b3-883d8e788a15",
+                              "name": "Domain details",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"domain\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"domain\": \"<string>\",\n  \"account_id\": \"<uuid>\",\n  \"dns_records\": [\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    }\n  ],\n  \"dns_valid\": \"<boolean>\",\n  \"last_dns_check_at\": \"<dateTime>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\",\n  \"rotation_ready\": \"<boolean>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-7805f701-55b0-4b91-a9b3-883d8e788a15"
+                            },
+                            {
+                              "id": "417e8df7-ede5-4f2e-8a20-bddb6991f916",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-417e8df7-ede5-4f2e-8a20-bddb6991f916"
+                            },
+                            {
+                              "id": "1b9a4beb-5f71-4228-a859-ef113f7516a6",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-1b9a4beb-5f71-4228-a859-ef113f7516a6"
+                            },
+                            {
+                              "id": "649f950a-9886-4686-a115-5d97d7594931",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-649f950a-9886-4686-a115-5d97d7594931"
+                            },
+                            {
+                              "id": "97546396-5f5b-4dbd-b404-f3e00e4f45fb",
+                              "name": "Domain not found",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-97546396-5f5b-4dbd-b404-f3e00e4f45fb"
+                            },
+                            {
+                              "id": "9011c46e-cb1f-46ae-8a76-dd00caf5c0b4",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-9011c46e-cb1f-46ae-8a76-dd00caf5c0b4"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-9d7382cc-3824-42d8-9fbe-1c9eb76b46bc"
+                        },
+                        {
+                          "name": "AhaSend Update Domain",
+                          "id": "549cfd2a-d16a-4872-9429-f0ed628bed81",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PUT",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains",
+                                ":domain"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "e0aa0043-fd9b-424b-90c3-f9180c6da51a",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "3caf8938-7af8-450d-bec1-46033a8cb4cd",
+                                  "key": "domain",
+                                  "value": "<string>",
+                                  "description": "(Required) Domain name"
+                                }
+                              ]
+                            },
+                            "description": "Updates DNS domain settings such as custom subdomains and DKIM rotation interval."
+                          },
+                          "response": [
+                            {
+                              "id": "d9bb8bbc-08f0-43c3-937b-90528c615cba",
+                              "name": "Domain updated successfully",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"domain\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"domain\": \"<string>\",\n  \"account_id\": \"<uuid>\",\n  \"dns_records\": [\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    }\n  ],\n  \"dns_valid\": \"<boolean>\",\n  \"last_dns_check_at\": \"<dateTime>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\",\n  \"rotation_ready\": \"<boolean>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-d9bb8bbc-08f0-43c3-937b-90528c615cba"
+                            },
+                            {
+                              "id": "b1aff475-9fa2-46b7-a611-611c9fd4eb2e",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-b1aff475-9fa2-46b7-a611-611c9fd4eb2e"
+                            },
+                            {
+                              "id": "87c320ce-1fbd-433c-b4ef-b82f37e5e4d0",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-87c320ce-1fbd-433c-b4ef-b82f37e5e4d0"
+                            },
+                            {
+                              "id": "795f7445-d76c-4343-9803-c8bcd2340062",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-795f7445-d76c-4343-9803-c8bcd2340062"
+                            },
+                            {
+                              "id": "b5350b0c-9ad1-44f2-b651-501acb21fd69",
+                              "name": "Domain not found",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-b5350b0c-9ad1-44f2-b651-501acb21fd69"
+                            },
+                            {
+                              "id": "53abf463-a6cc-42ea-831e-658d3199f3b7",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-53abf463-a6cc-42ea-831e-658d3199f3b7"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-549cfd2a-d16a-4872-9429-f0ed628bed81"
+                        },
+                        {
+                          "name": "AhaSend Delete Domain",
+                          "id": "3d419de6-254d-4359-a3a5-5f0b69776720",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains",
+                                ":domain"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "58c70e8e-1514-432e-9e65-114354904f70",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "098f365b-93dd-4f7d-8e50-0bf0d72fe2f5",
+                                  "key": "domain",
+                                  "value": "<string>",
+                                  "description": "(Required) Domain name"
+                                }
+                              ]
+                            },
+                            "description": "Deletes a domain"
+                          },
+                          "response": [
+                            {
+                              "id": "8bf17c68-e634-4d99-b1f3-7cfe315bf5ff",
+                              "name": "Domain deleted successfully",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-8bf17c68-e634-4d99-b1f3-7cfe315bf5ff"
+                            },
+                            {
+                              "id": "3a9b11f3-c666-42c2-8f0f-00c60bfe0b35",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-3a9b11f3-c666-42c2-8f0f-00c60bfe0b35"
+                            },
+                            {
+                              "id": "7fc69aa5-f6b5-4411-a7a4-d6dfbe69aad6",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-7fc69aa5-f6b5-4411-a7a4-d6dfbe69aad6"
+                            },
+                            {
+                              "id": "74d652bb-a6d5-4cf4-b379-7aeb1c2fc311",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-74d652bb-a6d5-4cf4-b379-7aeb1c2fc311"
+                            },
+                            {
+                              "id": "b3b25629-0b28-4d65-a84f-60618262f01d",
+                              "name": "Domain not found",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-b3b25629-0b28-4d65-a84f-60618262f01d"
+                            },
+                            {
+                              "id": "a881d0f0-c0a6-41d9-af4c-05edd406206c",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/domains/:domain",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "domains",
+                                    ":domain"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "domain"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:14.000Z",
+                              "updatedAt": "2026-07-28T00:29:14.000Z",
+                              "uid": "35240-a881d0f0-c0a6-41d9-af4c-05edd406206c"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-3d419de6-254d-4359-a3a5-5f0b69776720"
+                        }
+                      ],
+                      "id": "2f346fda-7f27-4dc0-bf98-b9dd57f9cc3c",
+                      "createdAt": "2026-07-28T00:29:14.000Z",
+                      "updatedAt": "2026-07-28T00:29:14.000Z",
+                      "uid": "35240-2f346fda-7f27-4dc0-bf98-b9dd57f9cc3c"
+                    },
+                    {
+                      "name": "AhaSend Get Domains",
+                      "id": "82773337-1dc4-434e-8683-35b61500e332",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "domains"
+                          ],
+                          "query": [
+                            {
+                              "description": "Filter results by DNS validation status",
+                              "key": "dns_valid",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Maximum number of items to return (1-100)",
+                              "key": "limit",
+                              "value": "100"
+                            },
+                            {
+                              "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                              "key": "after",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Pagination cursor for the previous page.",
+                              "key": "before",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "17a2d4dc-e80f-49ba-96a0-4193a0952a15",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Returns a list of domains for the account"
+                      },
+                      "response": [
+                        {
+                          "id": "2d5caebb-977e-46d6-a4bb-ae6ca0e0e4f9",
+                          "name": "List of domains",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter results by DNS validation status",
+                                  "key": "dns_valid",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"domain\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"account_id\": \"<uuid>\",\n      \"dns_records\": [\n        {\n          \"type\": \"<string>\",\n          \"host\": \"<string>\",\n          \"content\": \"<string>\",\n          \"required\": \"<boolean>\",\n          \"propagated\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"host\": \"<string>\",\n          \"content\": \"<string>\",\n          \"required\": \"<boolean>\",\n          \"propagated\": \"<boolean>\"\n        }\n      ],\n      \"dns_valid\": \"<boolean>\",\n      \"last_dns_check_at\": \"<dateTime>\",\n      \"tracking_subdomain\": \"<string>\",\n      \"return_path_subdomain\": \"<string>\",\n      \"subscription_subdomain\": \"<string>\",\n      \"media_subdomain\": \"<string>\",\n      \"dkim_rotation_interval_days\": \"<integer>\",\n      \"rotation_ready\": \"<boolean>\"\n    },\n    {\n      \"object\": \"domain\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"domain\": \"<string>\",\n      \"account_id\": \"<uuid>\",\n      \"dns_records\": [\n        {\n          \"type\": \"<string>\",\n          \"host\": \"<string>\",\n          \"content\": \"<string>\",\n          \"required\": \"<boolean>\",\n          \"propagated\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"host\": \"<string>\",\n          \"content\": \"<string>\",\n          \"required\": \"<boolean>\",\n          \"propagated\": \"<boolean>\"\n        }\n      ],\n      \"dns_valid\": \"<boolean>\",\n      \"last_dns_check_at\": \"<dateTime>\",\n      \"tracking_subdomain\": \"<string>\",\n      \"return_path_subdomain\": \"<string>\",\n      \"subscription_subdomain\": \"<string>\",\n      \"media_subdomain\": \"<string>\",\n      \"dkim_rotation_interval_days\": \"<integer>\",\n      \"rotation_ready\": \"<boolean>\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": \"<boolean>\",\n    \"next_cursor\": \"<string>\",\n    \"previous_cursor\": \"<string>\"\n  }\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-2d5caebb-977e-46d6-a4bb-ae6ca0e0e4f9"
+                        },
+                        {
+                          "id": "3b030d3e-1a10-4bcf-b4e7-4dbf6c1e0f7c",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter results by DNS validation status",
+                                  "key": "dns_valid",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-3b030d3e-1a10-4bcf-b4e7-4dbf6c1e0f7c"
+                        },
+                        {
+                          "id": "b7979f96-e957-41d3-b4dd-f97ec33ce354",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter results by DNS validation status",
+                                  "key": "dns_valid",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-b7979f96-e957-41d3-b4dd-f97ec33ce354"
+                        },
+                        {
+                          "id": "b30d0df9-92d2-42fa-9c94-54e9e936a70b",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter results by DNS validation status",
+                                  "key": "dns_valid",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-b30d0df9-92d2-42fa-9c94-54e9e936a70b"
+                        },
+                        {
+                          "id": "d6d63e8e-6c49-41b7-82ac-8afce775c808",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains?dns_valid=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter results by DNS validation status",
+                                  "key": "dns_valid",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-d6d63e8e-6c49-41b7-82ac-8afce775c808"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:14.000Z",
+                      "updatedAt": "2026-07-28T00:29:14.000Z",
+                      "uid": "35240-82773337-1dc4-434e-8683-35b61500e332"
+                    },
+                    {
+                      "name": "AhaSend Create Domain",
+                      "id": "e962f6f3-737d-4a40-b23b-3186e67d7cc7",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                            "key": "Idempotency-Key",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "domains"
+                          ],
+                          "variable": [
+                            {
+                              "id": "4e37e072-1289-4545-aa64-43e827a0f04e",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Creates a new domain"
+                      },
+                      "response": [
+                        {
+                          "id": "c361207d-9284-4b12-b1ec-dc8e768a12f2",
+                          "name": "Domain created successfully",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Created",
+                          "code": 201,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"domain\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"domain\": \"<string>\",\n  \"account_id\": \"<uuid>\",\n  \"dns_records\": [\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"host\": \"<string>\",\n      \"content\": \"<string>\",\n      \"required\": \"<boolean>\",\n      \"propagated\": \"<boolean>\"\n    }\n  ],\n  \"dns_valid\": \"<boolean>\",\n  \"last_dns_check_at\": \"<dateTime>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\",\n  \"rotation_ready\": \"<boolean>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-c361207d-9284-4b12-b1ec-dc8e768a12f2"
+                        },
+                        {
+                          "id": "d89a3496-c6b4-4c33-8c0f-25d6d2323214",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-d89a3496-c6b4-4c33-8c0f-25d6d2323214"
+                        },
+                        {
+                          "id": "0ac1f136-8078-4f34-acd3-dcc5f9385d31",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-0ac1f136-8078-4f34-acd3-dcc5f9385d31"
+                        },
+                        {
+                          "id": "610fc542-0849-4e05-b480-8fbb64498ae0",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-610fc542-0849-4e05-b480-8fbb64498ae0"
+                        },
+                        {
+                          "id": "5cd3fa44-2b53-480f-bf85-a26f3edda89b",
+                          "name": "Request in progress - a request with this idempotency key is already being processed",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-5cd3fa44-2b53-480f-bf85-a26f3edda89b"
+                        },
+                        {
+                          "id": "a6e5a4bf-0713-4e5c-b3ec-5e587746dced",
+                          "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Precondition Failed",
+                          "code": 412,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-a6e5a4bf-0713-4e5c-b3ec-5e587746dced"
+                        },
+                        {
+                          "id": "4ee8377b-9978-4b68-8f27-74ea6b1e3f9c",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"domain\": \"<hostname>\",\n  \"dkim_private_key\": \"<string>\",\n  \"tracking_subdomain\": \"<string>\",\n  \"return_path_subdomain\": \"<string>\",\n  \"subscription_subdomain\": \"<string>\",\n  \"media_subdomain\": \"<string>\",\n  \"dkim_rotation_interval_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/domains",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "domains"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:14.000Z",
+                          "updatedAt": "2026-07-28T00:29:14.000Z",
+                          "uid": "35240-4ee8377b-9978-4b68-8f27-74ea6b1e3f9c"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:14.000Z",
+                      "updatedAt": "2026-07-28T00:29:14.000Z",
+                      "uid": "35240-e962f6f3-737d-4a40-b23b-3186e67d7cc7"
+                    }
+                  ],
+                  "id": "d797abfe-6609-4cd5-b387-c76d6592863b",
+                  "createdAt": "2026-07-28T00:29:14.000Z",
+                  "updatedAt": "2026-07-28T00:29:14.000Z",
+                  "uid": "35240-d797abfe-6609-4cd5-b387-c76d6592863b"
+                }
+              ],
+              "id": "3564830b-a6cc-4d39-bb34-db479d1df361",
+              "createdAt": "2026-07-28T00:29:14.000Z",
+              "updatedAt": "2026-07-28T00:29:14.000Z",
+              "uid": "35240-3564830b-a6cc-4d39-bb34-db479d1df361"
+            }
+          ],
+          "id": "59d4ca18-7d79-4b21-a33c-965c0b81adbc",
+          "createdAt": "2026-07-28T00:29:14.000Z",
+          "updatedAt": "2026-07-28T00:29:14.000Z",
+          "uid": "35240-59d4ca18-7d79-4b21-a33c-965c0b81adbc"
+        }
+      ],
+      "id": "e15658ec-6b4c-49b7-ab1e-4bcbaaca3b77",
+      "createdAt": "2026-07-28T00:29:14.000Z",
+      "updatedAt": "2026-07-28T00:29:14.000Z",
+      "uid": "35240-e15658ec-6b4c-49b7-ab1e-4bcbaaca3b77"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ahasend.com"
+    }
+  ]
+}

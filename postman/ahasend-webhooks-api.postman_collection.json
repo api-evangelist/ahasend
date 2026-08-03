@@ -1,0 +1,2637 @@
+{
+  "info": {
+    "_postman_id": "58157f28-75c9-4f23-bb2c-22a329abd2e7",
+    "name": "AhaSend API v2 Accounts Webhooks API",
+    "description": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:29:24.000Z",
+    "updatedAt": "2026-07-28T00:29:24.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-58157f28-75c9-4f23-bb2c-22a329abd2e7"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "accounts",
+          "item": [
+            {
+              "name": "{account_id}",
+              "item": [
+                {
+                  "name": "webhooks",
+                  "item": [
+                    {
+                      "name": "{webhook_id}",
+                      "item": [
+                        {
+                          "name": "AhaSend Get Webhook",
+                          "id": "537cbe3c-9fa5-4721-a490-4d55de9e7bcd",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks",
+                                ":webhook_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "f17f47b6-ae28-4938-bf11-07ca161181ef",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "ec93835c-942e-4917-9dcb-015b97c45ad4",
+                                  "key": "webhook_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Webhook ID"
+                                }
+                              ]
+                            },
+                            "description": "Returns a specific webhook by ID"
+                          },
+                          "response": [
+                            {
+                              "id": "a3d0f245-b734-40dc-b9fa-75290b12ec66",
+                              "name": "Webhook details",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"webhook\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-a3d0f245-b734-40dc-b9fa-75290b12ec66"
+                            },
+                            {
+                              "id": "5783e616-4889-461a-a334-ae48729bd830",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-5783e616-4889-461a-a334-ae48729bd830"
+                            },
+                            {
+                              "id": "7fcdaa48-f22a-4cde-a5bb-f98a81676ec4",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-7fcdaa48-f22a-4cde-a5bb-f98a81676ec4"
+                            },
+                            {
+                              "id": "9032f9bd-7b90-451b-ab7a-48257f9162bb",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-9032f9bd-7b90-451b-ab7a-48257f9162bb"
+                            },
+                            {
+                              "id": "4b182eeb-cd9a-468c-a6c7-00261d7edb64",
+                              "name": "Webhook not found",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-4b182eeb-cd9a-468c-a6c7-00261d7edb64"
+                            },
+                            {
+                              "id": "280eb3c1-0843-46a7-9538-6ad8e5616447",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-280eb3c1-0843-46a7-9538-6ad8e5616447"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-537cbe3c-9fa5-4721-a490-4d55de9e7bcd"
+                        },
+                        {
+                          "name": "AhaSend Update Webhook",
+                          "id": "8746e647-831b-47d4-9024-1a60ac8ea144",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PUT",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks",
+                                ":webhook_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "92023682-9807-40db-abca-e3e2acc6f160",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "33bc562a-6eac-4666-87bb-35fc985c2c94",
+                                  "key": "webhook_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Webhook ID"
+                                }
+                              ]
+                            },
+                            "description": "Updates an existing webhook\n\n**Note:** The webhook secret is not updatable\n"
+                          },
+                          "response": [
+                            {
+                              "id": "8d8c927e-e5de-46b4-a3da-94868a8657cd",
+                              "name": "Webhook updated successfully",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"object\": \"webhook\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-8d8c927e-e5de-46b4-a3da-94868a8657cd"
+                            },
+                            {
+                              "id": "9213bdfa-6567-41f2-a258-b91042d97321",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-9213bdfa-6567-41f2-a258-b91042d97321"
+                            },
+                            {
+                              "id": "123b7fa8-2333-4e2c-82c4-42c72bb5c102",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-123b7fa8-2333-4e2c-82c4-42c72bb5c102"
+                            },
+                            {
+                              "id": "a9898a45-10b3-4ac2-88e6-4486081a1f4a",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-a9898a45-10b3-4ac2-88e6-4486081a1f4a"
+                            },
+                            {
+                              "id": "b3f176c9-ea29-4795-a6d4-65d9bcc06dd8",
+                              "name": "Webhook not found",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-b3f176c9-ea29-4795-a6d4-65d9bcc06dd8"
+                            },
+                            {
+                              "id": "98639127-bb01-4ea6-9466-9c4a60dc555e",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-98639127-bb01-4ea6-9466-9c4a60dc555e"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-8746e647-831b-47d4-9024-1a60ac8ea144"
+                        },
+                        {
+                          "name": "AhaSend Delete Webhook",
+                          "id": "a60a641d-9b6f-4514-821a-d139c976da82",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks",
+                                ":webhook_id"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "197f243e-91ca-48f0-8140-617d6e207db0",
+                                  "key": "account_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Account ID"
+                                },
+                                {
+                                  "id": "737cf9de-90e5-4eb0-9dd2-6225542007f8",
+                                  "key": "webhook_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) Webhook ID"
+                                }
+                              ]
+                            },
+                            "description": "Deletes a webhook"
+                          },
+                          "response": [
+                            {
+                              "id": "03608721-8477-4c79-88d6-28df27daf3b4",
+                              "name": "Webhook deleted successfully",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-03608721-8477-4c79-88d6-28df27daf3b4"
+                            },
+                            {
+                              "id": "ba94a877-20f6-4e27-b22f-60d8a55c8032",
+                              "name": "Bad request",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-ba94a877-20f6-4e27-b22f-60d8a55c8032"
+                            },
+                            {
+                              "id": "8f6fb19a-0a63-46f8-9250-91ca538974a0",
+                              "name": "Unauthorized",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-8f6fb19a-0a63-46f8-9250-91ca538974a0"
+                            },
+                            {
+                              "id": "af11bc76-3758-46e0-9a9c-6c182eeaf9b5",
+                              "name": "Forbidden",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-af11bc76-3758-46e0-9a9c-6c182eeaf9b5"
+                            },
+                            {
+                              "id": "b30981b4-4f4d-4590-99b6-4641b9626fc6",
+                              "name": "Webhook not found",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-b30981b4-4f4d-4590-99b6-4641b9626fc6"
+                            },
+                            {
+                              "id": "c801a731-4392-4868-a1bf-8f9ed4ec7f59",
+                              "name": "Internal server error",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks/:webhook_id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v2",
+                                    "accounts",
+                                    ":account_id",
+                                    "webhooks",
+                                    ":webhook_id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "account_id"
+                                    },
+                                    {
+                                      "key": "webhook_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Internal Server Error",
+                              "code": 500,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"message\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T00:29:24.000Z",
+                              "updatedAt": "2026-07-28T00:29:24.000Z",
+                              "uid": "35240-c801a731-4392-4868-a1bf-8f9ed4ec7f59"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-a60a641d-9b6f-4514-821a-d139c976da82"
+                        }
+                      ],
+                      "id": "3d429ac9-13d9-42b0-abe3-861ed0b171aa",
+                      "createdAt": "2026-07-28T00:29:24.000Z",
+                      "updatedAt": "2026-07-28T00:29:24.000Z",
+                      "uid": "35240-3d429ac9-13d9-42b0-abe3-861ed0b171aa"
+                    },
+                    {
+                      "name": "AhaSend Get Webhooks",
+                      "id": "71b8a236-c87b-4cd1-934d-0518ad6ed506",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "webhooks"
+                          ],
+                          "query": [
+                            {
+                              "description": "Filter by enabled status",
+                              "key": "enabled",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by reception event trigger",
+                              "key": "on_reception",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by delivery event trigger",
+                              "key": "on_delivered",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by transient error event trigger",
+                              "key": "on_transient_error",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by failure event trigger",
+                              "key": "on_failed",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by bounce event trigger",
+                              "key": "on_bounced",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by suppression event trigger",
+                              "key": "on_suppressed",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by open event trigger",
+                              "key": "on_opened",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by click event trigger",
+                              "key": "on_clicked",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by suppression creation event trigger",
+                              "key": "on_suppression_created",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Filter by DNS error event trigger",
+                              "key": "on_dns_error",
+                              "value": "<boolean>"
+                            },
+                            {
+                              "description": "Maximum number of items to return (1-100)",
+                              "key": "limit",
+                              "value": "100"
+                            },
+                            {
+                              "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                              "key": "after",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Pagination cursor for the previous page.",
+                              "key": "before",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "2168e67d-7a67-4465-879d-5b52649601a0",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Returns a list of webhooks for the account\n\n**Query Parameters:**\n- `enabled`: Filter by enabled status\n- Event filters: `on_reception`, `on_delivered`, `on_transient_error`, `on_failed`, `on_bounced`, `on_suppressed`, `on_opened`, `on_clicked`, `on_suppression_created`, `on_dns_error`\n- `limit`: Maximum number of items to return (1-100, default: 100)\n- `cursor`: Pagination cursor for the next page\n"
+                      },
+                      "response": [
+                        {
+                          "id": "c250eed4-103d-454a-8fe9-9387a4bb6946",
+                          "name": "List of webhooks",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by enabled status",
+                                  "key": "enabled",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by reception event trigger",
+                                  "key": "on_reception",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by delivery event trigger",
+                                  "key": "on_delivered",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by transient error event trigger",
+                                  "key": "on_transient_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by failure event trigger",
+                                  "key": "on_failed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by bounce event trigger",
+                                  "key": "on_bounced",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression event trigger",
+                                  "key": "on_suppressed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by open event trigger",
+                                  "key": "on_opened",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by click event trigger",
+                                  "key": "on_clicked",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression creation event trigger",
+                                  "key": "on_suppression_created",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by DNS error event trigger",
+                                  "key": "on_dns_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"webhook\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"name\": \"<string>\",\n      \"url\": \"<uri>\",\n      \"enabled\": \"<boolean>\",\n      \"on_reception\": \"<boolean>\",\n      \"on_delivered\": \"<boolean>\",\n      \"on_transient_error\": \"<boolean>\",\n      \"on_failed\": \"<boolean>\",\n      \"on_bounced\": \"<boolean>\",\n      \"on_suppressed\": \"<boolean>\",\n      \"on_opened\": \"<boolean>\",\n      \"on_clicked\": \"<boolean>\",\n      \"on_suppression_created\": \"<boolean>\",\n      \"on_dns_error\": \"<boolean>\",\n      \"scope\": \"<string>\",\n      \"domains\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"success_count\": \"<integer>\",\n      \"error_count\": \"<integer>\",\n      \"errors_since_last_success\": \"<integer>\",\n      \"last_request_at\": \"<dateTime>\"\n    },\n    {\n      \"object\": \"webhook\",\n      \"id\": \"<uuid>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\",\n      \"name\": \"<string>\",\n      \"url\": \"<uri>\",\n      \"enabled\": \"<boolean>\",\n      \"on_reception\": \"<boolean>\",\n      \"on_delivered\": \"<boolean>\",\n      \"on_transient_error\": \"<boolean>\",\n      \"on_failed\": \"<boolean>\",\n      \"on_bounced\": \"<boolean>\",\n      \"on_suppressed\": \"<boolean>\",\n      \"on_opened\": \"<boolean>\",\n      \"on_clicked\": \"<boolean>\",\n      \"on_suppression_created\": \"<boolean>\",\n      \"on_dns_error\": \"<boolean>\",\n      \"scope\": \"<string>\",\n      \"domains\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"success_count\": \"<integer>\",\n      \"error_count\": \"<integer>\",\n      \"errors_since_last_success\": \"<integer>\",\n      \"last_request_at\": \"<dateTime>\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": \"<boolean>\",\n    \"next_cursor\": \"<string>\",\n    \"previous_cursor\": \"<string>\"\n  }\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-c250eed4-103d-454a-8fe9-9387a4bb6946"
+                        },
+                        {
+                          "id": "d5a6c581-f630-4c77-9743-8d5d5457c974",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by enabled status",
+                                  "key": "enabled",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by reception event trigger",
+                                  "key": "on_reception",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by delivery event trigger",
+                                  "key": "on_delivered",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by transient error event trigger",
+                                  "key": "on_transient_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by failure event trigger",
+                                  "key": "on_failed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by bounce event trigger",
+                                  "key": "on_bounced",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression event trigger",
+                                  "key": "on_suppressed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by open event trigger",
+                                  "key": "on_opened",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by click event trigger",
+                                  "key": "on_clicked",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression creation event trigger",
+                                  "key": "on_suppression_created",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by DNS error event trigger",
+                                  "key": "on_dns_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-d5a6c581-f630-4c77-9743-8d5d5457c974"
+                        },
+                        {
+                          "id": "cde6caff-55db-47b6-b32a-4e2d0a4a1375",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by enabled status",
+                                  "key": "enabled",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by reception event trigger",
+                                  "key": "on_reception",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by delivery event trigger",
+                                  "key": "on_delivered",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by transient error event trigger",
+                                  "key": "on_transient_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by failure event trigger",
+                                  "key": "on_failed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by bounce event trigger",
+                                  "key": "on_bounced",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression event trigger",
+                                  "key": "on_suppressed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by open event trigger",
+                                  "key": "on_opened",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by click event trigger",
+                                  "key": "on_clicked",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression creation event trigger",
+                                  "key": "on_suppression_created",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by DNS error event trigger",
+                                  "key": "on_dns_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-cde6caff-55db-47b6-b32a-4e2d0a4a1375"
+                        },
+                        {
+                          "id": "4cd74a0f-145d-4f10-aacf-f563e77eb8c1",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by enabled status",
+                                  "key": "enabled",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by reception event trigger",
+                                  "key": "on_reception",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by delivery event trigger",
+                                  "key": "on_delivered",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by transient error event trigger",
+                                  "key": "on_transient_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by failure event trigger",
+                                  "key": "on_failed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by bounce event trigger",
+                                  "key": "on_bounced",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression event trigger",
+                                  "key": "on_suppressed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by open event trigger",
+                                  "key": "on_opened",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by click event trigger",
+                                  "key": "on_clicked",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression creation event trigger",
+                                  "key": "on_suppression_created",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by DNS error event trigger",
+                                  "key": "on_dns_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-4cd74a0f-145d-4f10-aacf-f563e77eb8c1"
+                        },
+                        {
+                          "id": "21ad56a3-433e-4a72-8cb5-b9fec279c7c0",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks?enabled=<boolean>&on_reception=<boolean>&on_delivered=<boolean>&on_transient_error=<boolean>&on_failed=<boolean>&on_bounced=<boolean>&on_suppressed=<boolean>&on_opened=<boolean>&on_clicked=<boolean>&on_suppression_created=<boolean>&on_dns_error=<boolean>&limit=100&after=<string>&before=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "query": [
+                                {
+                                  "description": "Filter by enabled status",
+                                  "key": "enabled",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by reception event trigger",
+                                  "key": "on_reception",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by delivery event trigger",
+                                  "key": "on_delivered",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by transient error event trigger",
+                                  "key": "on_transient_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by failure event trigger",
+                                  "key": "on_failed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by bounce event trigger",
+                                  "key": "on_bounced",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression event trigger",
+                                  "key": "on_suppressed",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by open event trigger",
+                                  "key": "on_opened",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by click event trigger",
+                                  "key": "on_clicked",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by suppression creation event trigger",
+                                  "key": "on_suppression_created",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Filter by DNS error event trigger",
+                                  "key": "on_dns_error",
+                                  "value": "<boolean>"
+                                },
+                                {
+                                  "description": "Maximum number of items to return (1-100)",
+                                  "key": "limit",
+                                  "value": "100"
+                                },
+                                {
+                                  "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.",
+                                  "key": "after",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "Pagination cursor for the previous page.",
+                                  "key": "before",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-21ad56a3-433e-4a72-8cb5-b9fec279c7c0"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:24.000Z",
+                      "updatedAt": "2026-07-28T00:29:24.000Z",
+                      "uid": "35240-71b8a236-c87b-4cd1-934d-0518ad6ed506"
+                    },
+                    {
+                      "name": "AhaSend Create Webhook",
+                      "id": "5e38a15a-f4ae-4bf3-8d00-8033d46c2d9b",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                            "key": "Idempotency-Key",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v2",
+                            "accounts",
+                            ":account_id",
+                            "webhooks"
+                          ],
+                          "variable": [
+                            {
+                              "id": "629a00de-afd5-4811-b0d9-fb1df64924a5",
+                              "key": "account_id",
+                              "value": "<uuid>",
+                              "description": "(Required) Account ID"
+                            }
+                          ]
+                        },
+                        "description": "Creates a new webhook for event notifications"
+                      },
+                      "response": [
+                        {
+                          "id": "14f47073-e326-44d2-9b86-5403cdf7fc95",
+                          "name": "Webhook created successfully",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Created",
+                          "code": 201,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"object\": \"webhook\",\n  \"id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": \"<boolean>\",\n  \"on_reception\": \"<boolean>\",\n  \"on_delivered\": \"<boolean>\",\n  \"on_transient_error\": \"<boolean>\",\n  \"on_failed\": \"<boolean>\",\n  \"on_bounced\": \"<boolean>\",\n  \"on_suppressed\": \"<boolean>\",\n  \"on_opened\": \"<boolean>\",\n  \"on_clicked\": \"<boolean>\",\n  \"on_suppression_created\": \"<boolean>\",\n  \"on_dns_error\": \"<boolean>\",\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"success_count\": \"<integer>\",\n  \"error_count\": \"<integer>\",\n  \"errors_since_last_success\": \"<integer>\",\n  \"last_request_at\": \"<dateTime>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-14f47073-e326-44d2-9b86-5403cdf7fc95"
+                        },
+                        {
+                          "id": "7445bed9-9de2-4b84-aa57-ffc145d4e59c",
+                          "name": "Bad request",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-7445bed9-9de2-4b84-aa57-ffc145d4e59c"
+                        },
+                        {
+                          "id": "9af24e16-4eb0-43f8-a36d-f28d17d4c358",
+                          "name": "Unauthorized",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-9af24e16-4eb0-43f8-a36d-f28d17d4c358"
+                        },
+                        {
+                          "id": "6395b085-c697-459c-a4ac-bede8eab006b",
+                          "name": "Forbidden",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-6395b085-c697-459c-a4ac-bede8eab006b"
+                        },
+                        {
+                          "id": "17289e4a-9f48-458d-882f-2313bbc170a1",
+                          "name": "Request in progress - a request with this idempotency key is already being processed",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-17289e4a-9f48-458d-882f-2313bbc170a1"
+                        },
+                        {
+                          "id": "3127bd59-e628-49b4-8f3d-41d888ea808d",
+                          "name": "Original request failed - the request with this idempotency key previously failed and cannot be retried",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Precondition Failed",
+                          "code": 412,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            },
+                            {
+                              "disabled": false,
+                              "description": {
+                                "content": "",
+                                "type": "text/plain"
+                              },
+                              "key": "Idempotent-Replayed",
+                              "value": ""
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-3127bd59-e628-49b4-8f3d-41d888ea808d"
+                        },
+                        {
+                          "id": "215dff6d-533c-41b3-8c75-303a6eeb8a58",
+                          "name": "Internal server error",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "Optional idempotency key for safe request retries. Must be a unique string for each logical request.\nRequests with the same key will return the same response. Keys expire after 24 hours.\n",
+                                "key": "Idempotency-Key",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"name\": \"<string>\",\n  \"url\": \"<uri>\",\n  \"enabled\": true,\n  \"on_reception\": false,\n  \"on_delivered\": false,\n  \"on_transient_error\": false,\n  \"on_failed\": false,\n  \"on_bounced\": false,\n  \"on_suppressed\": false,\n  \"on_opened\": false,\n  \"on_clicked\": false,\n  \"on_suppression_created\": false,\n  \"on_dns_error\": false,\n  \"scope\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v2/accounts/:account_id/webhooks",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v2",
+                                "accounts",
+                                ":account_id",
+                                "webhooks"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "account_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Internal Server Error",
+                          "code": 500,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"message\": \"<string>\"\n}",
+                          "createdAt": "2026-07-28T00:29:24.000Z",
+                          "updatedAt": "2026-07-28T00:29:24.000Z",
+                          "uid": "35240-215dff6d-533c-41b3-8c75-303a6eeb8a58"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:29:24.000Z",
+                      "updatedAt": "2026-07-28T00:29:24.000Z",
+                      "uid": "35240-5e38a15a-f4ae-4bf3-8d00-8033d46c2d9b"
+                    }
+                  ],
+                  "id": "1bab53ce-009f-4d0c-b474-ddaac4a79a3a",
+                  "createdAt": "2026-07-28T00:29:24.000Z",
+                  "updatedAt": "2026-07-28T00:29:24.000Z",
+                  "uid": "35240-1bab53ce-009f-4d0c-b474-ddaac4a79a3a"
+                }
+              ],
+              "id": "fdf29250-be12-488e-9e61-6e16a8f3cee6",
+              "createdAt": "2026-07-28T00:29:24.000Z",
+              "updatedAt": "2026-07-28T00:29:24.000Z",
+              "uid": "35240-fdf29250-be12-488e-9e61-6e16a8f3cee6"
+            }
+          ],
+          "id": "db328b30-f9b5-47fb-9bdc-d26b929e2a6d",
+          "createdAt": "2026-07-28T00:29:24.000Z",
+          "updatedAt": "2026-07-28T00:29:24.000Z",
+          "uid": "35240-db328b30-f9b5-47fb-9bdc-d26b929e2a6d"
+        }
+      ],
+      "id": "7b979ffd-84b6-4d8a-a912-902fe3153cd3",
+      "createdAt": "2026-07-28T00:29:24.000Z",
+      "updatedAt": "2026-07-28T00:29:24.000Z",
+      "uid": "35240-7b979ffd-84b6-4d8a-a912-902fe3153cd3"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ahasend.com"
+    }
+  ]
+}

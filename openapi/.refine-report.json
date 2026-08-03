@@ -1,0 +1,34 @@
+{
+  "provider": "ahasend",
+  "sources": [
+    "ahasend-accounts-api-openapi.yml",
+    "ahasend-api-keys-api-openapi.yml",
+    "ahasend-domains-api-openapi.yml",
+    "ahasend-email-api-openapi.yml",
+    "ahasend-messages-api-openapi.yml",
+    "ahasend-routes-api-openapi.yml",
+    "ahasend-smtp-credentials-api-openapi.yml",
+    "ahasend-statistics-api-openapi.yml",
+    "ahasend-suppressions-api-openapi.yml",
+    "ahasend-utility-api-openapi.yml",
+    "ahasend-webhooks-api-openapi.yml"
+  ],
+  "outputs": [
+    "ahasend-accounts-api-openapi.yml",
+    "ahasend-api-keys-api-openapi.yml",
+    "ahasend-domains-api-openapi.yml",
+    "ahasend-email-api-openapi.yml",
+    "ahasend-messages-api-openapi.yml",
+    "ahasend-routes-api-openapi.yml",
+    "ahasend-smtp-credentials-api-openapi.yml",
+    "ahasend-statistics-api-openapi.yml",
+    "ahasend-suppressions-api-openapi.yml",
+    "ahasend-utility-api-openapi.yml",
+    "ahasend-webhooks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
