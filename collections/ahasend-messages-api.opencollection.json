@@ -1,0 +1,237 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts Messages API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Messages",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get Messages",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/messages",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "status",
+                "value": "Bounced,Failed",
+                "type": "query",
+                "description": "Filter by comma-separated list of message statuses"
+              },
+              {
+                "name": "sender",
+                "value": "example_value",
+                "type": "query",
+                "description": "Sender email address (must be from domain in API key scopes)"
+              },
+              {
+                "name": "recipient",
+                "value": "example_value",
+                "type": "query",
+                "description": "Recipient email address"
+              },
+              {
+                "name": "subject",
+                "value": "example_value",
+                "type": "query",
+                "description": "Filter by subject text"
+              },
+              {
+                "name": "message_id_header",
+                "value": "500123",
+                "type": "query",
+                "description": "Filter by message ID header (same ID returned by CreateMessage API)"
+              },
+              {
+                "name": "tags",
+                "value": "billing,urgent",
+                "type": "query",
+                "description": "Filter by comma-separated list of tags (max 20)"
+              },
+              {
+                "name": "from_time",
+                "value": "2023-12-25T10:30:00Z",
+                "type": "query",
+                "description": "Filter messages created after this time (RFC3339 format)"
+              },
+              {
+                "name": "to_time",
+                "value": "2023-12-26T10:30:00Z",
+                "type": "query",
+                "description": "Filter messages created before this time (RFC3339 format)"
+              },
+              {
+                "name": "limit",
+                "value": "1",
+                "type": "query",
+                "description": "Maximum number of items to return (1-100)"
+              },
+              {
+                "name": "after",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response."
+              },
+              {
+                "name": "before",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the previous page."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a list of message summaries for the account. Can be filtered by various parameters.\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Create Message",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/messages",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Creates and sends a message to one or more recipients. This API cannot be used if you want to send a conversational/P2P message and set CC or BCC. Use [Create Conversation Message](https://ahasend.com/docs/api-reference/messages/create-conversation) instead.\n\n**Validation Requirements:**\n- Either `text_content` or `html_content` is required\n- `from.email` must be from a domain you own with valid DNS records\n- `retention.metadata` must be between 1 and 30 days\n- `retention.data` must be between 0"
+        },
+        {
+          "info": {
+            "name": "AhaSend Create Conversational Message",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/messages/conversation",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Creates and sends a conversational message (with support for CC and BCC) to one or more recipients. This API does not support template substitutions, use [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) instead if you need substitutions.\n\n**Validation Requirements:**\n- Either `text_content` or `html_content` is required\n- `from.email` must be from a domain you own with valid DNS records\n- `retention.metadata` must be between 1 and 30 days\n- `retention.data` must b"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get Message",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/messages/:message_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "message_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns the complete message by its ID, including raw content and parsed content structure.\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Cancel Message",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/messages/:message_id/cancel",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "message_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Message API ID (the same ID returned by [Create Message API](https://ahasend.com/docs/api-reference/messages/create-message))"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Cancels a scheduled message"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

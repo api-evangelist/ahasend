@@ -1,0 +1,159 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Accounts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns account information"
+        },
+        {
+          "info": {
+            "name": "AhaSend Update Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Updates account settings\n\n**Validation Requirements:**\n- `name` must be maximum 255 characters\n- `website` must be a valid URL\n- `message_metadata_retention` must be between 1 and 30 days\n- `message_data_retention` must be between 0 and 30 days\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get Account Members",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/members",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a list of account members"
+        },
+        {
+          "info": {
+            "name": "AhaSend Add Account Member",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/members",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Adds a new member to the account\n\n**Validation Requirements:**\n- `email` must be a valid email address\n- `role` must be one of: Administrator, Developer, Analyst, Billing Manager\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Remove Account Member",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/members/:user_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "user_id",
+                "value": "500123",
+                "type": "path",
+                "description": "User ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Removes a member from the account\n\n**Restrictions:**\n- You cannot delete yourself\n- You cannot delete the account owner\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

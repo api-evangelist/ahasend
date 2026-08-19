@@ -1,0 +1,189 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts API Keys API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "API Keys",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get API Keys",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/api-keys",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "limit",
+                "value": "1",
+                "type": "query",
+                "description": "Maximum number of items to return"
+              },
+              {
+                "name": "after",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response."
+              },
+              {
+                "name": "before",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the previous page."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a list of API keys for the account"
+        },
+        {
+          "info": {
+            "name": "AhaSend Create API Key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/api-keys",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Creates a new API key with the specified scopes"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get API Key",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/api-keys/:key_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "key_id",
+                "value": "500123",
+                "type": "path",
+                "description": "API Key ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a specific API key by ID"
+        },
+        {
+          "info": {
+            "name": "AhaSend Update API Key",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/api-keys/:key_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "key_id",
+                "value": "500123",
+                "type": "path",
+                "description": "API Key ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Updates an existing API key's label and scopes"
+        },
+        {
+          "info": {
+            "name": "AhaSend Delete API Key",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/api-keys/:key_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "key_id",
+                "value": "500123",
+                "type": "path",
+                "description": "API Key ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deletes an API key"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

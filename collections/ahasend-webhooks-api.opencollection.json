@@ -1,0 +1,255 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts Webhooks API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhooks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get Webhooks",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/webhooks",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "enabled",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by enabled status"
+              },
+              {
+                "name": "on_reception",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by reception event trigger"
+              },
+              {
+                "name": "on_delivered",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by delivery event trigger"
+              },
+              {
+                "name": "on_transient_error",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by transient error event trigger"
+              },
+              {
+                "name": "on_failed",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by failure event trigger"
+              },
+              {
+                "name": "on_bounced",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by bounce event trigger"
+              },
+              {
+                "name": "on_suppressed",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by suppression event trigger"
+              },
+              {
+                "name": "on_opened",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by open event trigger"
+              },
+              {
+                "name": "on_clicked",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by click event trigger"
+              },
+              {
+                "name": "on_suppression_created",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by suppression creation event trigger"
+              },
+              {
+                "name": "on_dns_error",
+                "value": "true",
+                "type": "query",
+                "description": "Filter by DNS error event trigger"
+              },
+              {
+                "name": "limit",
+                "value": "1",
+                "type": "query",
+                "description": "Maximum number of items to return (1-100)"
+              },
+              {
+                "name": "after",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response."
+              },
+              {
+                "name": "before",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the previous page."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a list of webhooks for the account\n\n**Query Parameters:**\n- `enabled`: Filter by enabled status\n- Event filters: `on_reception`, `on_delivered`, `on_transient_error`, `on_failed`, `on_bounced`, `on_suppressed`, `on_opened`, `on_clicked`, `on_suppression_created`, `on_dns_error`\n- `limit`: Maximum number of items to return (1-100, default: 100)\n- `cursor`: Pagination cursor for the next page\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Create Webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/webhooks",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Creates a new webhook for event notifications"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get Webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/webhooks/:webhook_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "webhook_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Webhook ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a specific webhook by ID"
+        },
+        {
+          "info": {
+            "name": "AhaSend Update Webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/webhooks/:webhook_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "webhook_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Webhook ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Updates an existing webhook\n\n**Note:** The webhook secret is not updatable\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Delete Webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/webhooks/:webhook_id",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "webhook_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Webhook ID"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deletes a webhook"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,201 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts Statistics API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Statistics",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get Deliverability Statistics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/statistics/transactional/deliverability",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "from_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics after this datetime (RFC3339 format)"
+              },
+              {
+                "name": "to_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics before this datetime (RFC3339 format)"
+              },
+              {
+                "name": "sender_domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Filter by sender domain"
+              },
+              {
+                "name": "recipient_domains",
+                "value": "gmail.com,googlemail.com",
+                "type": "query",
+                "description": "Filter by a comma separated list of recipient domains"
+              },
+              {
+                "name": "tags",
+                "value": "example_value",
+                "type": "query",
+                "description": "Filter by tags (comma-separated)"
+              },
+              {
+                "name": "group_by",
+                "value": "hour",
+                "type": "query",
+                "description": "Group by time period"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns transactional deliverability statistics grouped by status\n\n**Query Parameters:**\n- `from_time`: Filter statistics after this date (RFC3339 format)\n- `to_time`: Filter statistics before this date (RFC3339 format)\n- `sender_domain`: Filter by sender domain\n- `recipient_domains`: Filter by recipient domain\n- `tags`: Filter by tags (comma-separated)\n- `group_by`: Group by time period (hour, day, week, month)\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get Bounce Statistics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/statistics/transactional/bounce",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "from_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics after this datetime (RFC3339 format)"
+              },
+              {
+                "name": "to_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics before this datetime (RFC3339 format)"
+              },
+              {
+                "name": "sender_domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Filter by sender domain"
+              },
+              {
+                "name": "recipient_domains",
+                "value": "gmail.com,googlemail.com",
+                "type": "query",
+                "description": "Filter by a comma separated list of recipient domains"
+              },
+              {
+                "name": "tags",
+                "value": "example_value",
+                "type": "query",
+                "description": "Filter by tags (comma-separated)"
+              },
+              {
+                "name": "group_by",
+                "value": "hour",
+                "type": "query",
+                "description": "Group by time period"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns transactional bounce statistics grouped by classification\n\n**Query Parameters:**\n- `from_time`: Filter statistics after this date (RFC3339 format)\n- `to_time`: Filter statistics before this date (RFC3339 format)\n- `sender_domain`: Filter by sender domain\n- `recipient_domains`: Filter by recipient domain\n- `tags`: Filter by tags (comma-separated)\n- `group_by`: Group by time period (hour, day, week, month)\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Get Delivery Time Statistics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/statistics/transactional/delivery-time",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "from_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics after this datetime (RFC3339 format)"
+              },
+              {
+                "name": "to_time",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter statistics before this datetime (RFC3339 format)"
+              },
+              {
+                "name": "sender_domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Filter by sender domain"
+              },
+              {
+                "name": "recipient_domains",
+                "value": "gmail.com,googlemail.com",
+                "type": "query",
+                "description": "Filter by a comma separated list of recipient domains"
+              },
+              {
+                "name": "tags",
+                "value": "example_value",
+                "type": "query",
+                "description": "Filter by tags (comma-separated)"
+              },
+              {
+                "name": "group_by",
+                "value": "hour",
+                "type": "query",
+                "description": "Group by time period"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns transactional delivery time statistics grouped by recipient domain\n\n**Query Parameters:**\n- `from_time`: Filter statistics after this date (RFC3339 format)\n- `to_time`: Filter statistics before this date (RFC3339 format)\n- `sender_domain`: Filter by sender domain\n- `recipient_domains`: Filter by recipient domains\n- `tags`: Filter by tags (comma-separated)\n- `group_by`: Group by time period (hour, day, week, month)\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

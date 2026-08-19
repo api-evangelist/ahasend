@@ -1,0 +1,305 @@
+{
+  "item": [
+    {
+      "id": "37b3607c-2ebf-499b-b2dc-e2d80dc0adb9",
+      "name": "Utility",
+      "description": {
+        "content": "Utility endpoints for health checks and diagnostics",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "310dc968-f7b7-4f20-96bc-3bea1502813b",
+          "name": "AhaSend Ping",
+          "request": {
+            "name": "AhaSend Ping",
+            "description": {
+              "content": "Health check endpoint that returns a simple pong response",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "ping"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "cf4838fa-551d-49b0-b678-84d5fa9c904d",
+              "name": "Pong response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"pong\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "586cc38a-5637-469a-9d64-6bbef4fad22d",
+              "name": "Bad request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"missing or malformed bearer token\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8f967274-90e3-4e5d-ad61-481e6b31df3b",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"invalid API key\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "45d734d1-fb8a-4f81-86d1-e5086d6e5c31",
+              "name": "Forbidden",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"insufficient permissions for the required scope\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5fd9db9d-f52d-495d-8edf-a70ea4b99419",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ahasend.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "b979be23-f36e-4145-8c1a-b1d6d006fba3",
+    "name": "AhaSend API v2 Accounts Utility API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all` - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all` - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n- `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read` - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` - Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all` - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read` - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n- `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all` - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all` - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all` - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write` - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `cursor`: Pagination cursor for the next page\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\n## Idempotency\nPOST requests support idempotency through the optional `Idempotency-Key` header. When provided:\n- The same request can be safely retried multiple times\n- Duplicate requests return the same response with `Idempotent-Replayed: true`\n- In-progress requests return HTTP 409 with `Idempotent-Replayed: false`\n- Failed requests return HTTP 412 with `Idempotent-Replayed: false`\n- Idempotency keys expire after 24 hours\n\n\nContact Support:\n Email: support@ahasend.com",
+      "type": "text/plain"
+    }
+  }
+}

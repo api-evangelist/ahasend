@@ -1,0 +1,186 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "AhaSend API v2 Accounts Suppressions API",
+    "version": "2.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Suppressions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "AhaSend Get Suppressions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/suppressions",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Filter by domain"
+              },
+              {
+                "name": "email",
+                "value": "user@example.com",
+                "type": "query",
+                "description": "Email address"
+              },
+              {
+                "name": "from_date",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter suppressions created after this date (RFC3339 format)"
+              },
+              {
+                "name": "to_date",
+                "value": "2025-03-15T14:30:00Z",
+                "type": "query",
+                "description": "Filter suppressions created before this date (RFC3339 format)"
+              },
+              {
+                "name": "limit",
+                "value": "1",
+                "type": "query",
+                "description": "Maximum number of items to return (1-100)"
+              },
+              {
+                "name": "after",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response."
+              },
+              {
+                "name": "before",
+                "value": "example_value",
+                "type": "query",
+                "description": "Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns a list of suppressions for the account\n\n**Query Parameters:**\n- `domain`: Filter by domain (optional)\n- `email`: Filter by email (optional)\n- `from_date`: Filter suppressions created after this date (RFC3339 format)\n- `to_date`: Filter suppressions created before this date (RFC3339 format)\n- `limit`: Maximum number of items to return (1-100, default: 100)\n- `cursor`: Pagination cursor for the next page\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Create Suppression",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/suppressions",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": "user-12345-create-domain-20240101"
+              }
+            ],
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Creates a new suppression for an email address\n\n**Validation Requirements:**\n- `email` must be a valid email address\n- `expires_at` must be in RFC3339 format\n- `domain` is optional - if not provided, applies to all account domains\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Delete Suppression",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/suppressions",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "email",
+                "value": "user@example.com",
+                "type": "query",
+                "description": "Email address"
+              },
+              {
+                "name": "domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Optional domain filter"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deletes suppressions for an email address\n\n**Query Parameters:**\n- `email`: Required email address to delete from suppression list\n- `domain`: Optional domain filter to delete suppressions for specific domain only\n"
+        },
+        {
+          "info": {
+            "name": "AhaSend Delete All Suppressions",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.ahasend.com/v2/accounts/:account_id/suppressions/all",
+            "params": [
+              {
+                "name": "account_id",
+                "value": "500123",
+                "type": "path",
+                "description": "Account ID"
+              },
+              {
+                "name": "domain",
+                "value": "mail.example.com",
+                "type": "query",
+                "description": "Optional domain filter"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deletes all suppressions for the account\n\n**Query Parameters:**\n- `domain`: Optional domain filter to delete suppressions for specific domain only\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
