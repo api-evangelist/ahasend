@@ -6,6 +6,8 @@ apis:
   description: Manage account settings and members
   humanURL: https://ahasend.com/docs
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -23,6 +25,8 @@ apis:
   description: Manage API keys for authentication and access control
   humanURL: https://ahasend.com/docs
   tags:
+  - APIKeys
+  tags_raw:
   - API Keys
   properties:
   - type: OpenAPI
@@ -74,6 +78,8 @@ apis:
   description: Send and manage transactional messages
   humanURL: https://ahasend.com/docs
   tags:
+  - Message
+  tags_raw:
   - Messages
   properties:
   - type: OpenAPI
@@ -176,6 +182,8 @@ apis:
   description: Manage webhook notifications
   humanURL: https://ahasend.com/docs
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
@@ -190,6 +198,12 @@ apis:
     url: https://ahasend.com/docs/authentication
 name: AhaSend
 tags:
+  - Email
+  - Transactional Email
+  - Developer Tools
+  - SMTP
+  - Webhook
+tags_raw:
   - Email
   - Transactional Email
   - Developer Tools
