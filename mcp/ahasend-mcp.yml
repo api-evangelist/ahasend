@@ -1,0 +1,103 @@
+generated: '2026-08-30'
+method: derived
+source: openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
+status: candidate
+description: >-
+  AhaSend ships no MCP server. This is a CANDIDATE tool list derived from the 56 operations in
+  AhaSend's published OpenAPI v2 — what a server would expose if one existed. Nothing here is a
+  reachable endpoint.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  verified: probed
+discovery:
+  probes:
+    - {url: 'https://mcp.ahasend.com/mcp', method: 'POST tools/list', status: '<no response>', note: 'Host does not resolve or respond; one attempt, not retried.'}
+    - {url: 'https://ahasend.com/mcp', method: 'POST tools/list', status: 404}
+    - {url: 'https://api.ahasend.com/mcp', method: 'POST tools/list', status: 404}
+    - {url: 'https://ahasend.com/.well-known/ai-plugin.json', method: GET, status: 404}
+    - {url: 'https://api.ahasend.com/.well-known/oauth-authorization-server', method: GET, status: 404}
+  searched:
+    - https://ahasend.com/llms.txt
+    - https://ahasend.com/docs/llms.txt
+    - https://github.com/AhaSend
+  finding: >-
+    No MCP server is named anywhere in AhaSend's own agent-facing index, in the docs index, or in
+    the nine repositories of the AhaSend GitHub organization. Notably, AhaSend's llms.txt is one
+    of the most complete agent-facing documents in this catalog — it names the API base URL, the
+    send payload shape, the SMTP hosts and limits, the OpenAPI URLs, and it still names no MCP
+    endpoint. That absence is a deliberate reading, not a search miss.
+auth_model_if_built:
+  scheme: Bearer aha-sk- API key, scoped per key, optionally IP-restricted
+  note: >-
+    Scoped API keys map cleanly onto per-tool authorization: a read-only agent would hold
+    messages:read:all + statistics-transactional:read:all and nothing else.
+candidate_tools:
+  - {tool: ahasend_ping, category: utility, rest: [ping], description: Health check.}
+  - {tool: ahasend_send_message, category: messages, rest: [createMessage], description: Send a transactional message with substitutions. Supports Idempotency-Key and sandbox mode.}
+  - {tool: ahasend_send_conversation_message, category: messages, rest: [createConversationMessage], description: Send a person-to-person message with CC/BCC. No substitutions.}
+  - {tool: ahasend_list_messages, category: messages, rest: [getMessages], description: List message summaries with filters.}
+  - {tool: ahasend_get_message, category: messages, rest: [getMessage], description: Retrieve one message with raw and parsed content.}
+  - {tool: ahasend_cancel_message, category: messages, rest: [cancelMessage], description: Cancel a scheduled message before its first attempt.}
+  - {tool: ahasend_list_domains, category: domains, rest: [getDomains]}
+  - {tool: ahasend_create_domain, category: domains, rest: [createDomain]}
+  - {tool: ahasend_get_domain, category: domains, rest: [getDomain]}
+  - {tool: ahasend_update_domain, category: domains, rest: [updateDomain]}
+  - {tool: ahasend_check_domain_dns, category: domains, rest: [checkDomainDNS], description: Trigger DNS validation. Cached for 60 seconds.}
+  - {tool: ahasend_delete_domain, category: domains, rest: [deleteDomain], destructive: true}
+  - {tool: ahasend_list_suppressions, category: suppressions, rest: [getSuppressions]}
+  - {tool: ahasend_create_suppression, category: suppressions, rest: [createSuppression]}
+  - {tool: ahasend_delete_suppression, category: suppressions, rest: [deleteSuppression]}
+  - {tool: ahasend_wipe_suppressions, category: suppressions, rest: [deleteAllSuppressions], destructive: true, note: Irreversible. Should never be exposed to an autonomous agent without confirmation.}
+  - {tool: ahasend_list_webhooks, category: webhooks, rest: [getWebhooks]}
+  - {tool: ahasend_create_webhook, category: webhooks, rest: [createWebhook]}
+  - {tool: ahasend_get_webhook, category: webhooks, rest: [getWebhook]}
+  - {tool: ahasend_update_webhook, category: webhooks, rest: [updateWebhook]}
+  - {tool: ahasend_delete_webhook, category: webhooks, rest: [deleteWebhook], destructive: true}
+  - {tool: ahasend_list_routes, category: routes, rest: [getRoutes]}
+  - {tool: ahasend_create_route, category: routes, rest: [createRoute]}
+  - {tool: ahasend_get_route, category: routes, rest: [getRoute]}
+  - {tool: ahasend_update_route, category: routes, rest: [updateRoute]}
+  - {tool: ahasend_delete_route, category: routes, rest: [deleteRoute], destructive: true}
+  - {tool: ahasend_list_smtp_credentials, category: smtp-credentials, rest: [getSMTPCredentials]}
+  - {tool: ahasend_create_smtp_credential, category: smtp-credentials, rest: [createSMTPCredential]}
+  - {tool: ahasend_get_smtp_credential, category: smtp-credentials, rest: [getSMTPCredential]}
+  - {tool: ahasend_delete_smtp_credential, category: smtp-credentials, rest: [deleteSMTPCredential], destructive: true}
+  - {tool: ahasend_list_api_keys, category: api-keys, rest: [getAPIKeys]}
+  - {tool: ahasend_create_api_key, category: api-keys, rest: [createAPIKey], note: Returns a one-time secret_key; idempotent replay window is 5 minutes.}
+  - {tool: ahasend_get_api_key, category: api-keys, rest: [getAPIKey]}
+  - {tool: ahasend_update_api_key, category: api-keys, rest: [updateAPIKey]}
+  - {tool: ahasend_delete_api_key, category: api-keys, rest: [deleteAPIKey], destructive: true}
+  - {tool: ahasend_get_account, category: accounts, rest: [getAccount]}
+  - {tool: ahasend_update_account, category: accounts, rest: [updateAccount]}
+  - {tool: ahasend_list_account_members, category: accounts, rest: [getAccountMembers]}
+  - {tool: ahasend_add_account_member, category: accounts, rest: [addAccountMember]}
+  - {tool: ahasend_remove_account_member, category: accounts, rest: [removeAccountMember], destructive: true}
+  - {tool: ahasend_list_sub_accounts, category: sub-accounts, rest: [listSubAccounts]}
+  - {tool: ahasend_create_sub_account, category: sub-accounts, rest: [createSubAccount]}
+  - {tool: ahasend_get_sub_account, category: sub-accounts, rest: [getSubAccount]}
+  - {tool: ahasend_update_sub_account, category: sub-accounts, rest: [updateSubAccount]}
+  - {tool: ahasend_suspend_sub_account, category: sub-accounts, rest: [suspendSubAccount], reversible_by: ahasend_unsuspend_sub_account}
+  - {tool: ahasend_unsuspend_sub_account, category: sub-accounts, rest: [unsuspendSubAccount]}
+  - {tool: ahasend_delete_sub_account, category: sub-accounts, rest: [deleteSubAccount], destructive: true, note: Soft delete with no published restore.}
+  - {tool: ahasend_get_sub_accounts_usage, category: sub-accounts, rest: [getSubAccountsUsage]}
+  - {tool: ahasend_list_sub_account_api_keys, category: sub-accounts, rest: [listSubAccountAPIKeys]}
+  - {tool: ahasend_create_sub_account_api_key, category: sub-accounts, rest: [createSubAccountAPIKey]}
+  - {tool: ahasend_get_sub_account_api_key, category: sub-accounts, rest: [getSubAccountAPIKey]}
+  - {tool: ahasend_update_sub_account_api_key, category: sub-accounts, rest: [updateSubAccountAPIKey]}
+  - {tool: ahasend_delete_sub_account_api_key, category: sub-accounts, rest: [deleteSubAccountAPIKey], destructive: true}
+  - {tool: ahasend_deliverability_statistics, category: statistics, rest: [getDeliverabilityStatistics], note: 1 request/second, no burst.}
+  - {tool: ahasend_bounce_statistics, category: statistics, rest: [getBounceStatistics], note: 1 request/second, no burst.}
+  - {tool: ahasend_delivery_time_statistics, category: statistics, rest: [getDeliveryTimeStatistics], note: 1 request/second, no burst.}
+coverage:
+  rest_operations: 56
+  candidate_tools: 56
+  mapped: 56
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

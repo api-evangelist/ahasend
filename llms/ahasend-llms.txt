@@ -1,0 +1,264 @@
+# AhaSend
+
+> AhaSend is the European email provider for developers, SaaS companies, agencies and hosting providers. Send transactional email (and marketing email for approved senders) through a REST API, an SMTP relay, a CLI and official SDKs, all running on AhaSend's own multi-region infrastructure inside the EU. GDPR-first, with customer data stored in Europe, fair and transparent pricing, a free tier of 1,000 emails per month, and typical delivery under one second to Gmail and under five seconds to other major mailbox providers.
+
+Last reviewed: 2026-08-20. This file covers https://ahasend.com. The developer documentation has its own index at https://ahasend.com/docs/llms.txt, and every documentation page is available as clean markdown at the same URL with `.md` appended (for example https://ahasend.com/docs/quickstart.md). Fetch the docs index and the OpenAPI specification before writing or reviewing code that talks to AhaSend.
+
+Key facts:
+
+- Company: AhaSend B.V., Willem Fenengastraat 16, 1096 BN Amsterdam, the Netherlands. Dutch Chamber of Commerce (KvK) number 99533111. Co-founded by Farhad Hedayatifard (CTO) and Mark Kraakman (CEO).
+- Infrastructure: AhaSend operates its own sending infrastructure and is not a reseller of Amazon SES or any other email service. Infrastructure is multi-region and geo-redundant across four European countries, and customer data is stored in Europe. An optional US SMTP endpoint (send-us.ahasend.com, Oregon) is available for North American traffic; message data is not stored outside Europe.
+- Compliance: GDPR-compliant, with a standard Data Processing Agreement at https://ahasend.com/dpa. ISO 27001 certification is in progress (2026). AhaSend holds a Certified Senders Alliance (CSA) certificate. Live service status is published at https://status.ahasend.com.
+- Product focus: transactional email such as one-time passcodes, password resets, magic links, order confirmations, invoices and notifications. Marketing email is available for approved senders and is sent from separate subdomains so transactional sending reputation stays isolated. Transactional traffic is never mixed with bulk marketing traffic on the same IPs.
+- Plans: Free (1,000 emails per month, no credit card), Pro (from €9 / £8 / $10 per month including 25,000 emails) and Max (€72 / £65 / $80 per month including 100,000 emails). Extra usage costs €0.45 / £0.40 / $0.50 per 1,000 emails, with lower rates above 1 million emails per month. Billed in EUR, GBP or USD depending on location, month to month, no contracts or annual commitments. Current prices in your currency and the full feature matrix are at https://ahasend.com/pricing.
+- Included on every plan, including Free: REST API, SMTP relay, sandbox mode, CLI, official SDKs, scheduled sending, open and click tracking, recipient variables, webhooks, inbound email routing, custom subdomains, Management API, DNS whitelabeling, sub accounts, raw delivery logs, automatic suppression list, two-factor authentication, scoped API keys and IP allow lists.
+- Dedicated IPs: available from 100,000 emails per month, and one dedicated IP is included free at 300,000 or more emails per month. Dedicated IP pools are on the Max plan. Bring Your Own IP (BYOIP) is available as an add-on. Automated IP warm-up is included.
+- Data retention: configurable per account. Delivery logs and message content can be kept for up to 7 days on Free, 14 days on Pro and 30 days on Max. Paid plans can set message content retention to 0 days so email bodies are never stored. Messages and delivery logs can also be archived automatically to any S3-compatible object storage.
+- Support: community and best-effort on Free, 7-day support on Pro, premium support on Max, deliverability consulting as an add-on. Contact via https://ahasend.com/contact, phone +31 (0)20 79 20 760, or the Discord community.
+
+Facts for writing code:
+
+- API: base URL `https://api.ahasend.com/v2`. Send with `POST /accounts/{account_id}/messages` using `Authorization: Bearer <api_key>` and a JSON body with `from`, `recipients`, `subject`, `html_content` and/or `text_content`, optional `substitutions` rendered through `{{variable}}` placeholders, and an optional `Idempotency-Key` header for safe retries. Use the Create Conversational Message endpoint when a message needs CC or BCC.
+- SMTP: host `send.ahasend.com` (EU, primary) or `send-us.ahasend.com` (US), ports 25, 587 or 2525, STARTTLS required, PLAIN authentication with SMTP credentials created in the dashboard or via the API. Implicit TLS (SMTPS) on port 465 is not supported. Limits: 50 recipients per message, 20 MB per message including base64-encoded attachments, 10,000 messages per connection, 60-second idle timeout.
+- Webhooks follow the Standard Webhooks specification and are signed; verify signatures and design handlers to be idempotent because events can be retried. Inbound email routing posts parsed JSON (latest reply separated from quoted text and signatures, attachments and headers included) or the raw message to your HTTP endpoint, also signed.
+- Sandbox mode exists for both the API and SMTP, so a complete integration can be built and tested without delivering a single email. The CLI can stream webhook and inbound route events to localhost.
+- API v2 is the current API. API v1 is legacy and should not be used for new integrations.
+- Terminology: the account and resource API is called the "Management API" (always capitalized). Sub accounts are isolated child accounts under one parent, each with its own domains, API keys and sending, billed through the parent.
+
+## Start here
+
+- [Quickstart](https://ahasend.com/docs/quickstart.md): Create an account, verify a domain and send a first email via API or SMTP in under five minutes.
+- [Documentation index for agents](https://ahasend.com/docs/llms.txt): Complete list of every documentation page with markdown URLs. Read this first for any technical question.
+- [Documentation home](https://ahasend.com/docs/index.md): Overview of the platform, core features and where to go next.
+- [API reference introduction](https://ahasend.com/docs/api-reference/index.md): How the REST API is organized, plus authentication, scopes, rate limits, idempotency and errors.
+- [OpenAPI specification for API v2](https://ahasend.com/docs/openapi.yaml): Machine-readable schema for every endpoint. Use it to generate clients, validate request bodies and confirm field names.
+- [OpenAPI specification for webhooks](https://ahasend.com/docs/webhooks.yaml): Payload schemas for every webhook event type.
+- [AhaSend CLI](https://ahasend.com/docs/cli/index.md): Command-line tool for sending, managing the whole account and testing webhooks and routes locally.
+- [Create a free account](https://dash.ahasend.com/user/register): 1,000 emails per month, no credit card required.
+- [Dashboard](https://dash.ahasend.com): Manage domains, credentials, messages, delivery logs, team members and settings.
+
+## Sending email
+
+- [Send emails using the API](https://ahasend.com/docs/send-api/send-email.md): Request format, examples in several languages, attachments, scheduling, substitutions and best practices.
+- [Create Message endpoint](https://ahasend.com/docs/api-reference/messages/create-message.md): Full field reference for the main send endpoint, including multiple recipients and template substitutions.
+- [Create Conversational Message endpoint](https://ahasend.com/docs/api-reference/messages/create-conversation.md): Person-to-person style sends with CC and BCC support; substitutions are not available here.
+- [API keys for sending](https://ahasend.com/docs/send-api/credentials.md): Create and manage API v2 keys.
+- [API authentication](https://ahasend.com/docs/api-reference/authentication.md): Bearer token authentication for every request.
+- [API key scopes](https://ahasend.com/docs/api-reference/scopes.md): How scopes and per-domain restrictions limit what a key can do. Read when building least-privilege or multi-tenant setups.
+- [Rate limits](https://ahasend.com/docs/api-reference/rate-limits.md): Rate limiting policy and recommended client behaviour.
+- [Request idempotency](https://ahasend.com/docs/api-reference/idempotency.md): Safe retries with the Idempotency-Key header.
+- [Error handling](https://ahasend.com/docs/api-reference/errors.md): Error response format and codes.
+- [Cancel a scheduled message](https://ahasend.com/docs/api-reference/messages/cancel-message.md): Scheduled messages can be cancelled before they are sent.
+- [List and retrieve messages](https://ahasend.com/docs/api-reference/messages/get-messages.md): Message summaries, raw content and parsed structure via the API.
+- [SMTP server information](https://ahasend.com/docs/smtp/index.md): Hostnames, ports, encryption, authentication, limits and SMTP response codes.
+- [SMTP credentials](https://ahasend.com/docs/smtp/credentials.md): Create scoped or global SMTP credentials.
+- [Special email headers](https://ahasend.com/docs/smtp/special-headers.md): Headers that control tracking, sandbox mode, retention and tagging for SMTP sends.
+- [Sandbox mode for the API](https://ahasend.com/docs/send-api/sandbox.md): Simulate sends and webhooks without delivery, at zero cost.
+- [Sandbox mode for SMTP](https://ahasend.com/docs/smtp/sandbox.md): The same simulation for SMTP integrations.
+- [Suppressions API](https://ahasend.com/docs/api-reference/suppressions/create-suppression.md): Create, list and delete suppressed addresses. Bounces and complaints are suppressed automatically.
+
+## SDKs, libraries and integrations
+
+- [Integrations overview](https://ahasend.com/integration): Official SDKs, community plugins and SMTP guides in one place. A Swoosh adapter for Elixir and Phoenix is in progress.
+- [Go SDK](https://github.com/AhaSend/ahasend-go): Official Go client for the API.
+- [Node.js and TypeScript SDK](https://www.npmjs.com/package/@ahasend/sdk): Official client, published on npm as @ahasend/sdk.
+- [Java client](https://github.com/AhaSend/ahasend-java-client): Official Java client.
+- [Symfony Mailer bridge](https://symfony.com/packages/aha-send-mailer): Official AhaSend transport for Symfony Mailer.
+- [WordPress plugin, SMTP](https://github.com/AhaSend/wordpress-plugin): Official plugin for WordPress and WooCommerce notification email.
+- [AhaSend Email API plugin on WordPress.org](https://wordpress.org/plugins/ahasend-email-api/): Plugin listing that sends through the HTTP API instead of SMTP.
+- [WordPress plugin, API, community-built](https://github.com/ghostfishing/ahasend-wordpress-plugin): Community plugin that uses the API.
+- [Payload CMS email adapter, community-built](https://github.com/eavan5/payload-email-ahasend): Send Payload CMS email through AhaSend.
+- [CLI source code](https://github.com/AhaSend/ahasend-cli): Open-source repository for the AhaSend CLI.
+- [GitHub organization](https://github.com/AhaSend): All official open-source repositories.
+- [Sending with PHP over SMTP](https://ahasend.com/docs/smtp/php.md): PHPMailer, Symfony Mailer and Laravel mail configuration.
+- [Sending with Node.js over SMTP](https://ahasend.com/docs/smtp/nodejs.md): Nodemailer configuration.
+- [Sending with Python over SMTP](https://ahasend.com/docs/smtp/python.md): smtplib and email modules, usable from Django, Flask or FastAPI.
+- [Sending with Go over SMTP](https://ahasend.com/docs/smtp/golang.md): net/smtp and gomail.
+- [Sending with Ruby over SMTP](https://ahasend.com/docs/smtp/ruby.md): net/smtp, the Mail gem and Rails ActionMailer.
+- [Sending with C# and .NET over SMTP](https://ahasend.com/docs/smtp/dotnet.md): MailKit configuration.
+- [Sending with Delphi over SMTP](https://ahasend.com/docs/smtp/delphi.md): Indy networking library.
+- [Sending from the command line](https://ahasend.com/docs/smtp/cli.md): Swaks examples for quick SMTP tests.
+
+## Webhooks and inbound email
+
+- [Webhooks guide](https://ahasend.com/docs/integrations/webhooks.md): Receive real-time delivery, bounce, open, click and suppression events.
+- [Webhooks API overview](https://ahasend.com/docs/api-reference/webhooks/index.md): HTTP callbacks that follow the Standard Webhooks specification.
+- [Webhook security and verification](https://ahasend.com/docs/api-reference/webhooks/security.md): How to verify signatures on incoming webhook requests.
+- [Webhook retry policy](https://ahasend.com/docs/api-reference/webhooks/retry-policy.md): Retry schedule when an endpoint fails.
+- [Message Delivered webhook payload](https://ahasend.com/docs/api-reference/webhooks/message-delivered.md): Reference payload. Sibling pages in the same folder cover message-reception, message-transient_error (deferred), message-failed, message-bounced, message-suppressed, message-opened, message-clicked, suppression-created and domain-dns_error.
+- [Create Webhook endpoint](https://ahasend.com/docs/api-reference/webhooks/create-webhook.md): Create scoped or global webhooks programmatically.
+- [Message routing guide](https://ahasend.com/docs/integrations/routing.md): Route inbound email to your application for support tickets, reply handling and automation.
+- [Message Routes API](https://ahasend.com/docs/api-reference/routes/index.md): Configure inbound routing rules per recipient domain.
+- [Inbound route event payload](https://ahasend.com/docs/api-reference/routes/route-message.md): Structure of the parsed inbound message delivered to your endpoint.
+- [Inbound routing security](https://ahasend.com/docs/api-reference/routes/security.md): Signature verification for routed messages.
+- [Inbound routing retry policy](https://ahasend.com/docs/api-reference/routes/retry-policy.md): Retry schedule for route deliveries.
+- [Test webhooks locally with the CLI](https://ahasend.com/docs/cli/webhook-testing.md): Stream live webhook events to localhost during development.
+- [Test inbound routes locally with the CLI](https://ahasend.com/docs/cli/route-testing.md): Stream inbound messages to a local handler.
+- [Guide: handle email bounces automatically with webhooks](https://ahasend.com/blog/how-handle-email-bounces-automatically-ahasend-webhooks/): Pattern for processing bounce events and keeping lists clean.
+- [Guide: why your webhook fired twice](https://ahasend.com/blog/why-your-webhook-fired-twice-handling-duplicate-events/): Designing idempotent webhook handlers.
+
+## Domains, deliverability and tracking
+
+- [Domain setup](https://ahasend.com/docs/domains.md): DNS records for SPF, DKIM, DMARC and return-path, verification, automatic DKIM key rotation and custom subdomains.
+- [Domains API](https://ahasend.com/docs/api-reference/domains/create-domain.md): Create domains programmatically; related endpoints update custom subdomains and the DKIM rotation interval.
+- [Check Domain DNS endpoint](https://ahasend.com/docs/api-reference/domains/check-dns.md): Trigger a DNS validation check (cached for 60 seconds).
+- [Open tracking](https://ahasend.com/docs/tracking/open-tracking.md): How open tracking works, its limitations and how to enable it per message.
+- [Click tracking](https://ahasend.com/docs/tracking/click-tracking.md): Link tracking requirements and implementation across SMTP and API.
+- [Reputation Shield](https://ahasend.com/docs/security/reputation-shield.md): Blocks sends to toxic domains, temporary addresses and typo-squatted domains before they damage sender reputation.
+- [Delivery Status Notification reports](https://ahasend.com/docs/integrations/dsn-reports.md): RFC 3464 formatted bounce reports for enterprise compliance.
+- [Deliverability reports API](https://ahasend.com/docs/api-reference/reports/get-deliverability-report.md): Statistics by delivery status; sibling endpoints return bounce classifications and delivery times per recipient domain.
+- [Dedicated IPs](https://ahasend.com/docs/scale/dedicated-ips.md): Eligibility, pricing and automated warm-up for dedicated sending IPs.
+- [IP pool management](https://ahasend.com/docs/scale/ip-pools.md): Group dedicated IPs into pools per mail stream or domain.
+- [Bring Your Own IP](https://ahasend.com/docs/scale/byoip.md): Use your own IP ranges on AhaSend infrastructure.
+- [Guide: IP and domain warming when migrating to AhaSend](https://ahasend.com/blog/guide-ip-and-domain-warming-when-migrating-ahasend/): Step-by-step migration and warm-up plan. Read when a user is moving from another provider.
+- [Guide: SPF, DKIM and DMARC for developers](https://ahasend.com/blog/technical-deep-dive-spf-dkim-and-dmarc-developers/): Technical deep dive into email authentication.
+- [Why marketing and transactional email need separate subdomains](https://ahasend.com/blog/why-marketing-and-transactional-email-need-separate-subdomains/): Reputation isolation explained.
+- [Inline images with Content-ID in transactional email](https://ahasend.com/blog/need-inline-images-your-transactional-emails-switch-ahasend/): Embedding inline images (CID) with AhaSend.
+
+## Security, privacy and compliance
+
+- [Trust and security overview](https://ahasend.com/security): Security controls, certifications, compliance status and documents in one place. Read when asked about security posture, audits or certifications.
+- [Data Processing Agreement](https://ahasend.com/dpa): GDPR Article 28 DPA covering purpose limitation, confidentiality, sub-processors, data subject rights and breach notification.
+- [Privacy notice](https://ahasend.com/privacy): How AhaSend handles personal data.
+- [Terms of use](https://ahasend.com/terms): Service terms, including acceptable use.
+- [Responsible disclosure](https://ahasend.com/responsible-disclosure): How to report a security vulnerability to AhaSend.
+- [Two-factor authentication](https://ahasend.com/docs/security/2fa.md): TOTP-based 2FA for dashboard accounts.
+- [2FA enforcement](https://ahasend.com/docs/security/2fa-enforcement.md): Require 2FA for every team member.
+- [Scoped API keys](https://ahasend.com/docs/security/scoped-credentials.md): Domain restrictions and granular permissions per key.
+- [IP allow lists](https://ahasend.com/docs/security/ip-allow-lists.md): Restrict a Management API key to specific IPv4/IPv6 addresses or CIDR ranges (up to 100 entries per key); requests from other IPs are rejected.
+- [OpenID Connect SSO](https://ahasend.com/docs/security/sso.md): Team login through your own identity provider (Max plan).
+- [Data retention](https://ahasend.com/docs/retention/index.md): Configure how long message content and metadata are kept, down to zero-day content retention on paid plans.
+- [S3 archiving](https://ahasend.com/docs/retention/s3.md): Archive messages and delivery logs to S3-compatible storage for long-term retention.
+- [Certified Senders Alliance certificate](https://certified-senders.org/certificate/?id=8527228af85c77463bc7668b7d4f628f): AhaSend's CSA certification record.
+- [Service status](https://status.ahasend.com): Live uptime and incident history.
+- [Guide: GDPR-compliant transactional email for developers](https://ahasend.com/blog/developers-guide-gdpr-compliant-transactional-emails): Controller and processor roles, DPAs, data minimisation and provider selection.
+- [AhaSend is pursuing ISO 27001 certification](https://ahasend.com/blog/ahasend-pursuing-iso-27001-certification): Announcement and scope of the ISMS work.
+
+## For platforms, agencies and hosting providers
+
+- [Sub accounts](https://ahasend.com/docs/scale/sub-accounts.md): Provision isolated child accounts under one parent, each with its own domains, API keys and sending, under a single billing relationship.
+- [Sub Accounts API](https://ahasend.com/docs/api-reference/sub-accounts/overview.md): Create, update, suspend and delete sub accounts, issue per-sub-account API keys and read per-sub-account usage and allocated cost.
+- [DNS whitelabel](https://ahasend.com/docs/scale/dns-whitelabel.md): Use your own branded domain for all authentication and tracking DNS records your customers configure.
+- [Account members API](https://ahasend.com/docs/api-reference/accounts/get-account-members.md): Add and remove team members programmatically.
+- [Introducing Sub Accounts](https://ahasend.com/blog/introducing-sub-accounts-early-access/): Background on the sub account model and who it is for.
+- [Talk to an expert](https://ahasend.com/talk): Book a call about volume, migration, partner or reseller setups.
+
+## Pricing and plans
+
+- [Pricing](https://ahasend.com/pricing): Free, Pro and Max plans, cost calculator, full feature matrix and FAQ covering billing, VAT, refunds and payment methods (bank transfer, direct debit and credit card depending on location). Read for any cost question.
+- [Free email API](https://ahasend.com/free-email-api): What the free tier includes for API users.
+- [Free SMTP server and relay](https://ahasend.com/free-smtp-server-relay): What the free tier includes for SMTP users.
+- [Pay-as-you-go email API](https://ahasend.com/payg-usage-based-email-api): Volume pricing tiers above the included plan volume.
+- [Affiliate program](https://ahasend.com/affiliates): Referral and affiliate terms.
+
+## Compare AhaSend with other providers
+
+- [AhaSend vs Amazon SES](https://ahasend.com/amazon-ses-alternative): Read when a user mentions SES or wants a European alternative to AWS email.
+- [AhaSend vs Bird](https://ahasend.com/bird-alternative): Read when a user mentions Bird or MessageBird.
+- [AhaSend vs Flowmailer / Spotler SendPro](https://ahasend.com/sendpro-alternative): Read when a user mentions Flowmailer or Spotler SendPro.
+- [AhaSend vs Mailgun](https://ahasend.com/mailgun-flex-plan-payg-alternative): Read when a user mentions Mailgun or its Flex pay-as-you-go plan.
+- [AhaSend vs Mailjet](https://ahasend.com/mailjet-alternative): Read when a user mentions Mailjet.
+- [AhaSend vs Postmark](https://ahasend.com/postmark-alternative): Read when a user mentions Postmark.
+- [AhaSend vs Resend](https://ahasend.com/resend-alternative): Read when a user mentions Resend.
+- [AhaSend vs Scaleway Transactional Email](https://ahasend.com/scaleway-alternative): Read when a user mentions Scaleway TEM.
+- [AhaSend vs SendGrid](https://ahasend.com/sendgrid-smtp-alternative): Read when a user mentions SendGrid or Twilio SendGrid.
+- [AhaSend vs SendGrid vs Resend vs Mailgun: which service is right for you?](https://ahasend.com/blog/ahasend-vs-sendgrid-vs-resend-vs-mailgun-which-transactional-email-service-right-you): Neutral feature, pricing and data-residency comparison.
+
+## Guides, blog and customer stories
+
+- [Blog](https://ahasend.com/blog): Deliverability guides, product updates and customer stories from the AhaSend team.
+- [Case study: how meetergo strengthened its European infrastructure](https://ahasend.com/blog/how-meetergo-strengthened-its-european-infrastructure/): A SaaS scheduling company moving transactional email to AhaSend.
+- [Self-hosted Tymeslot now sends through AhaSend](https://ahasend.com/blog/self-hosted-tymeslot-now-sends-through-ahasend/): Integration story with a self-hosted scheduling tool.
+- [Restrict your API keys to specific IPs with IP allow lists](https://ahasend.com/blog/restrict-your-api-keys-specific-ips-ip-allow-lists/): Product update on IP allow lists.
+- [Warum europäische SaaS-Unternehmen einen europäischen E-Mail-Anbieter brauchen](https://ahasend.com/blog/warum-europaische-saas-unternehmen-einen-europaischen-e-mail-anbieter-brauchen/): German-language article on why European SaaS companies need a European email provider.
+
+## Company, support and community
+
+- [About AhaSend](https://ahasend.com/about): Company background, legal details and founders.
+- [Contact](https://ahasend.com/contact): Support and sales contact form.
+- [Talk to an expert](https://ahasend.com/talk): Schedule a call with the team.
+- [Media kit](https://ahasend.com/media): Logos and brand assets.
+- [Discord community](https://discord.com/invite/WN4puKFqAA): Community support and discussion.
+- [GitHub](https://github.com/AhaSend): Official repositories.
+- [LinkedIn](https://linkedin.com/company/ahasend): Company page.
+- [Bluesky](https://bsky.app/profile/ahasend.bsky.social): Official Bluesky account.
+- [X (Twitter)](https://x.com/aha_send): Official account, @aha_send.
+- [G2 reviews](https://www.g2.com/products/ahasend/reviews): Independent customer reviews.
+- [Product Hunt](https://www.producthunt.com/products/ahasend): Launch page and reviews.
+
+## Optional
+
+- [Changelog](https://ahasend.com/docs/changelog.md): New releases and improvements.
+- [Roadmap](https://ahasend.com/docs/roadmap.md): Active work, planned items and future ideas.
+- [API v1 vs v2](https://ahasend.com/docs/api-reference/v1/v1-vs-v2.md): Differences between the legacy and current API; read only when maintaining an old v1 integration.
+- [Legacy API v1 send endpoint](https://ahasend.com/docs/api-reference/v1/index.md): Legacy reference for existing v1 integrations.
+- [OpenAPI specification for API v1](https://ahasend.com/docs/openapi-v1.yaml): Legacy schema.
+- [CLI installation](https://ahasend.com/docs/cli/installation.md): Install the CLI on macOS, Linux or Windows.
+- [CLI quick start](https://ahasend.com/docs/cli/quickstart.md): First commands after installation.
+- [CLI authentication and profiles](https://ahasend.com/docs/cli/authentication.md): Manage credentials and multiple account profiles.
+- [CLI messages commands](https://ahasend.com/docs/cli/commands/messages.md): Send and manage messages from the terminal; sibling pages cover domains, webhooks, routes, suppressions, smtp, apikeys, stats, auth and ping.
+- [CLI batch processing](https://ahasend.com/docs/cli/batch-processing.md): High-volume sending from files.
+- [CLI template system](https://ahasend.com/docs/cli/templates.md): Personalised sends from templates.
+- [Webhooks CLI commands](https://ahasend.com/docs/cli/commands/webhooks.md): Configure and test webhook endpoints from the terminal.
+- [Account API](https://ahasend.com/docs/api-reference/accounts/get-account.md): Read and update account settings.
+- [API Keys API](https://ahasend.com/docs/api-reference/api-keys/create-api-key.md): Manage API keys programmatically.
+- [SMTP Credentials API](https://ahasend.com/docs/api-reference/smtp-credentials/create-smtp-credential.md): Manage SMTP credentials programmatically.
+- [Ping endpoint](https://ahasend.com/docs/api-reference/utility/ping.md): Health check for connectivity and authentication.
+
+## Markdown versions of pages
+
+Append `.md` to any ahasend.com page URL to get the page as Markdown (English). Currently available:
+
+### Blog posts
+
+- [The best European email APIs in 2026](https://ahasend.com/blog/best-european-email-apis-2026.md)
+- [CoreCubes moved six applications in one hour](https://ahasend.com/blog/corecubes-moved-six-applications-one-hour.md)
+- [Self-hosted Tymeslot now sends through AhaSend](https://ahasend.com/blog/self-hosted-tymeslot-now-sends-through-ahasend.md)
+- [Why marketing and transactional email need separate subdomains](https://ahasend.com/blog/why-marketing-and-transactional-email-need-separate-subdomains.md)
+- [How meetergo strengthened its Infrastructure](https://ahasend.com/blog/how-meetergo-strengthened-its-european-infrastructure.md)
+- [Restrict your API keys to specific IPs with IP allow lists](https://ahasend.com/blog/restrict-your-api-keys-specific-ips-ip-allow-lists.md)
+- [Introducing Sub Accounts (early access)](https://ahasend.com/blog/introducing-sub-accounts-early-access.md)
+- [A Technical Deep Dive into SPF, DKIM, and DMARC for Developers](https://ahasend.com/blog/technical-deep-dive-spf-dkim-and-dmarc-developers.md)
+- [How to Handle Email Bounces Automatically with AhaSend Webhooks](https://ahasend.com/blog/how-handle-email-bounces-automatically-ahasend-webhooks.md)
+- [Guide to IP and domain warming when migrating to AhaSend](https://ahasend.com/blog/guide-ip-and-domain-warming-when-migrating-ahasend.md)
+- [Warum europäische SaaS-Unternehmen einen europäischen E-Mail-Anbieter brauchen](https://ahasend.com/blog/warum-europaische-saas-unternehmen-einen-europaischen-e-mail-anbieter-brauchen.md)
+- [Why your webhook fired twice: handling duplicate events](https://ahasend.com/blog/why-your-webhook-fired-twice-handling-duplicate-events.md)
+- [Need inline images in your transactional emails? Switch to AhaSend](https://ahasend.com/blog/need-inline-images-your-transactional-emails-switch-ahasend.md)
+- [AhaSend is pursuing ISO 27001 certification](https://ahasend.com/blog/ahasend-pursuing-iso-27001-certification.md)
+- [How to switch Email Providers without risking Deliverability](https://ahasend.com/blog/how-switch-email-providers-without-risking-deliverability.md)
+- [Data Sovereignty and Transactional Email: What every CTO should know](https://ahasend.com/blog/data-sovereignty-and-transactional-email-what-every-cto-should-know.md)
+- [The Developer's Guide to GDPR-Compliant Transactional Emails](https://ahasend.com/blog/developers-guide-gdpr-compliant-transactional-emails.md)
+- [More accurate engagement tracking](https://ahasend.com/blog/more-accurate-engagement-tracking.md)
+- [Product Update: April 2026](https://ahasend.com/blog/product-update-april-2026.md)
+- [How to migrate Multiple Domains from SendGrid to AhaSend](https://ahasend.com/blog/how-migrate-multiple-domains-sendgrid-ahasend.md)
+- [How to Import a Suppression List](https://ahasend.com/blog/how-import-suppression-list-ahasend.md)
+- [March Product Update](https://ahasend.com/blog/march-product-update.md)
+- [AhaSend vs SendGrid vs Resend vs Mailgun: Which Transactional Email Service is Right for You?](https://ahasend.com/blog/ahasend-vs-sendgrid-vs-resend-vs-mailgun-which-transactional-email-service-right-you.md)
+- [What does a failed email actually cost you?](https://ahasend.com/blog/what-does-failed-email-actually-cost-you.md)
+- [The Complete Guide to sending Transactional Emails in Go with AhaSend](https://ahasend.com/blog/complete-guide-sending-transactional-emails-go-ahasend.md)
+- [Automatic DKIM key rotation is now available in AhaSend](https://ahasend.com/blog/automatic-dkim-key-rotation-now-available-ahasend.md)
+- [AhaSend a member of the Dutch Cloud Community](https://ahasend.com/blog/ahasend-member-dutch-cloud-community.md)
+- [February Product Update](https://ahasend.com/blog/february-product-update.md)
+- [AhaSend is now listed on the European Tech Map](https://ahasend.com/blog/ahasend-now-listed-european-tech-map.md)
+- [Data Retention Policies and Email Tracking](https://ahasend.com/blog/data-retention-policies-and-email-tracking.md)
+- [GDPR Compliance: What AhaSend's Updates Mean for You](https://ahasend.com/blog/ahasend-gdpr-compliance-updates.md)
+- [AhaSend commits to the EMEA region](https://ahasend.com/blog/ahasend-now-incorporated-netherlands.md)
+- [September Update: Automatic Rejection of Toxic Domains and Typos](https://ahasend.com/blog/september-update-automatic-rejection-toxic-domains-and-typos.md)
+- [October Updates: Enhanced Reporting, New Charts, and Smarter Suppressions](https://ahasend.com/blog/october-updates-enhanced-reporting-new-charts-and-smarter-suppressions.md)
+- [Test Email Sending Safely with AhaSend Sandbox Mode](https://ahasend.com/blog/test-email-sending-safely-ahasend-sandbox-mode.md)
+- [Introducing Our New Website: Built for Developers Who Value Simplicity](https://ahasend.com/blog/introducing-our-new-website-built-developers-who-value-simplicity.md)
+- [A Developer’s Guide to List-Unsubscribe: How to implement one-click unsubscribe (with Code Samples)](https://ahasend.com/blog/how-implement-one-click-unsubscribe-code-samples-go-php.md)
+- [November update: Platform Improvements & New Features](https://ahasend.com/blog/november-update-platform-improvements-new-features.md)
+- [Introducing: The AhaSend Go SDK](https://ahasend.com/blog/introducing-ahasend-go-sdk.md)
+- [Workflow Engine Now in Private Beta](https://ahasend.com/blog/workflow-engine-now-private-beta.md)
+- [Reflecting on a incredible year](https://ahasend.com/blog/reflecting-incredible-year.md)
+- [Get to know our new APIv2](https://ahasend.com/blog/get-know-our-new-apiv2.md)
+- [December Product Update](https://ahasend.com/blog/december-product-update.md)
+- [January Product Update](https://ahasend.com/blog/january-product-update.md)
+
+### Pages
+
+- [AhaSend Anti-Abuse](https://ahasend.com/abuse.md)
+- [Terms & Conditions](https://ahasend.com/terms.md)
+- [Privacy Notice](https://ahasend.com/privacy.md)
+- [Data Processing Agreement](https://ahasend.com/dpa.md)

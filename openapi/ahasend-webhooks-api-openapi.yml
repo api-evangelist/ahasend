@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: AhaSend API v2 Accounts Webhooks API
   description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
@@ -828,30 +828,18 @@ paths:
         delay: 0
         dispatcher: FALLBACK
 components:
-  responses:
-    IdempotencyConflict:
-      description: Request in progress - a request with this idempotency key is already being processed
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
-    IdempotencyPreconditionFailed:
-      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: The original request with this idempotency key failed and cannot be retried
   schemas:
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: example_value
+      example:
+        message: Operation completed successfully
     ErrorResponse:
       type: object
       required:
@@ -863,89 +851,6 @@ components:
           example: example_value
       example:
         message: Error message
-    UpdateWebhookRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          nullable: true
-          description: Webhook name
-          example: Example Name
-        url:
-          type: string
-          format: uri
-          nullable: true
-          description: Webhook URL
-          example: https://example.com
-        enabled:
-          type: boolean
-          nullable: true
-          description: Whether the webhook is enabled
-          example: true
-        on_reception:
-          type: boolean
-          nullable: true
-          description: Trigger on message reception
-          example: true
-        on_delivered:
-          type: boolean
-          nullable: true
-          description: Trigger on message delivery
-          example: true
-        on_transient_error:
-          type: boolean
-          nullable: true
-          description: Trigger on transient errors
-          example: true
-        on_failed:
-          type: boolean
-          nullable: true
-          description: Trigger on permanent failures
-          example: true
-        on_bounced:
-          type: boolean
-          nullable: true
-          description: Trigger on bounces
-          example: true
-        on_suppressed:
-          type: boolean
-          nullable: true
-          description: Trigger on suppressions
-          example: true
-        on_opened:
-          type: boolean
-          nullable: true
-          description: Trigger on opens
-          example: true
-        on_clicked:
-          type: boolean
-          nullable: true
-          description: Trigger on clicks
-          example: true
-        on_suppression_created:
-          type: boolean
-          nullable: true
-          description: Trigger on suppression creation
-          example: true
-        on_dns_error:
-          type: boolean
-          nullable: true
-          description: Trigger on DNS errors
-          example: true
-        scope:
-          type: string
-          nullable: true
-          description: Webhook scope
-          example: example_value
-        domains:
-          type: array
-          nullable: true
-          items:
-            type: string
-          description: Domains this webhook applies to
-          example:
-          - mail.example.com
     PaginatedWebhooksResponse:
       type: object
       required:
@@ -972,125 +877,6 @@ components:
             name: Example Name
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    CreateWebhookRequest:
-      type: object
-      required:
-      - name
-      - url
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Webhook name
-          example: Example Name
-        url:
-          type: string
-          format: uri
-          description: Webhook URL
-          example: https://example.com
-        enabled:
-          type: boolean
-          description: Whether the webhook is enabled
-          default: true
-          example: true
-        on_reception:
-          type: boolean
-          description: Trigger on message reception
-          default: false
-          example: true
-        on_delivered:
-          type: boolean
-          description: Trigger on message delivery
-          default: false
-          example: true
-        on_transient_error:
-          type: boolean
-          description: Trigger on transient errors
-          default: false
-          example: true
-        on_failed:
-          type: boolean
-          description: Trigger on permanent failures
-          default: false
-          example: true
-        on_bounced:
-          type: boolean
-          description: Trigger on bounces
-          default: false
-          example: true
-        on_suppressed:
-          type: boolean
-          description: Trigger on suppressions
-          default: false
-          example: true
-        on_opened:
-          type: boolean
-          description: Trigger on opens
-          default: false
-          example: true
-        on_clicked:
-          type: boolean
-          description: Trigger on clicks
-          default: false
-          example: true
-        on_suppression_created:
-          type: boolean
-          description: Trigger on suppression creation
-          default: false
-          example: true
-        on_dns_error:
-          type: boolean
-          description: Trigger on DNS errors
-          default: false
-          example: true
-        scope:
-          type: string
-          description: Webhook scope
-          example: example_value
-        domains:
-          type: array
-          items:
-            type: string
-          nullable: true
-          description: Domains this webhook applies to
-          example:
-          - mail.example.com
-      example:
-        name: Delivery Webhook
-        url: https://example.com/webhook
-        enabled: true
-        on_delivered: true
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-          example: example_value
-      example:
-        message: Operation completed successfully
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether there are more items available
-          example: true
-        next_cursor:
-          type: string
-          description: Cursor for the next page of results
-          example: example_value
-        previous_cursor:
-          type: string
-          description: Cursor for the previous page of results
-          example: example_value
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
     Webhook:
       type: object
       properties:
@@ -1204,6 +990,220 @@ components:
       - name
       - url
       - enabled
+    CreateWebhookRequest:
+      type: object
+      required:
+      - name
+      - url
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Webhook name
+          example: Example Name
+        url:
+          type: string
+          format: uri
+          description: Webhook URL
+          example: https://example.com
+        enabled:
+          type: boolean
+          description: Whether the webhook is enabled
+          default: true
+          example: true
+        on_reception:
+          type: boolean
+          description: Trigger on message reception
+          default: false
+          example: true
+        on_delivered:
+          type: boolean
+          description: Trigger on message delivery
+          default: false
+          example: true
+        on_transient_error:
+          type: boolean
+          description: Trigger on transient errors
+          default: false
+          example: true
+        on_failed:
+          type: boolean
+          description: Trigger on permanent failures
+          default: false
+          example: true
+        on_bounced:
+          type: boolean
+          description: Trigger on bounces
+          default: false
+          example: true
+        on_suppressed:
+          type: boolean
+          description: Trigger on suppressions
+          default: false
+          example: true
+        on_opened:
+          type: boolean
+          description: Trigger on opens
+          default: false
+          example: true
+        on_clicked:
+          type: boolean
+          description: Trigger on clicks
+          default: false
+          example: true
+        on_suppression_created:
+          type: boolean
+          description: Trigger on suppression creation
+          default: false
+          example: true
+        on_dns_error:
+          type: boolean
+          description: Trigger on DNS errors
+          default: false
+          example: true
+        scope:
+          type: string
+          description: Webhook scope
+          example: example_value
+        domains:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Domains this webhook applies to
+          example:
+          - mail.example.com
+      example:
+        name: Delivery Webhook
+        url: https://example.com/webhook
+        enabled: true
+        on_delivered: true
+    UpdateWebhookRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Webhook name
+          example: Example Name
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: Webhook URL
+          example: https://example.com
+        enabled:
+          type: boolean
+          nullable: true
+          description: Whether the webhook is enabled
+          example: true
+        on_reception:
+          type: boolean
+          nullable: true
+          description: Trigger on message reception
+          example: true
+        on_delivered:
+          type: boolean
+          nullable: true
+          description: Trigger on message delivery
+          example: true
+        on_transient_error:
+          type: boolean
+          nullable: true
+          description: Trigger on transient errors
+          example: true
+        on_failed:
+          type: boolean
+          nullable: true
+          description: Trigger on permanent failures
+          example: true
+        on_bounced:
+          type: boolean
+          nullable: true
+          description: Trigger on bounces
+          example: true
+        on_suppressed:
+          type: boolean
+          nullable: true
+          description: Trigger on suppressions
+          example: true
+        on_opened:
+          type: boolean
+          nullable: true
+          description: Trigger on opens
+          example: true
+        on_clicked:
+          type: boolean
+          nullable: true
+          description: Trigger on clicks
+          example: true
+        on_suppression_created:
+          type: boolean
+          nullable: true
+          description: Trigger on suppression creation
+          example: true
+        on_dns_error:
+          type: boolean
+          nullable: true
+          description: Trigger on DNS errors
+          example: true
+        scope:
+          type: string
+          nullable: true
+          description: Webhook scope
+          example: example_value
+        domains:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Domains this webhook applies to
+          example:
+          - mail.example.com
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          example: example_value
+        previous_cursor:
+          type: string
+          description: Cursor for the previous page of results
+          example: example_value
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+  responses:
+    IdempotencyPreconditionFailed:
+      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: The original request with this idempotency key failed and cannot be retried
+    IdempotencyConflict:
+      description: Request in progress - a request with this idempotency key is already being processed
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotentReplayed'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

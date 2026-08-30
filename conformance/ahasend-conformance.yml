@@ -1,0 +1,196 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference
+sources:
+  - openapi/_original/ahasend-openapi-v2.yaml
+  - asyncapi/ahasend-webhooks-openapi.yaml
+  - https://ahasend.com/docs/api-reference/webhooks/security.md
+  - https://ahasend.com/docs/integrations/dsn-reports.md
+  - https://ahasend.com/docs/security/sso.md
+  - https://ahasend.com/security
+  - https://ahasend.com/dpa
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Standards conformance for the AhaSend API v2, its webhook surface and its SMTP relay. Each entry
+  records whether AhaSend conforms and where the evidence sits — in the contract wherever possible,
+  in the provider's own documentation otherwise.
+standards:
+  - id: openapi
+    name: OpenAPI Specification
+    version: 3.1.0
+    conforms: true
+    evidence:
+      - 'openapi: 3.1.0 at the head of https://ahasend.com/docs/openapi.yaml (56 operations, 31 paths, 68 schemas)'
+      - A second OpenAPI 3.1 document describes the webhook surface at https://ahasend.com/docs/webhooks.yaml
+      - A legacy v1 OpenAPI 3.0.3 remains published at https://ahasend.com/docs/openapi-v1.yaml
+  - id: standard-webhooks
+    name: Standard Webhooks
+    conforms: true
+    domain_standard: true
+    evidence:
+      - >-
+        AhaSend's webhook documentation names the Standard Webhooks specification by URL and
+        implements its three headers verbatim — webhook-id, webhook-timestamp, webhook-signature.
+      - 'Signatures are HMAC-SHA256 over `id.timestamp.body`, as the specification prescribes.'
+      - >-
+        AhaSend documents a real interoperability deviation rather than hiding it: the HMAC key is
+        the literal UTF-8 bytes of the secret including its prefix, so Standard Webhooks libraries
+        that Base64-decode the secret in their default constructor must be used in raw-key mode.
+    source: https://ahasend.com/docs/api-reference/webhooks/security.md
+  - id: rfc3464
+    name: RFC 3464 — An Extensible Message Format for Delivery Status Notifications
+    conforms: true
+    domain_standard: true
+    evidence:
+      - >-
+        AhaSend generates RFC 3464 formatted bounce reports (DSN) for compliance and monitoring,
+        and the Domain schema in the OpenAPI carries a `dsn_recipient` field that addresses them.
+    source: https://ahasend.com/docs/integrations/dsn-reports.md
+  - id: rfc3339
+    name: RFC 3339 timestamps
+    conforms: true
+    evidence:
+      - >-
+        Every time field in the contract is RFC 3339; an invalid value returns 400 with a message
+        that names the format ("invalid from_time, provide a valid RFC3339 time string").
+  - id: idempotency
+    name: Idempotent request retries (Idempotency-Key)
+    conforms: true
+    evidence:
+      - Idempotency-Key accepted on all 11 POST create operations, scoped to the account.
+      - Body matched by SHA-256 hash; 24-hour retention (5 minutes for secret-bearing key creation).
+      - '`Idempotent-Replayed` declared as a response header on 14 operations.'
+    source: https://ahasend.com/docs/api-reference/idempotency.md
+    note: >-
+      Follows the shape of the IETF idempotency-key draft in header name and semantics without
+      claiming the draft.
+  - id: pagination
+    name: Cursor pagination
+    conforms: true
+    evidence:
+      - 'One PaginationInfo schema (has_more, next_cursor, previous_cursor) shared by 7 Paginated* responses.'
+      - 'Uniform limit/after/before query parameters; limit constrained to 1..100.'
+  - id: rfc9457
+    name: RFC 9457 — Problem Details for HTTP APIs
+    conforms: false
+    evidence:
+      - >-
+        Errors are a bare {"message": "..."} JSON object with content-type application/json. No
+        application/problem+json, no type URI, no stable code — the contract states explicitly
+        that no stable machine error code is sent.
+    remediation: >-
+      Adopting RFC 9457, or simply adding a stable `code`, would let an agent tell a scope failure
+      from an IP-allow-list failure; today both are a 403 with prose.
+  - id: rfc8594
+    name: RFC 8594 — The Sunset HTTP Header Field
+    conforms: false
+    evidence:
+      - No Sunset or Deprecation header is declared or documented; v1 is called legacy with no announced end date.
+  - id: rfc9116
+    name: RFC 9116 — security.txt
+    conforms: false
+    evidence:
+      - 'https://ahasend.com/.well-known/security.txt -> 404 (probed 2026-08-30)'
+      - 'https://api.ahasend.com/.well-known/security.txt -> 404 (probed 2026-08-30)'
+    note: >-
+      A responsible-disclosure policy IS published at https://ahasend.com/responsible-disclosure;
+      it is simply not mirrored at the RFC 9116 path.
+  - id: rfc9727
+    name: RFC 9727 — api-catalog well-known URI
+    conforms: false
+    evidence:
+      - '/.well-known/api-catalog returns 404 on ahasend.com and api.ahasend.com (probed 2026-08-30)'
+  - id: oauth2
+    name: OAuth 2.0
+    conforms: false
+    evidence:
+      - No oauth2 securityScheme in the contract. API access is a bearer API key with AhaSend-defined roles.
+  - id: oidc
+    name: OpenID Connect
+    conforms: true
+    role: relying-party
+    evidence:
+      - >-
+        OIDC SSO with PKCE and multi-domain support for dashboard login on the Max plan. AhaSend
+        consumes an external identity provider; it does not issue OIDC tokens for its API, and
+        serves no /.well-known/openid-configuration.
+    source: https://ahasend.com/docs/security/sso.md
+  - id: smtp
+    name: SMTP (RFC 5321) with STARTTLS
+    conforms: true
+    domain_standard: true
+    evidence:
+      - >-
+        Relay at send.ahasend.com (EU) and send-us.ahasend.com (US) on ports 25, 587 and 2525,
+        STARTTLS required, PLAIN authentication. Implicit TLS on 465 is explicitly not supported.
+  - id: email-authentication
+    name: SPF (RFC 7208), DKIM (RFC 6376), DMARC (RFC 7489)
+    conforms: true
+    domain_standard: true
+    evidence:
+      - >-
+        Full SPF/DKIM/DMARC setup per sending domain, with automatic DKIM key rotation, per-domain
+        DKIM selectors for Platform Partner accounts, and a checkDomainDNS operation that
+        validates the published records.
+      - >-
+        AhaSend's own domain publishes SPF and a DMARC record with policy `reject`
+        (security/ahasend-domain-security.yml, probed 2026-08-30).
+  - id: gdpr
+    name: GDPR / EU data residency
+    conforms: true
+    evidence:
+      - >-
+        Dutch entity (AhaSend B.V., KvK 99533111) with an Article 28 DPA published at
+        https://ahasend.com/dpa naming its three subprocessors (Hetzner, DA International Group
+        Ltd, Blix). All email content, metadata, logs and analytics are stated to stay in the
+        EU/EEA across five sites in four countries; the US egress node is opt-in and off by
+        default.
+  - id: csa
+    name: Certified Senders Alliance certification
+    conforms: true
+    evidence:
+      - 'Certificate record: https://certified-senders.org/certificate/?id=8527228af85c77463bc7668b7d4f628f'
+  - id: iso27001
+    name: ISO/IEC 27001
+    conforms: false
+    status: in-progress
+    evidence:
+      - >-
+        AhaSend states the certification audit is scheduled for September 2026 and describes the
+        ISMS work publicly. Recorded as NOT YET CERTIFIED — the badge on the site reads
+        "in progress"/"pending", and this artifact must not turn that into a certification.
+    source: https://ahasend.com/security
+  - id: soc2
+    name: SOC 2
+    conforms: false
+    evidence:
+      - No SOC 2 report or attestation is published or claimed.
+  - id: fhir
+    conforms: false
+    evidence:
+      - Out of domain — AhaSend is a transactional email provider.
+  - id: fapi
+    conforms: false
+    evidence:
+      - Out of domain.
+  - id: scim
+    conforms: false
+    evidence:
+      - No SCIM provisioning surface; team membership is managed through the Accounts API.
+  - id: odata
+    conforms: false
+    evidence:
+      - No $metadata surface; the API is plain REST + JSON.
+  - id: json-api
+    conforms: false
+    evidence:
+      - 'Responses are AhaSend-shaped envelopes (object, data, pagination), not JSON:API.'
+domain_standard_summary: >-
+  AhaSend's market has real standards and AhaSend speaks them: Standard Webhooks for event
+  delivery, RFC 3464 for delivery status notifications, and the SPF/DKIM/DMARC + SMTP stack for
+  sending itself. A consumer who already implements Standard Webhooks needs no bespoke verifier —
+  with the one documented caveat about raw-key HMAC mode.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

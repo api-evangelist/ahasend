@@ -1,0 +1,46 @@
+generated: '2026-08-30'
+method: searched
+probe: true
+source: https://ahasend.com/trust
+url: https://ahasend.com/trust
+certifications:
+- name: GDPR
+  status: compliant
+  evidence: Dutch entity (AhaSend B.V., KvK 99533111) with a public Article 28 DPA at https://ahasend.com/dpa naming its three subprocessors.
+- name: Certified Senders Alliance (CSA)
+  status: certified
+  evidence: 'https://certified-senders.org/certificate/?id=8527228af85c77463bc7668b7d4f628f'
+- name: ISO/IEC 27001
+  status: in-progress
+  certified: false
+  evidence: >-
+    NOT CERTIFIED. AhaSend states the certification audit is scheduled for September 2026 and
+    labels the badge "in progress"/"pending" on its own pages. Corrected by hand on 2026-08-30
+    after the automated probe recorded the keyword match as a certification.
+- name: SOC 2
+  status: none
+  certified: false
+  evidence: No SOC 2 report or attestation is published or claimed.
+evidence:
+- source: https://ahasend.com/trust
+  keywords:
+  - iso 27001
+  - trust center
+  - gdpr
+data_residency:
+  region: EU/EEA
+  sites: 5 sites across 4 countries (Falkenstein, Nuremberg, Helsinki, Oslo, Sofia)
+  note: >-
+    All email content, message data, metadata, logs and analytics are stated to stay within the
+    EU/EEA on hardware AhaSend owns. Two disclosed exceptions: ahasend.com's nameservers are
+    currently at Cloudflare (website DNS, not email data; migration stated as planned), and an
+    optional US egress/SMTP node in Hillsboro, Oregon that is opt-in and off by default.
+subprocessors:
+  published: true
+  location: https://ahasend.com/dpa
+  named: [Hetzner, DA International Group Ltd, Blix]
+pages:
+  security_overview: https://ahasend.com/security
+  dpa: https://ahasend.com/dpa
+  responsible_disclosure: https://ahasend.com/responsible-disclosure
+  status: https://status.ahasend.com

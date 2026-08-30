@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: AhaSend API v2 Accounts Messages API
   description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
@@ -814,6 +814,81 @@ paths:
         dispatcher: FALLBACK
 components:
   schemas:
+    MessageContentParsed:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContentPart'
+          description: Array of message content parts (text, HTML, etc.)
+          example:
+          - content_type: example_value
+            content: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+          description: Array of message attachments
+          example:
+          - filename: Example Name
+            content: example_value
+            content_type: example_value
+            content_id: '500123'
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
+          example:
+            Content-Type:
+            - text/html; charset=utf-8
+            X-Custom-Header:
+            - value1
+            - value2
+      required:
+      - parts
+      - attachments
+      - headers
+    Attachment:
+      type: object
+      required:
+      - data
+      - content_type
+      - file_name
+      properties:
+        base64:
+          type: boolean
+          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
+          default: false
+          example: true
+        data:
+          type: string
+          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
+          example: example_value
+        content_type:
+          type: string
+          description: The MIME type of the attachment
+          example: example_value
+        content_disposition:
+          type: string
+          description: The disposition of the attachment
+          example: example_value
+        content_id:
+          type: string
+          description: The Content-ID of the attachment for inline images
+          example: '500123'
+        file_name:
+          type: string
+          description: The filename of the attachment
+          example: Example Name
+      example:
+        base64: true
+        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+        content_type: image/png
+        file_name: pixel.png
     CreateMessageResponse:
       type: object
       required:
@@ -853,6 +928,243 @@ components:
       example:
         first_attempt: '2023-12-25T10:30:00Z'
         expires: '2023-12-26T10:30:00Z'
+    Tracking:
+      type: object
+      nullable: true
+      properties:
+        open:
+          type: boolean
+          nullable: true
+          description: Whether to track opens
+          example: true
+        click:
+          type: boolean
+          nullable: true
+          description: Whether to track clicks
+          example: true
+      example:
+        open: true
+        click: true
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          example: example_value
+        previous_cursor:
+          type: string
+          description: Cursor for the previous page of results
+          example: example_value
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    MessageContentPart:
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: MIME content type (e.g., "text/plain", "text/html")
+          example: text/html
+        content:
+          type: string
+          description: The actual content for this part
+          example: example_value
+      required:
+      - content_type
+      - content
+    MessageAttachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Original filename of the attachment
+          example: document.pdf
+        content:
+          type: string
+          description: Base64 encoded attachment content
+          example: example_value
+        content_type:
+          type: string
+          description: MIME content type of the attachment
+          example: application/pdf
+        content_id:
+          type: string
+          description: Content-ID for inline attachments
+          nullable: true
+          example: image001@example.com
+      required:
+      - filename
+      - content
+      - content_type
+    Retention:
+      type: object
+      nullable: true
+      properties:
+        metadata:
+          type: integer
+          nullable: true
+          description: Number of days to retain metadata
+          minimum: 1
+          maximum: 30
+          example: 1
+        data:
+          type: integer
+          nullable: true
+          description: Number of days to retain data
+          minimum: 0
+          maximum: 30
+          example: 1
+      example:
+        metadata: 1
+        data: 0
+    CreateMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+          example:
+          - email: user@example.com
+            name: Example Name
+            substitutions: {}
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: Email subject line
+          example: example_value
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+          example: example_value
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+          example: example_value
+        amp_content:
+          type: string
+          description: AMP HTML content
+          example: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments
+          example:
+          - base64: true
+            data: example_value
+            content_type: example_value
+            content_disposition: example_value
+            content_id: '500123'
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
+          example: {}
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Global substitutions, recipient substitutions override global
+          example: {}
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+          example:
+          - example_value
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+          example: true
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+          example: deliver
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        recipients:
+        - email: user@example.com
+          name: John Doe
+        subject: Welcome to Example Corp
+        html_content: <h1>Welcome {{first_name}}!</h1>
+        text_content: Welcome {{first_name}}!
+        substitutions:
+          first_name: John
+    Message:
+      allOf:
+      - $ref: '#/components/schemas/MessageSummary'
+      - type: object
+        properties:
+          content:
+            type: string
+            nullable: true
+            description: Original, raw email content (RFC822 format) - may be null if the message content is not available.
+          content_parsed:
+            $ref: '#/components/schemas/MessageContentParsed'
+            description: Parsed and structured message content including parts, attachments, and headers - may be null if the message content is not available.
+    PaginatedMessagesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageSummary'
+          description: Array of message summaries (content and content_parsed fields omitted for performance)
+          example:
+          - object: message
+            created_at: '2025-03-15T14:30:00Z'
+            updated_at: '2025-03-15T14:30:00Z'
+            sent_at: '2025-03-15T14:30:00Z'
+            delivered_at: '2025-03-15T14:30:00Z'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     CreateConversationMessageRequest:
       type: object
       required:
@@ -999,71 +1311,6 @@ components:
         substitutions:
           first_name: John
           order_id: '12345'
-    CreateSingleMessageResponse:
-      type: object
-      required:
-      - object
-      - recipient
-      - status
-      properties:
-        object:
-          type: string
-          enum:
-          - message
-          description: Object type identifier
-          example: message
-        id:
-          type: string
-          nullable: true
-          description: Message ID (null if the message was not sent)
-          example: <uuid@example.com>
-        recipient:
-          $ref: '#/components/schemas/Recipient'
-        status:
-          type: string
-          enum:
-          - queued
-          - scheduled
-          - error
-          description: Status of the message
-          example: queued
-        error:
-          type: string
-          nullable: true
-          description: Error message if the message was not sent
-          example: example_value
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Provided if the request contained a schedule
-    Message:
-      allOf:
-      - $ref: '#/components/schemas/MessageSummary'
-      - type: object
-        properties:
-          content:
-            type: string
-            nullable: true
-            description: Original, raw email content (RFC822 format) - may be null if the message content is not available.
-          content_parsed:
-            $ref: '#/components/schemas/MessageContentParsed'
-            description: Parsed and structured message content including parts, attachments, and headers - may be null if the message content is not available.
-    Address:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          description: Valid email address from a domain defined in your account with valid DNS records
-          example: user@example.com
-        name:
-          type: string
-          description: Display name for the sender
-          example: Example Name
-      example:
-        email: noreply@example.com
-        name: Example Corp
     SuccessResponse:
       type: object
       required:
@@ -1075,326 +1322,6 @@ components:
           example: example_value
       example:
         message: Operation completed successfully
-    CreateMessageRequest:
-      type: object
-      required:
-      - from
-      - recipients
-      - subject
-      properties:
-        from:
-          $ref: '#/components/schemas/Address'
-        recipients:
-          type: array
-          items:
-            $ref: '#/components/schemas/Recipient'
-          minItems: 1
-          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
-          example:
-          - email: user@example.com
-            name: Example Name
-            substitutions: {}
-        reply_to:
-          $ref: '#/components/schemas/Address'
-          description: If provided, the reply-to header in headers array must not be provided
-        subject:
-          type: string
-          description: Email subject line
-          example: example_value
-        text_content:
-          type: string
-          description: Plain text content. Required if html_content is empty
-          example: example_value
-        html_content:
-          type: string
-          description: HTML content. Required if text_content is empty
-          example: example_value
-        amp_content:
-          type: string
-          description: AMP HTML content
-          example: example_value
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          description: File attachments
-          example:
-          - base64: true
-            data: example_value
-            content_type: example_value
-            content_disposition: example_value
-            content_id: '500123'
-        headers:
-          type: object
-          additionalProperties:
-            type: string
-          description: Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
-          example: {}
-        substitutions:
-          type: object
-          additionalProperties: true
-          description: Global substitutions, recipient substitutions override global
-          example: {}
-        tags:
-          type: array
-          items:
-            type: string
-          description: Tags for categorizing messages
-          example:
-          - example_value
-        sandbox:
-          type: boolean
-          description: If true, the message will be sent to the sandbox environment
-          default: false
-          example: true
-        sandbox_result:
-          type: string
-          enum:
-          - deliver
-          - bounce
-          - defer
-          - fail
-          - suppress
-          description: The result of the sandbox send
-          example: deliver
-        tracking:
-          $ref: '#/components/schemas/Tracking'
-          description: Tracking settings for the message, overrides default account settings
-        retention:
-          $ref: '#/components/schemas/Retention'
-          description: Retention settings for the message, overrides default account settings
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Schedule for message delivery
-      example:
-        from:
-          email: noreply@example.com
-          name: Example Corp
-        recipients:
-        - email: user@example.com
-          name: John Doe
-        subject: Welcome to Example Corp
-        html_content: <h1>Welcome {{first_name}}!</h1>
-        text_content: Welcome {{first_name}}!
-        substitutions:
-          first_name: John
-    DeliveryEvent:
-      type: object
-      properties:
-        time:
-          type: string
-          format: date-time
-          description: Timestamp of the delivery event
-          example: '2025-03-15T14:30:00Z'
-        log:
-          type: string
-          description: Log message for the delivery event
-          example: example_value
-        status:
-          type: string
-          description: Status of the delivery event
-          example: example_value
-      required:
-      - time
-      - log
-      - status
-    Retention:
-      type: object
-      nullable: true
-      properties:
-        metadata:
-          type: integer
-          nullable: true
-          description: Number of days to retain metadata
-          minimum: 1
-          maximum: 30
-          example: 1
-        data:
-          type: integer
-          nullable: true
-          description: Number of days to retain data
-          minimum: 0
-          maximum: 30
-          example: 1
-      example:
-        metadata: 1
-        data: 0
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether there are more items available
-          example: true
-        next_cursor:
-          type: string
-          description: Cursor for the next page of results
-          example: example_value
-        previous_cursor:
-          type: string
-          description: Cursor for the previous page of results
-          example: example_value
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    MessageAttachment:
-      type: object
-      properties:
-        filename:
-          type: string
-          description: Original filename of the attachment
-          example: document.pdf
-        content:
-          type: string
-          description: Base64 encoded attachment content
-          example: example_value
-        content_type:
-          type: string
-          description: MIME content type of the attachment
-          example: application/pdf
-        content_id:
-          type: string
-          description: Content-ID for inline attachments
-          nullable: true
-          example: image001@example.com
-      required:
-      - filename
-      - content
-      - content_type
-    MessageContentPart:
-      type: object
-      properties:
-        content_type:
-          type: string
-          description: MIME content type (e.g., "text/plain", "text/html")
-          example: text/html
-        content:
-          type: string
-          description: The actual content for this part
-          example: example_value
-      required:
-      - content_type
-      - content
-    Attachment:
-      type: object
-      required:
-      - data
-      - content_type
-      - file_name
-      properties:
-        base64:
-          type: boolean
-          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
-          default: false
-          example: true
-        data:
-          type: string
-          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
-          example: example_value
-        content_type:
-          type: string
-          description: The MIME type of the attachment
-          example: example_value
-        content_disposition:
-          type: string
-          description: The disposition of the attachment
-          example: example_value
-        content_id:
-          type: string
-          description: The Content-ID of the attachment for inline images
-          example: '500123'
-        file_name:
-          type: string
-          description: The filename of the attachment
-          example: Example Name
-      example:
-        base64: true
-        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
-        content_type: image/png
-        file_name: pixel.png
-    Tracking:
-      type: object
-      nullable: true
-      properties:
-        open:
-          type: boolean
-          nullable: true
-          description: Whether to track opens
-          example: true
-        click:
-          type: boolean
-          nullable: true
-          description: Whether to track clicks
-          example: true
-      example:
-        open: true
-        click: true
-    MessageContentParsed:
-      type: object
-      properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageContentPart'
-          description: Array of message content parts (text, HTML, etc.)
-          example:
-          - content_type: example_value
-            content: example_value
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageAttachment'
-          description: Array of message attachments
-          example:
-          - filename: Example Name
-            content: example_value
-            content_type: example_value
-            content_id: '500123'
-        headers:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
-          example:
-            Content-Type:
-            - text/html; charset=utf-8
-            X-Custom-Header:
-            - value1
-            - value2
-      required:
-      - parts
-      - attachments
-      - headers
-    PaginatedMessagesResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-          example: list
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageSummary'
-          description: Array of message summaries (content and content_parsed fields omitted for performance)
-          example:
-          - object: message
-            created_at: '2025-03-15T14:30:00Z'
-            updated_at: '2025-03-15T14:30:00Z'
-            sent_at: '2025-03-15T14:30:00Z'
-            delivered_at: '2025-03-15T14:30:00Z'
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
     MessageSummary:
       type: object
       properties:
@@ -1536,6 +1463,42 @@ components:
       - open_count
       - domain_id
       - account_id
+    CreateSingleMessageResponse:
+      type: object
+      required:
+      - object
+      - recipient
+      - status
+      properties:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+          example: message
+        id:
+          type: string
+          nullable: true
+          description: Message ID (null if the message was not sent)
+          example: <uuid@example.com>
+        recipient:
+          $ref: '#/components/schemas/Recipient'
+        status:
+          type: string
+          enum:
+          - queued
+          - scheduled
+          - error
+          description: Status of the message
+          example: queued
+        error:
+          type: string
+          nullable: true
+          description: Error message if the message was not sent
+          example: example_value
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Provided if the request contained a schedule
     ErrorResponse:
       type: object
       required:
@@ -1547,6 +1510,43 @@ components:
           example: example_value
       example:
         message: Error message
+    DeliveryEvent:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+          description: Timestamp of the delivery event
+          example: '2025-03-15T14:30:00Z'
+        log:
+          type: string
+          description: Log message for the delivery event
+          example: example_value
+        status:
+          type: string
+          description: Status of the delivery event
+          example: example_value
+      required:
+      - time
+      - log
+      - status
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Valid email address from a domain defined in your account with valid DNS records
+          example: user@example.com
+        name:
+          type: string
+          description: Display name for the sender
+          example: Example Name
+      example:
+        email: noreply@example.com
+        name: Example Corp
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

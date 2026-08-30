@@ -1,0 +1,74 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for AhaSend API v2 Accounts API Keys API
+  version: 1.0.0
+extends: ahasend-api-keys-api-openapi.yml
+x-provenance:
+  generated: '2026-08-30'
+  method: generated
+  source: Facts published by AhaSend at ahasend.com/docs; see conventions/, errors/, rate-limits/ and conventions/
+    reversibility.
+  note: This overlay is authored by API Evangelist, not by AhaSend. It never mutates the original contract.
+actions:
+- target: $.info
+  description: Add the published legal, support and documentation URLs the source contract omits.
+  update:
+    termsOfService: https://ahasend.com/terms
+    contact:
+      name: AhaSend Support
+      email: support@ahasend.com
+      url: https://ahasend.com/contact
+- target: $
+  description: Point the contract at its own reference documentation.
+  update:
+    externalDocs:
+      description: AhaSend API reference
+      url: https://ahasend.com/docs/api-reference/scopes
+- target: $
+  description: Record the published account-level rate limits and the error envelope contract, neither of which
+    the source spec declares.
+  update:
+    x-rate-limits:
+      scope: account
+      algorithm: sliding window, 1 second
+      requests_per_second: 100
+      burst: 200
+      status_on_exhaustion: 429
+      response_headers: []
+      documentation: https://ahasend.com/docs/api-reference/rate-limits
+    x-error-envelope:
+      format: bare-json
+      shape: '{"message": "string"}'
+      rfc9457: false
+      stable_machine_code: false
+      note: Branch on HTTP status only. The contract states clients must not parse message to distinguish errors
+        sharing a status.
+      catalog: errors/ahasend-problem-types.yml
+    x-pagination:
+      style: cursor
+      params:
+      - limit
+      - after
+      - before
+      response: pagination.has_more / next_cursor / previous_cursor
+- target: $
+  description: Declare idempotency support, which the source contract implies through a response header but never
+    states.
+  update:
+    x-idempotency:
+      header: Idempotency-Key
+      methods:
+      - POST
+      scope: account
+      retention: 24 hours (5 minutes for secret-bearing API key creation)
+      replay_signal_header: Idempotent-Replayed
+      operations:
+      - createAPIKey
+      documentation: https://ahasend.com/docs/api-reference/idempotency
+- target: $.paths['/v2/accounts/{account_id}/api-keys/{key_id}'].delete
+  description: Flag deleteAPIKey as an irreversible write for agent gating.
+  update:
+    x-reversibility:
+      reversible: false
+      reversal_operation: null
+      note: Irreversible. No restore operation is published.

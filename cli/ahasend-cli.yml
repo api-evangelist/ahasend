@@ -1,0 +1,82 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/cli/index
+sources:
+  - https://ahasend.com/docs/cli/index.md
+  - https://ahasend.com/docs/cli/installation.md
+  - https://ahasend.com/docs/cli/commands/messages.md
+  - https://github.com/AhaSend/ahasend-cli
+provider: AhaSend
+providerId: ahasend
+name: AhaSend CLI
+binary: ahasend
+official: true
+open_source: true
+repository: https://github.com/AhaSend/ahasend-cli
+language: Go
+version: v0.2.0
+published: '2026-06-18'
+version_source: https://proxy.golang.org/github.com/!aha!send/ahasend-cli/@latest
+description: >-
+  First-party command-line interface for AhaSend, distributed as a single dependency-free binary.
+  Covers the whole API v2 surface plus two development-only capabilities the REST API does not
+  offer: a local webhook listener and a local inbound-route listener over WebSocket.
+platforms:
+  - linux/amd64
+  - linux/arm64
+  - darwin/amd64
+  - darwin/arm64
+  - windows/amd64
+install:
+  - method: binary
+    description: Download a pre-built binary from the GitHub releases page, chmod +x, move onto PATH.
+    url: https://github.com/AhaSend/ahasend-cli/releases
+  - method: source
+    description: Build from source with Go 1.21 or higher.
+    requires: go >= 1.21
+  - method: go-install
+    description: Installable as a Go module from proxy.golang.org.
+    command: go install github.com/AhaSend/ahasend-cli@latest
+    note: >-
+      Recorded from the module's presence on the Go module proxy; the installation page documents
+      binary download and build-from-source explicitly.
+commands:
+  - group: auth
+    purpose: Authenticate and manage named profiles (production / staging / development).
+    examples: ['ahasend auth login']
+  - group: messages
+    purpose: Send, list and cancel messages.
+    subcommands: [send, list, cancel]
+    examples:
+      - 'ahasend messages send --from noreply@example.com --to user@recipient.com --subject "Hello from AhaSend" --text "Welcome to AhaSend!"'
+  - group: domains
+    purpose: Add, verify and manage sending domains and their DNS records.
+    examples: ['ahasend domains create example.com', 'ahasend domains verify example.com']
+  - group: webhooks
+    purpose: Configure webhooks and run a local listener that streams live events to localhost.
+  - group: routes
+    purpose: Configure inbound routes and test them against a local handler.
+  - group: suppressions
+    purpose: Manage the suppression list.
+  - group: smtp
+    purpose: Manage and test SMTP credentials.
+  - group: apikeys
+    purpose: Manage API v2 keys, including sub-account keys and IP allow lists.
+  - group: stats
+    purpose: Deliverability, bounce and delivery-time statistics; CSV export.
+  - group: ping
+    purpose: Connectivity and credential check.
+capabilities:
+  - Batch/high-volume sending from files with concurrency and progress tracking
+  - Output as JSON, table, CSV or plain text
+  - Profile management across environments
+  - Sandbox mode for testing without sending
+  - Attachments up to 10MB per file, HTML/plain-text/AMP content, scheduled delivery
+  - WebSocket-based event streaming for webhooks and inbound routes
+agent_note: >-
+  The webhook and route listeners are the CLI's genuinely distinct capability — they are the only
+  published way to observe AhaSend events on a developer machine without exposing a public
+  endpoint, and they pair directly with sandbox mode's `sandbox_result` outcomes.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

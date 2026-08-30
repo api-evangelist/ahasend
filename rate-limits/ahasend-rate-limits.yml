@@ -3,90 +3,136 @@ specificationVersion: '0.1'
 schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
 provider: AhaSend
 providerId: ahasend
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference/rate-limits
+sources:
+  - https://ahasend.com/docs/api-reference/rate-limits.md
+  - https://ahasend.com/docs/changelog.md
+  - openapi/_original/ahasend-openapi-v2.yaml
 created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
+modified: '2026-08-30'
+limit_count: 8
 tags:
   - Email
   - Transactional Email
-  - Developer Tools
-  - SMTP
-  - Webhooks
   - Rate Limiting
   - Quotas
   - Throttling
-description: Machine-readable rate limit definitions for the AhaSend API surface. Captures per-tier quotas,
-  burst behavior, response signaling, and recovery semantics. Defaults are scaffold values to be replaced
-  with published provider limits.
+description: >-
+  AhaSend's published API rate limits and hourly sending limits, read from the rate-limits
+  reference and the product changelog on 2026-08-30. This artifact REPLACES a 2026-05-04
+  scaffold whose per-tier request limits were invented defaults.
+scope_note: >-
+  Request rate limits are enforced PER ACCOUNT, not per API key — every key on an account shares
+  one quota. Hourly sending limits are enforced per account and graduate with plan and sending
+  history.
 headers:
-  limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
-  reset: X-RateLimit-Reset
+  limit: null
+  remaining: null
+  reset: null
   retryAfter: Retry-After
-  policy: RateLimit-Policy
+  policy: null
+  note: >-
+    AhaSend documents NO X-RateLimit-*/RateLimit-* response headers. The rate-limits page tells
+    clients to "check the response headers for rate limit information" but never names a header,
+    and the OpenAPI declares a response header on only three operations — a `Retry-After` on the
+    429 of the three statistics endpoints. An agent therefore cannot read its remaining budget
+    from a normal 2xx response; it can only discover the ceiling by hitting it. This is the
+    single largest runtime-signalling gap in an otherwise unusually complete developer surface.
 responseCodes:
   throttled: 429
   quotaExceeded: 429
   serviceUnavailable: 503
+error_body:
+  content_type: application/json
+  example: '{"message": "Too many requests, rate limited."}'
+algorithm: >-
+  Sliding window that resets every second, per AhaSend's rate-limits documentation.
 limits:
-  - tier: free
-    name: Free Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 10
-    burst: 20
-    timeFrame: minute
-    applies:
-      - AhaSend
-  - tier: free
-    name: Free Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 1000
-    timeFrame: month
-    applies:
-      - AhaSend
-  - tier: professional
-    name: Professional Tier Default
-    scope: api-key
-    metric: requests_per_minute
+  - name: Standard API endpoints — sustained rate
+    scope: account
+    metric: requests_per_second
     limit: 100
     burst: 200
-    timeFrame: minute
+    timeFrame: second
     applies:
-      - AhaSend
-  - tier: professional
-    name: Professional Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 100000
-    timeFrame: month
+      - /v2/accounts/*
+      - /v2/accounts/{account_id}/api-keys/*
+      - /v2/accounts/{account_id}/domains/*
+      - /v2/accounts/{account_id}/messages/*
+      - /v2/accounts/{account_id}/suppressions/*
+      - /v2/accounts/{account_id}/routes/*
+      - /v2/accounts/{account_id}/webhooks/*
+      - /v2/accounts/{account_id}/smtp-credentials/*
+  - name: Statistics endpoints — sustained rate
+    scope: account
+    metric: requests_per_second
+    limit: 1
+    burst: 1
+    timeFrame: second
     applies:
-      - AhaSend
-  - tier: enterprise
-    name: Enterprise Negotiated Limit
-    scope: contract
-    metric: requests_per_minute
+      - /v2/accounts/{account_id}/statistics/transactional/deliverability
+      - /v2/accounts/{account_id}/statistics/transactional/bounce
+      - /v2/accounts/{account_id}/statistics/transactional/delivery-time
+    note: No burst allowance. These are the only operations whose 429 declares a Retry-After header.
+  - name: Pro plan hourly sending — starting tier
+    tier: pro
+    scope: account
+    metric: messages_per_hour
     limit: 1000
-    burst: 5000
-    timeFrame: minute
-    applies:
-      - AhaSend
+    timeFrame: hour
+    note: Steps up to 5,000 then 10,000 per hour as sending reputation and history build (July 2026 changelog).
+  - name: Pro plan hourly sending — established tier
+    tier: pro
+    scope: account
+    metric: messages_per_hour
+    limit: 10000
+    timeFrame: hour
+  - name: Max plan hourly sending — starting tier
+    tier: max
+    scope: account
+    metric: messages_per_hour
+    limit: 2000
+    timeFrame: hour
+    note: Steps up to 20,000 then 100,000 per hour (July 2026 changelog).
+  - name: Max plan hourly sending — established tier
+    tier: max
+    scope: account
+    metric: messages_per_hour
+    limit: 100000
+    timeFrame: hour
+  - name: Legacy metered plans hourly sending
+    tier: legacy
+    scope: account
+    metric: messages_per_hour
+    limit: 500
+    timeFrame: hour
+    note: Legacy metered plans keep a 500 to 1,000 to 2,000 per hour curve.
+  - name: SMTP relay per-message and per-connection limits
+    scope: connection
+    metric: composite
+    limit: null
+    timeFrame: null
+    values:
+      recipients_per_message: 50
+      max_message_size_mb: 20
+      messages_per_connection: 10000
+      idle_timeout_seconds: 60
+    note: Published in AhaSend's llms.txt and the SMTP server documentation; applies to send.ahasend.com and send-us.ahasend.com.
 policies:
   - name: Backoff Strategy
-    description: Clients should implement exponential backoff with jitter, honoring the Retry-After header
-      when present.
-  - name: Burst Handling
-    description: Short bursts above the steady-state limit are tolerated up to the documented burst ceiling
-      before throttling engages.
-  - name: Quota Reset
-    description: Monthly quotas reset at the start of each calendar month in UTC. Per-minute and per-second
-      windows reset on a sliding-window basis.
-  - name: Fair Use
-    description: Even on uncapped enterprise tiers, sustained usage that materially impacts shared infrastructure
-      may be subject to fair-use throttling.
+    description: >-
+      AhaSend's documentation prescribes exponential backoff with jitter on a 429 and ships
+      JavaScript and Python reference implementations on the rate-limits page.
+  - name: Higher limits by review
+    description: >-
+      Higher rate limits are available after a manual review; AhaSend directs high-volume senders
+      to support@ahasend.com.
+  - name: Prefer webhooks over polling
+    description: >-
+      AhaSend explicitly recommends webhooks instead of polling, and caching for statistics, as
+      the way to stay inside the 1 request/second statistics ceiling.
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

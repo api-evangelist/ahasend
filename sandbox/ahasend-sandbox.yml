@@ -1,0 +1,91 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/send-api/sandbox
+sources:
+  - https://ahasend.com/docs/send-api/sandbox.md
+  - https://ahasend.com/docs/smtp/sandbox.md
+  - https://ahasend.com/docs/smtp/special-headers.md
+  - https://ahasend.com/docs/cli/webhook-testing.md
+provider: AhaSend
+providerId: ahasend
+description: >-
+  AhaSend's sandbox mode — a full dry run of the send pipeline that validates, parses and fires
+  every webhook but stops before delivery. Available on every plan, including Free, and never
+  charged against the monthly email allowance.
+available: true
+cost: free — sandbox sends do not consume email credits on any plan
+covers: [api-v2, smtp]
+modes:
+  - id: dedicated-sandbox-credential
+    description: >-
+      Create an API v2 credential in Sandbox mode. Every send made with it is simulated, which
+      makes accidental production sends from a test environment structurally impossible.
+  - id: switchable-credential-mode
+    description: >-
+      Flip an existing API v2 credential between Production and Sandbox in the dashboard. Takes
+      effect immediately.
+  - id: per-request-parameter
+    description: >-
+      Send `"sandbox": true` in the message body with a production credential. The parameter wins
+      over the credential's own mode.
+    request_field: sandbox
+    request_field_type: boolean
+  - id: smtp
+    description: >-
+      The same simulation is available over the SMTP relay, driven by SMTP credentials created in
+      sandbox mode and by AhaSend's special email headers.
+outcome_simulation:
+  parameter: sandbox_result
+  applies_to: API v2 message requests
+  values:
+    - value: deliver
+      simulates: Successful delivery (default)
+    - value: bounce
+      simulates: Hard bounce
+    - value: defer
+      simulates: Temporary delivery deferral
+    - value: fail
+      simulates: Permanent delivery failure
+    - value: suppress
+      simulates: Blocked by the suppression list
+  note: >-
+    Each simulated outcome fires the matching webhook events, so a consumer can exercise a whole
+    event-handling pipeline without sending mail.
+what_happens:
+  - Message is validated and parsed exactly as in production
+  - Webhooks fire, including representative `delivery_attempt` details
+  - Message appears in dashboard delivery logs
+  - No SMTP delivery is attempted
+  - No credit is consumed
+fidelity_caveats:
+  - >-
+    Delivery-attempt diagnostics are synthetic because no destination mail server was contacted;
+    AhaSend states a sandbox classification may not agree with the sample SMTP code or response
+    text it carries.
+test_values:
+  test_cards: null
+  test_accounts: null
+  note: >-
+    Nothing to fabricate here — AhaSend publishes no fixture credentials, magic addresses or test
+    tokens. Sandbox works against the caller's own verified domain and any recipient address,
+    because nothing is delivered. No published test value is recorded because none exists.
+key_prefixes:
+  live: aha-sk-
+  test: aha-sk-
+  note: >-
+    Sandbox and production keys share the aha-sk- prefix; the mode is a property of the credential
+    in the dashboard, not something visible in the key string. An agent cannot tell a sandbox key
+    from a live key by inspection — worth knowing before wiring a key into an automated flow.
+time_simulation:
+  supported: false
+  note: No test clock. Scheduled sends are real-time (schedule.first_attempt within 7 days).
+local_tooling:
+  - name: CLI webhook listener
+    description: Stream live webhook events to localhost during development.
+    docs: https://ahasend.com/docs/cli/webhook-testing.md
+  - name: CLI route listener
+    description: Stream inbound routed messages to a local handler.
+    docs: https://ahasend.com/docs/cli/route-testing.md
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

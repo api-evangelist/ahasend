@@ -3,142 +3,109 @@ specificationVersion: '0.1'
 schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
 provider: AhaSend
 providerId: ahasend
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/pricing
+sources:
+  - https://ahasend.com/pricing
+  - https://ahasend.com/llms.txt
+  - https://ahasend.com/docs/changelog.md
 created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
+modified: '2026-08-30'
+plan_count: 3
 tags:
   - Email
   - Transactional Email
   - Developer Tools
   - SMTP
   - Webhooks
-description: Machine-readable plans and pricing scaffold for this API provider. Conforms to the API Commons
-  Plans schema. Tier limits and prices are scaffold defaults; replace with provider-published values.
+description: >-
+  AhaSend's published plans, read from the pricing page and from the plan figures AhaSend states
+  in its own llms.txt on 2026-08-30. This artifact REPLACES a 2026-05-04 scaffold whose tier
+  names, quotas and prices were invented defaults. Prices are billed in EUR, GBP or USD depending
+  on the customer's location; the pricing page renders the amount for the visitor's currency, so
+  all three published amounts are recorded here rather than one.
+currencies: [EUR, GBP, USD]
+billing_period: month
+contract_terms: Month to month, no annual commitment, cancel anytime.
 plans:
   - id: ahasend-free
     name: Free
     type: freemium
-    description: Free entry tier for the AhaSend API surface. Intended for evaluation, prototyping, and
-      low-volume integrations. Real limits and pricing must be reconciled with the provider's published
-      plan documentation.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota across all included endpoints
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 1000
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the free tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 10
-        timeFrame: minute
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-    elements:
-      - name: Public Documentation
-      - name: Community Support
-      - name: Sandbox Access
-      - name: AhaSend
+    price: '0.00'
+    included_emails_per_month: 1000
+    credit_card_required: false
+    sending_domains: 3
+    log_retention_days: 1-7
+    message_content_retention_days: 1-7
+    support: Community + best effort
+    includes:
+      - Full Management API (REST) and SMTP relay
+      - Sandbox mode
+      - Official SDKs and the AhaSend CLI
+      - Scheduled sending, open and click tracking, recipient variables
+      - Webhooks and inbound email routing
+      - Platform Partner features (sub accounts, DNS whitelabeling, per-domain DKIM selectors)
+      - Automatic suppression list, raw delivery logs, multi-region sending
+      - 2FA and 2FA enforcement, scoped API keys, IP allow lists, Reputation Shield
   - id: ahasend-pro
-    name: Professional
-    type: paid
-    description: Production tier for AhaSend. Provides higher quotas, priority support, and access to
-      the broader API portfolio. Pricing placeholder; align with the provider's pricing page.
-    entries:
-      - label: API Requests
-        description: Monthly API request quota
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: 100000
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1
-        price: TBD
-        userMultiplied: false
-      - label: Rate Limit
-        description: Maximum requests per minute on the professional tier
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 100
-        timeFrame: minute
-        geo: global
-        domains: []
-        unit: 1
-        price: '0.00'
-        userMultiplied: false
-      - label: Overage
-        description: Per-request price after monthly quota is exceeded
-        name: overage
-        type: metered
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: global
-        domains: []
-        unit: 1000
-        price: TBD
-        userMultiplied: false
-    elements:
-      - name: All Production Endpoints
-      - name: Email Support
-      - name: SLA Targets
-      - name: Webhook Subscriptions
-      - name: AhaSend
-  - id: ahasend-enterprise
-    name: Enterprise
-    type: enterprise
-    description: Custom-negotiated tier for AhaSend. Includes dedicated capacity, contractual SLAs, security
-      review, data residency options, and named technical account management.
-    entries:
-      - label: API Requests
-        description: Negotiated request volume; -1 indicates uncapped subject to fair use
-        name: api_requests
-        type: quota
-        metric: requests
-        limit: -1
-        timeFrame: month
-        geo: configurable
-        domains: []
-        unit: 1
-        price: custom
-        userMultiplied: false
-      - label: Rate Limit
-        description: Negotiated burst and steady-state rate
-        name: rate_limit
-        type: rate
-        metric: requests_per_minute
-        limit: 1000
-        timeFrame: minute
-        geo: configurable
-        domains: []
-        unit: 1
-        price: custom
-        userMultiplied: false
-    elements:
-      - name: Unlimited / Negotiated Volume
-      - name: 24/7 Dedicated Support
-      - name: Contractual SLA
-      - name: Security & Compliance Review
-      - name: Dedicated Account Manager
-      - name: Custom Data Residency
-      - name: AhaSend
+    name: Pro
+    type: subscription
+    price:
+      EUR: '9.00'
+      GBP: '8.00'
+      USD: '10.00'
+    price_note: "from €9 / £8 / $10 per month"
+    included_emails_per_month: 25000
+    sending_domains: unlimited
+    log_retention_days: 1-14
+    message_content_retention_days: 0-14
+    support: 7-day support
+    includes:
+      - Everything in Free
+      - Dedicated IPs available from 100,000 emails/month
+      - Hourly sending limit starts at 1,000/hour, stepping to 5,000 then 10,000 with sending history
+  - id: ahasend-max
+    name: Max
+    type: subscription
+    price:
+      EUR: '72.00'
+      GBP: '65.00'
+      USD: '80.00'
+    included_emails_per_month: 100000
+    sending_domains: unlimited
+    log_retention_days: 1-30
+    message_content_retention_days: 0-30
+    support: Premium support
+    includes:
+      - Everything in Pro
+      - OIDC Single Sign-On
+      - Dedicated IP pools; one dedicated IP included free at 300,000+ emails/month
+      - Hourly sending limit starts at 2,000/hour, stepping to 20,000 then 100,000
+overage:
+  metric: emails
+  unit: 1000
+  price:
+    EUR: '0.45'
+    GBP: '0.40'
+    USD: '0.50'
+  note: >-
+    Charged per 1,000 emails above the plan's included volume. AhaSend states lower per-1,000
+    rates above 1 million emails per month; the exact tiers are shown by the calculator on the
+    pricing page and are not published as static figures, so they are not asserted here.
+add_ons:
+  - name: Bring Your Own IP (BYOIP)
+  - name: Deliverability consulting
+free_usage:
+  - >-
+    Sandbox sends are free and never count against the monthly email allowance, on every plan
+    (https://ahasend.com/docs/send-api/sandbox.md).
+payment_methods:
+  note: >-
+    AhaSend displays payment methods by location; it names bank transfer, direct debit and
+    credit card as examples. Refunds, VAT treatment and billing mechanics are covered in the
+    pricing-page FAQ.
+enterprise_gate: false
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

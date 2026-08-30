@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: AhaSend API v2 Accounts Statistics API
   description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
@@ -677,19 +677,20 @@ paths:
         dispatcher: FALLBACK
 components:
   schemas:
-    DeliveryTime:
+    Bounce:
       type: object
       properties:
-        recipient_domain:
+        classification:
           type: string
-          format: fqdn
-          description: The recipient domain
-          example: mail.example.com
-        delivery_time:
-          type: number
-          format: double
-          description: The average time from reception to delivery in seconds
-          example: 1.0
+          description: Bounce classification
+          example: example_value
+        count:
+          type: integer
+          description: Number of bounces
+          example: 1
+      required:
+      - classification
+      - count
     ErrorResponse:
       type: object
       required:
@@ -701,6 +702,28 @@ components:
           example: example_value
       example:
         message: Error message
+    BounceStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+          example: list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
+          example:
+          - from_timestamp: '2025-03-15T14:30:00Z'
+            to_timestamp: '2025-03-15T14:30:00Z'
+            bounces:
+            - {}
     DeliveryTimeStatisticsResponse:
       type: object
       required:
@@ -725,31 +748,6 @@ components:
             delivered_count: 1
             delivery_times:
             - {}
-    BounceStatistics:
-      type: object
-      properties:
-        from_timestamp:
-          type: string
-          format: date-time
-          description: Start time of the statistics bucket
-          example: '2025-03-15T14:30:00Z'
-        to_timestamp:
-          type: string
-          format: date-time
-          description: End time of the statistics bucket
-          example: '2025-03-15T14:30:00Z'
-        bounces:
-          type: array
-          items:
-            $ref: '#/components/schemas/Bounce'
-          description: Bounce count per bounce classification
-          example:
-          - classification: example_value
-            count: 1
-      required:
-      - from_timestamp
-      - to_timestamp
-      - bounces
     DeliverabilityStatistics:
       type: object
       properties:
@@ -821,6 +819,31 @@ components:
             reception_count: 1
             delivered_count: 1
             deferred_count: 1
+    BounceStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+          example: '2025-03-15T14:30:00Z'
+        bounces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bounce'
+          description: Bounce count per bounce classification
+          example:
+          - classification: example_value
+            count: 1
+      required:
+      - from_timestamp
+      - to_timestamp
+      - bounces
     DeliveryTimeStatistics:
       type: object
       properties:
@@ -856,42 +879,19 @@ components:
       - to_timestamp
       - avg_delivery_time
       - delivered_count
-    BounceStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-          example: list
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BounceStatistics'
-          description: Array of bounce statistics
-          example:
-          - from_timestamp: '2025-03-15T14:30:00Z'
-            to_timestamp: '2025-03-15T14:30:00Z'
-            bounces:
-            - {}
-    Bounce:
+    DeliveryTime:
       type: object
       properties:
-        classification:
+        recipient_domain:
           type: string
-          description: Bounce classification
-          example: example_value
-        count:
-          type: integer
-          description: Number of bounces
-          example: 1
-      required:
-      - classification
-      - count
+          format: fqdn
+          description: The recipient domain
+          example: mail.example.com
+        delivery_time:
+          type: number
+          format: double
+          description: The average time from reception to delivery in seconds
+          example: 1.0
   securitySchemes:
     BearerAuth:
       type: http

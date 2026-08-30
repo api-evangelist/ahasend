@@ -1,0 +1,97 @@
+generated: '2026-08-30'
+method: probed
+source: live HTTPS probes of every apis.yml/OpenAPI host on 2026-08-30
+provider: AhaSend
+providerId: ahasend
+description: >-
+  RFC 8615 well-known probe of every AhaSend host. Nothing was served: the marketing site and
+  the API host return real 404s on every path, and the dashboard SPA answers 200 with the same
+  HTML application shell for every path under /.well-known/, which is a catch-all route rather
+  than a document. No WellKnown or SecurityTxt pointer is emitted for this provider.
+hosts:
+  - host: ahasend.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+        file: null
+      - path: /.well-known/openid-configuration
+        status: 404
+        file: null
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+        file: null
+      - path: /.well-known/api-catalog
+        status: 404
+        file: null
+      - path: /.well-known/ai-plugin.json
+        status: 404
+        file: null
+      - path: /.well-known/agent-card.json
+        status: 404
+        file: null
+      - path: /.well-known/agent.json
+        status: 404
+        file: null
+  - host: api.ahasend.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+        file: null
+      - path: /.well-known/openid-configuration
+        status: 404
+        file: null
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+        file: null
+      - path: /.well-known/api-catalog
+        status: 404
+        file: null
+      - path: /.well-known/ai-plugin.json
+        status: 404
+        file: null
+      - path: /.well-known/agent-card.json
+        status: 404
+        file: null
+      - path: /.well-known/agent.json
+        status: 404
+        file: null
+  - host: dash.ahasend.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        file: null
+        note: >-
+          Not a document. The dashboard is a single-page application whose catch-all route
+          answers 200 with text/html for EVERY /.well-known/ path probed, including paths that
+          cannot exist. Treated as a miss.
+      - path: /.well-known/openid-configuration
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell, not an OpenID discovery document. Treated as a miss.
+      - path: /.well-known/oauth-authorization-server
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell. Treated as a miss.
+      - path: /.well-known/api-catalog
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell. Treated as a miss.
+      - path: /.well-known/ai-plugin.json
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell. Treated as a miss.
+      - path: /.well-known/agent-card.json
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell, not an A2A AgentCard. Treated as a miss.
+      - path: /.well-known/agent.json
+        status: 200
+        file: null
+        note: SPA catch-all HTML shell. Treated as a miss.
+finding: >-
+  AhaSend publishes a responsible-disclosure policy at https://ahasend.com/responsible-disclosure
+  but does not mirror it as /.well-known/security.txt (RFC 9116), which is the one machine path a
+  scanner looks for. That is a one-file gap the provider can close.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

@@ -1,0 +1,148 @@
+generated: '2026-08-30'
+method: derived
+source: openapi/_original/ahasend-openapi-v2.yaml
+sources:
+  - openapi/_original/ahasend-openapi-v2.yaml
+  - https://ahasend.com/docs/api-reference/sub-accounts/overview.md
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Entity-relationship graph for the AhaSend API v2, derived from the $ref graph and the
+  id-reference fields of the 68 schemas in the published OpenAPI. Everything below is a field that
+  exists in the contract; nothing is inferred from naming alone.
+root_entity: Account
+identifier_scheme:
+  format: UUID
+  prefixes: none
+  note: >-
+    AhaSend uses bare UUIDs everywhere — no typed id prefixes (no `msg_`, `dom_`). A caller cannot
+    tell what kind of object an id refers to from the id itself, only from the field it came from.
+    API KEY SECRETS are the one prefixed value: `aha-sk-` plus 64 random characters.
+entities:
+  - name: Account
+    api: Accounts
+    key: id
+    fields_of_note: [parent_account_id, owner_id, message_metadata_retention, message_data_retention, track_opens, track_clicks]
+    relationships:
+      - {type: belongs_to, target: Account, via: parent_account_id, note: Set when the account is a sub account; null on a parent.}
+      - {type: has_many, target: Domain, via: Domain.account_id}
+      - {type: has_many, target: APIKey, via: APIKey.account_id}
+      - {type: has_many, target: UserAccount, via: UserAccount.account_id}
+      - {type: has_many, target: SubAccount, via: SubAccount.parent_account_id}
+      - {type: has_many, target: Suppression, via: path scope}
+      - {type: has_many, target: Route, via: path scope}
+      - {type: has_many, target: Webhook, via: path scope}
+      - {type: has_many, target: SMTPCredential, via: path scope}
+  - name: SubAccount
+    api: Sub Accounts
+    key: id
+    fields_of_note: [parent_account_id, status, monthly_credit, domain_count, member_count, last_activity_at]
+    status_values: [active, suspended, parent-suspended, deleted]
+    relationships:
+      - {type: belongs_to, target: Account, via: parent_account_id}
+      - {type: has_many, target: APIKey, via: sub-account API key endpoints}
+  - name: UserAccount
+    api: Accounts
+    key: user_id
+    relationships:
+      - {type: belongs_to, target: Account, via: account_id}
+    fields_of_note: [role]
+  - name: APIKey
+    api: API Keys
+    key: id
+    fields_of_note: [public_key, label, scopes, ip_allow_list, last_used_at]
+    relationships:
+      - {type: belongs_to, target: Account, via: account_id}
+      - {type: has_many, target: APIKeyScope, via: APIKeyScope.api_key_id}
+  - name: APIKeyScope
+    api: API Keys
+    key: id
+    relationships:
+      - {type: belongs_to, target: APIKey, via: api_key_id}
+      - {type: belongs_to, target: Domain, via: domain_id, note: Null for a global or static scope; set for a domain-specific one.}
+  - name: Domain
+    api: Domains
+    key: id
+    natural_key: domain
+    fields_of_note: [dns_records, dns_valid, last_dns_check_at, tracking_subdomain, return_path_subdomain, subscription_subdomain, media_subdomain, dkim_rotation_interval_days, dkim_selector, rotation_ready, dsn_recipient]
+    relationships:
+      - {type: belongs_to, target: Account, via: account_id}
+      - {type: has_many, target: DNSRecord, via: dns_records}
+      - {type: has_many, target: MessageSummary, via: MessageSummary.domain_id}
+    note: >-
+      Domain is addressed by NAME in the path (/domains/{domain}) but carries a UUID `id` that
+      other objects reference. Both identifiers are live at once.
+  - name: DNSRecord
+    api: Domains
+    embedded_in: Domain
+  - name: MessageSummary
+    api: Messages
+    key: id
+    fields_of_note: [message_id, status, num_attempts, delivery_attempts, bounce_classification, click_count, open_count, tags, reference_message_id, retain_until, direction, is_bounce_notification]
+    relationships:
+      - {type: belongs_to, target: Account, via: account_id}
+      - {type: belongs_to, target: Domain, via: domain_id}
+      - {type: belongs_to, target: MessageSummary, via: reference_message_id, note: Links a bounce notification or reply back to the message it concerns.}
+      - {type: has_many, target: DeliveryEvent, via: delivery_attempts}
+    note: >-
+      Two identifiers coexist — `id` (AhaSend's UUID) and `message_id` (the RFC 5322 Message-ID
+      header). The list endpoint filters on `message_id_header`.
+  - name: DeliveryEvent
+    api: Messages
+    embedded_in: MessageSummary
+    fields_of_note: [time, log, status]
+  - name: MessageContentParsed
+    api: Messages
+    embedded_in: Message
+    relationships:
+      - {type: has_many, target: MessageContentPart, via: parts}
+      - {type: has_many, target: MessageAttachment, via: attachments}
+  - name: Route
+    api: Routes
+    key: id
+    fields_of_note: [recipient, url, attachments, headers, group_by_message_id, strip_replies, enabled, success_count, error_count, errors_since_last_success, last_request_at]
+    relationships:
+      - {type: belongs_to, target: Domain, via: recipient, binding: the domain part of the recipient address}
+    note: Authorization for a route resolves through the domain in `recipient`, not through a domain_id field.
+  - name: Webhook
+    api: Webhooks
+    key: id
+    fields_of_note: [url, enabled, scope, domains, success_count, error_count, errors_since_last_success, last_request_at]
+    event_flags: [on_reception, on_delivered, on_transient_error, on_failed, on_bounced, on_suppressed, on_opened, on_clicked, on_suppression_created, on_dns_error]
+    relationships:
+      - {type: has_many, target: Domain, via: domains, note: 'Empty array when scope is global.'}
+  - name: SMTPCredential
+    api: SMTP Credentials
+    key: id
+    fields_of_note: [username, sandbox, scope]
+    relationships:
+      - {type: has_many, target: Domain, via: domains, note: 'Required and non-empty when scope is scoped; ignored and returned empty when global.'}
+  - name: Suppression
+    api: Suppressions
+    key: id
+    natural_key: email
+    fields_of_note: [reason, expires_at]
+    relationships:
+      - {type: belongs_to, target: Domain, via: domain, note: Optional — a suppression can be account-wide or scoped to one sending domain.}
+  - name: SubAccountUsageBreakdown
+    api: Sub Accounts
+    fields_of_note: [account_id, reception_count, allocated_cost]
+    relationships:
+      - {type: belongs_to, target: SubAccount, via: account_id}
+    note: >-
+      `removed_sub_accounts` aggregates usage from soft-deleted sub accounts; that usage still
+      bills to the parent and is not attributable to an individual sub account.
+  - name: Statistics
+    api: Statistics
+    entities: [DeliverabilityStatistics, BounceStatistics, DeliveryTimeStatistics]
+    note: >-
+      Aggregate reporting objects rather than addressable resources — no ids, grouped by time
+      bucket and optionally by sender or recipient domain.
+scoping_pattern: >-
+  Every operation except `ping` is nested under /v2/accounts/{account_id}/…, so the Account is the
+  tenancy boundary for the whole API. Sub accounts extend that one level: a parent's key reaches a
+  sub account's resources only through the /sub-accounts/ path, never by passing the sub account's
+  id as {account_id}.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

@@ -1,0 +1,85 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference/v1/v1-vs-v2
+sources:
+  - https://ahasend.com/llms.txt
+  - https://ahasend.com/docs/changelog.md
+  - https://ahasend.com/docs/roadmap.md
+  - https://status.ahasend.com
+  - openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Versioning, deprecation and operational-transparency posture for the AhaSend API.
+versioning:
+  scheme: path
+  current_version: v2
+  spec_version: 2.0.0
+  base: https://api.ahasend.com/v2
+  legacy_versions:
+    - version: v1
+      status: legacy
+      guidance: >-
+        AhaSend states plainly in its own llms.txt that "API v1 is legacy and should not be used
+        for new integrations", and keeps a v1-vs-v2 comparison page plus a legacy v1 OpenAPI at
+        https://ahasend.com/docs/openapi-v1.yaml for existing integrations.
+      migration_doc: https://ahasend.com/docs/api-reference/v1/v1-vs-v2.md
+      spec: https://ahasend.com/docs/openapi-v1.yaml
+      local_copy: openapi/_original/ahasend-openapi.yml
+      sunset_date: null
+deprecation:
+  policy_published: false
+  policy_url: null
+  rfc8594_headers: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    No formal deprecation policy, no notice period, and no RFC 8594 Sunset/Deprecation headers.
+    Nothing in the OpenAPI is marked `deprecated: true`, and v1 carries no announced end date.
+    Deprecations and breaking changes are communicated in prose through the monthly changelog
+    instead. This is the clearest lifecycle gap: an integrator has no published answer to "how
+    much warning will I get?".
+  observed_practice: >-
+    The changelog does describe behaviour changes at operation level — e.g. June 2026, the v1 send
+    API began rejecting a request with neither a text nor an HTML body — which is a breaking
+    change announced after the fact rather than ahead of it.
+change_communication:
+  changelog: https://ahasend.com/docs/changelog
+  changelog_markdown: https://ahasend.com/docs/changelog.md
+  cadence: monthly, grouped as New Features / Changes / Improvements / Bug Fixes
+  roadmap: https://ahasend.com/docs/roadmap
+  artifact: changelog/ahasend-changelog.yml
+status:
+  status_page: https://status.ahasend.com
+  status_page_verified: '2026-08-30'
+  http_status: 200
+  note: >-
+    A live status page is linked from the security page and from AhaSend's llms.txt. AhaSend
+    publishes no numeric uptime SLA or service credit terms on the pricing page.
+sla:
+  published: false
+  performance_targets:
+    - >-
+      Delivery-time targets are stated as product claims rather than as an SLA: typically under
+      one second to Gmail and under five seconds to other major mailbox providers.
+  support_tiers:
+    free: Community + best effort
+    pro: 7-day support
+    max: Premium support
+  note: No contractual uptime commitment or service credits are published.
+data_lifecycle:
+  retention_configurable: true
+  message_metadata_days: 1-30 depending on plan
+  message_content_days: 0-30 depending on plan (0 available on paid plans)
+  archive: S3-compatible object storage, customer-owned
+  docs: https://ahasend.com/docs/retention/index.md
+resource_lifecycle:
+  domain: created -> DNS records published -> checkDomainDNS -> dns_valid -> (DKIM rotation) -> deleted
+  message: created -> scheduled (optional, up to 7 days) -> reception -> delivered | transient_error -> failed | bounced | suppressed
+  sub_account: active -> suspended | parent-suspended -> unsuspended -> deleted (soft)
+  webhook: created -> enabled -> auto-disabled after 100 consecutive delivery failures (account notified by email)
+  suppression: created (manual or automatic on bounce/complaint) -> expires_at | deleted
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

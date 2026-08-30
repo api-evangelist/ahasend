@@ -1,23 +1,101 @@
-generated: '2026-07-11'
-method: derived
-source: openapi/ahasend-openapi-v2.yaml, openapi/ahasend-openapi.yml
+generated: '2026-08-30'
+method: searched
+docs: https://ahasend.com/docs/api-reference/authentication
+source: https://ahasend.com/docs/api-reference/authentication
+sources:
+  - https://ahasend.com/docs/api-reference/authentication.md
+  - https://ahasend.com/docs/send-api/credentials.md
+  - https://ahasend.com/docs/security/scoped-credentials.md
+  - https://ahasend.com/docs/security/ip-allow-lists.md
+  - https://ahasend.com/docs/security/sso.md
+  - openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
 summary:
   types:
-  - apiKey
-  - http
+    - http
   api_key_in:
-  - header
+    - header
+  oauth2: false
+  openIdConnect: false
+  mutualTLS: false
 schemes:
-- name: BearerAuth
-  type: http
-  scheme: bearer
-  bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
-  description: API key for authentication
-  sources:
-  - openapi/ahasend-openapi-v2.yaml
-- name: api_key
-  type: apiKey
-  in: header
-  parameter: X-Api-Key
-  sources:
-  - openapi/ahasend-openapi.yml
+  - name: BearerAuth
+    type: http
+    scheme: bearer
+    bearerFormat: aha-sk- followed by a 64-character random string
+    header: 'Authorization: Bearer <api_key>'
+    description: >-
+      The single authentication scheme for the whole API v2 surface, applied globally and refined
+      per operation. The contract's own note explains the refinement: "Non-empty Security
+      Requirement values are AhaSend API-key roles. Roles listed within one requirement object are
+      jointly required; separate requirement objects are alternatives." So the security block does
+      double duty as the authorization model — see scopes/ahasend-scopes.yml.
+    sources:
+      - openapi/_original/ahasend-openapi-v2.yaml
+      - https://ahasend.com/docs/api-reference/authentication.md
+key_management:
+  create: createAPIKey (POST /v2/accounts/{account_id}/api-keys)
+  secret_visibility: >-
+    The `secret_key` is returned once, on the 201. Every list/get/update/delete response omits it.
+    An exact idempotent retry replays it for 5 minutes only; after that the key must be recreated.
+  public_identifier: APIKey.public_key
+  last_used: APIKey.last_used_at is exposed, so an unused key is detectable.
+  rotation: >-
+    No automatic key rotation and no expiry field. Rotation means create-then-delete by hand.
+    (DKIM keys, by contrast, rotate automatically on a configurable interval.)
+restrictions:
+  scoped_keys:
+    supported: true
+    description: >-
+      Every key carries an explicit scope list, including per-domain scopes such as
+      messages:send:{example.com}. See scopes/ahasend-scopes.yml for all 51.
+  ip_allow_list:
+    supported: true
+    field: APIKey.ip_allow_list
+    limits: up to 100 IPv4/IPv6 addresses or CIDR ranges per key
+    semantics: >-
+      A key with a non-empty allow list is rejected on EVERY endpoint from any other IP,
+      regardless of scopes. An empty list means no restriction. "Allow everything" ranges are
+      rejected.
+    self_lockout_protection: >-
+      Setting a key's own allow list to a value excluding the calling IP is rejected and nothing is
+      saved. The dashboard is never blocked by a key's allow list.
+    change_control: >-
+      Changing an allow list in the dashboard re-prompts for a 2FA code (or password), remembered
+      for 5 minutes, and emails owners and administrators that a security setting changed.
+  sandbox_mode:
+    description: >-
+      A credential can be created in, or switched to, Sandbox mode — sends made with it are always
+      simulated. Sandbox and production keys share the aha-sk- prefix, so the mode is NOT visible
+      in the key string.
+smtp_authentication:
+  mechanism: PLAIN over STARTTLS
+  hosts: [send.ahasend.com, send-us.ahasend.com]
+  ports: [25, 587, 2525]
+  note: >-
+    Implicit TLS (SMTPS) on port 465 is explicitly not supported. SMTP credentials are separate
+    objects from API keys, created in the dashboard or through the SMTP Credentials API, and can
+    themselves be global or domain-scoped.
+webhook_authentication:
+  direction: inbound-to-subscriber
+  mechanism: Standard Webhooks HMAC-SHA256 over `id.timestamp.body`
+  see: asyncapi/ahasend-webhooks.yml
+human_authentication:
+  two_factor: TOTP-based 2FA, with account-wide enforcement available
+  sso:
+    protocol: OpenID Connect
+    role: relying-party
+    features: [PKCE, multi-domain]
+    plan: Max
+    note: Dashboard login only. AhaSend does not issue OAuth or OIDC tokens for its API.
+gaps:
+  - No OAuth 2.0 or OIDC authorization for API access — API keys only.
+  - No key expiry, no automatic rotation, no published key-rotation guidance.
+  - No /.well-known/oauth-authorization-server or /.well-known/openid-configuration (both 404).
+  - >-
+    A 403 caused by a missing scope and a 403 caused by an IP-allow-list rejection are not
+    distinguishable from the response body.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

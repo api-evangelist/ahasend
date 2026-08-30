@@ -1,16 +1,16 @@
-generated: '2026-07-11'
+generated: '2026-08-30'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
 - host: ahasend.com
   https: true
   tls_version: TLSv1.3
-  cert_expires: Aug 19 15:55:34 2026 GMT
+  cert_expires: Oct 17 16:24:10 2026 GMT
   hsts: false
 - host: api.ahasend.com
   https: true
   tls_version: TLSv1.3
-  cert_expires: Sep  5 09:30:23 2026 GMT
+  cert_expires: Oct 19 16:22:44 2026 GMT
   hsts: null
 domains:
 - domain: ahasend.com

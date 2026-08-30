@@ -1,0 +1,53 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/changelog
+sources:
+  - https://ahasend.com/docs/changelog.md
+provider: AhaSend
+providerId: ahasend
+description: >-
+  AhaSend's product changelog, read as clean markdown on 2026-08-30. Recent window only —
+  the full history lives at the source URL.
+scheme: dated, grouped by month
+sections: [New Features, Changes, Improvements, Bug Fixes]
+current_api_version: v2 (2.0.0)
+machine_readable: false
+rss: null
+note: >-
+  The changelog is unusually specific for a company this size — it names affected endpoints,
+  response fields and error strings, and it discloses security fixes (two dashboard open-redirects
+  in July 2026) rather than burying them. It is not published as a feed or in any machine-readable
+  form, so an agent has to read the prose or the .md mirror.
+entries:
+  - version: '2026-07'
+    date: '2026-07'
+    breaking: false
+    api_affecting: true
+    highlights:
+      - Higher hourly sending limits, graduated by plan (Pro 1,000 to 10,000/hour; Max 2,000 to 100,000/hour).
+      - Route webhook attachments gained a `disposition` field distinguishing attachment, inline and unspecified.
+      - Per-message delivery-attempt log now orders the final outcome last in `delivery_attempts`.
+      - CSV contact import with background processing and email notification.
+      - 'Fix: late/retried delivery events now report what actually happened instead of repeating the last known status.'
+      - 'Fix: expired messages no longer stick as "Deferred"; status is taken from the terminal outcome.'
+      - 'Fix: single-message endpoint no longer omits inline attachments from parsed content.'
+      - 'Fix: team-member endpoints no longer return an all-zeros user_id.'
+      - 'Security: two dashboard open-redirect issues fixed; no customer data was accessible.'
+  - version: '2026-06'
+    date: '2026-06'
+    breaking: true
+    api_affecting: true
+    highlights:
+      - 'New: Sub Accounts, in the dashboard and the v2 API — isolated child accounts billed through a parent.'
+      - 'New: API-only sub-account provisioning, including minting the first sub-account API key over the API.'
+      - 'New: per-API-key IP allow lists (up to 100 IPv4/IPv6 addresses or CIDR ranges).'
+      - 'New: per-domain DKIM selectors for Platform Partner accounts.'
+      - API-key responses now always include an `ip_allow_list` field.
+      - Domain create/update now accept and return `dkim_selector`; account responses now include `parent_account_id`.
+      - 'BREAKING (v1): the v1 send API now rejects a request with neither a text nor an HTML body.'
+      - Suspended accounts can no longer add, edit, delete or re-check DNS for a sending domain.
+      - Idempotency hardened — in-flight retries return a conflict, and key reuse across a different endpoint/resource/payload is rejected.
+      - Go SDK and CLI updated for Sub Accounts and IP allow lists.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

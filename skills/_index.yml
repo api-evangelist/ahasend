@@ -1,0 +1,34 @@
+generated: '2026-08-30'
+method: generated
+source: openapi/_original/ahasend-openapi-v2.yaml plus AhaSend's published API reference
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Packaged Agent Skills for AhaSend's marquee flows. Every operationId named in these skills was
+  grepped out of AhaSend's own published OpenAPI v2; the conventions, error, idempotency,
+  reversibility and rate-limit rules come from AhaSend's documentation. AhaSend publishes no
+  skills or AGENTS.md of its own — these are authored by API Evangelist.
+skills:
+  - name: ahasend-send-transactional-email
+    file: skills/ahasend-send-transactional-email.md
+    api: AhaSend Messages API
+    operations: [createMessage, createConversationMessage, getMessage, getMessages, cancelMessage]
+  - name: ahasend-onboard-sending-domain
+    file: skills/ahasend-onboard-sending-domain.md
+    api: AhaSend Domains API
+    operations: [createDomain, getDomain, getDomains, checkDomainDNS, updateDomain, deleteDomain]
+  - name: ahasend-handle-bounces-and-suppressions
+    file: skills/ahasend-handle-bounces-and-suppressions.md
+    api: AhaSend Suppressions API
+    operations: [getSuppressions, createSuppression, deleteSuppression, deleteAllSuppressions, getBounceStatistics]
+  - name: ahasend-wire-webhook-events
+    file: skills/ahasend-wire-webhook-events.md
+    api: AhaSend Webhooks API
+    operations: [createWebhook, getWebhooks, getWebhook, updateWebhook, deleteWebhook]
+  - name: ahasend-provision-sub-account
+    file: skills/ahasend-provision-sub-account.md
+    api: AhaSend Sub Accounts API
+    operations: [createSubAccount, listSubAccounts, getSubAccount, updateSubAccount, suspendSubAccount, unsuspendSubAccount, deleteSubAccount, createSubAccountAPIKey, listSubAccountAPIKeys, getSubAccountAPIKey, updateSubAccountAPIKey, deleteSubAccountAPIKey, getSubAccountsUsage]
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

@@ -1,0 +1,151 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference/errors
+sources:
+  - https://ahasend.com/docs/api-reference/errors.md
+  - openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Error catalog for the AhaSend API v2, derived from the 4xx/5xx responses declared in the
+  published OpenAPI and enriched with the messages and remediation published on the error-handling
+  reference page.
+format: bare-json
+rfc9457: false
+content_type: application/json
+envelope:
+  shape: '{"message": "string"}'
+  fields:
+    message: Human-readable description of what went wrong.
+  machine_code: null
+  warning: >-
+    The contract itself states that the server sends no stable machine error code, and that
+    clients MUST NOT parse `message` to distinguish IP-allow-list, scope, ownership, plan,
+    self-lockout, suppression-duplicate or other errors that share an HTTP status. Branch on the
+    HTTP status only.
+declared_response_counts:
+  '400': 55
+  '401': 56
+  '403': 56
+  '404': 36
+  '409': 12
+  '422': 11
+  '429': 3
+  '500': 56
+  '503': 1
+problem_types:
+  - status: 400
+    title: Bad Request
+    meaning: Malformed request or invalid parameters.
+    causes:
+      - Invalid UUID for account_id or a resource id
+      - Malformed email address or domain name
+      - Time not in RFC 3339 format
+      - limit outside 1..100
+      - Malformed JSON body
+    examples:
+      - '{"message": "invalid account_id"}'
+      - '{"message": "invalid from_time, provide a valid RFC3339 time string"}'
+      - '{"message": "limit must be between 1 and 100"}'
+      - '{"message": "invalid domain name, please provider a valid fully qualified domain name."}'
+    remediation: Validate parameters and body shape against the OpenAPI before retrying. Not retriable unchanged.
+    retriable: false
+  - status: 401
+    title: Unauthorized
+    meaning: Authentication missing or failed.
+    causes:
+      - Missing Authorization header
+      - Key not sent as `Bearer <api_key>`
+      - Key revoked or nonexistent
+      - Account suspended
+      - Key does not belong to the account in the path
+    examples:
+      - '{"message": "Missing or malformed bearer token"}'
+      - '{"message": "Invalid API key"}'
+      - '{"message": "Account is suspended"}'
+    remediation: Re-check the credential and the account_id in the path. Do not retry with the same key.
+    retriable: false
+  - status: 403
+    title: Forbidden
+    meaning: Authenticated but not permitted.
+    causes:
+      - API key lacks the required scope
+      - Resource outside the key's domain restrictions
+      - Caller IP not on the key's IP allow list
+    examples:
+      - '{"message": "Insufficient permissions for the required scope"}'
+      - '{"message": "api key does not have sufficient permissions to read webhooks"}'
+      - '{"message": "sender domain not found in api key scopes"}'
+    remediation: >-
+      Compare the operation's declared security requirement against the key's scopes
+      (scopes/ahasend-scopes.yml). Note that an IP-allow-list rejection and a scope rejection are
+      not distinguishable from the body.
+    retriable: false
+  - status: 404
+    title: Not Found
+    meaning: Resource does not exist, was deleted, or belongs to another account.
+    examples:
+      - '{"message": "account not found"}'
+      - '{"message": "domain not found"}'
+    remediation: Confirm the id and that it belongs to the authenticated account.
+    retriable: false
+  - status: 409
+    title: Conflict
+    meaning: Conflicts with current state — an in-flight idempotent request, or a duplicate resource.
+    examples:
+      - '{"message": "A request with this idempotency key is already in progress"}'
+      - '{"message": "domain already exists"}'
+    remediation: >-
+      For an in-flight idempotency conflict, wait and retry the SAME key. For a duplicate
+      resource, read the existing one instead of creating it.
+    retriable: true
+  - status: 412
+    title: Precondition Failed
+    meaning: The original request carrying this idempotency key failed and cannot be retried.
+    examples:
+      - '{"message": "The original request with this idempotency key failed and cannot be retried"}'
+    remediation: Generate a fresh Idempotency-Key and resubmit.
+    retriable: false
+    note: Documented on the error page; not declared as a response code in the OpenAPI.
+  - status: 422
+    title: Unprocessable Entity
+    meaning: Idempotency key reused with a different body, endpoint or resource.
+    remediation: Use one key per logical request. Never reuse a key across endpoints.
+    retriable: false
+  - status: 429
+    title: Too Many Requests
+    meaning: Rate limit exceeded.
+    examples:
+      - '{"message": "Too many requests, rate limited."}'
+      - '{"message": "Rate limit exceeded"}'
+    remediation: >-
+      Exponential backoff with jitter. Only the three statistics operations declare a Retry-After
+      header; elsewhere the client must choose its own delay.
+    retriable: true
+  - status: 500
+    title: Internal Server Error
+    meaning: Unexpected server-side failure.
+    examples:
+      - '{"message": "Internal server error"}'
+      - '{"message": "internal server error, please try again later"}'
+    remediation: >-
+      Safe to retry with the SAME Idempotency-Key — a 5xx stores no idempotent response, so an
+      exact retry re-executes rather than replaying.
+    retriable: true
+  - status: 503
+    title: Service Unavailable
+    meaning: Declared on one operation. Check https://status.ahasend.com before retrying.
+    retriable: true
+policy_errors:
+  - message: 'domain is banned to protect our network from abuse and spammers. if you think this is an error please contact support'
+    status: 400
+    note: Abuse-protection rejection, surfaced as a validation error rather than a 403.
+gaps:
+  - No RFC 9457 application/problem+json representation.
+  - No stable error code, error type URI, or field-level validation array.
+  - >-
+    Errors that mean different things — a missing scope, an IP-allow-list rejection, an ownership
+    mismatch — share HTTP 403 with no machine-distinguishable marker.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

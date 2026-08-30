@@ -1,0 +1,110 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference/scopes
+docs: https://ahasend.com/docs/api-reference/scopes
+sources:
+  - https://ahasend.com/docs/api-reference/scopes.md
+  - https://ahasend.com/docs/security/scoped-credentials.md
+  - https://ahasend.com/docs/api-reference/sub-accounts/overview.md
+  - openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
+scheme: api-key-scopes
+oauth2: false
+scheme_note: >-
+  IMPORTANT — these are NOT OAuth 2.0 scopes. AhaSend declares a single `BearerAuth` HTTP bearer
+  scheme in its OpenAPI and no oauth2 flow anywhere. What it does publish is a granular
+  authorization model attached to each API key, and the OpenAPI carries those role names as the
+  VALUES of its per-operation security requirements — the contract's own words: "Non-empty
+  Security Requirement values are AhaSend API-key roles. Roles listed within one requirement
+  object are jointly required; separate requirement objects are alternatives." The file is filed
+  under scopes/ because that is what the model is; the label OAuthScopes on the apis.yml pointer
+  is the catalog's canonical string, not a claim that AhaSend runs OAuth.
+oidc:
+  supported: true
+  role: relying-party
+  note: >-
+    AhaSend supports OpenID Connect SSO (with PKCE and multi-domain support) for DASHBOARD login
+    on the Max plan. It consumes a customer's identity provider; it does not issue OAuth tokens
+    for its API.
+  docs: https://ahasend.com/docs/security/sso.md
+scope_kinds:
+  - kind: static
+    description: Fixed account-level permissions, e.g. accounts:read, domains:write.
+  - kind: global
+    description: Ends with :all, covering every domain in the account, e.g. messages:send:all.
+  - kind: domain-specific
+    description: Restricted to one domain, e.g. messages:send:{example.com}.
+  - kind: wildcard
+    value: '*'
+    description: Grants everything. AhaSend advises using it only for development and testing.
+scope_count: 51
+scopes:
+  - {name: 'accounts:read', description: Read account information}
+  - {name: 'accounts:write', description: Update account settings}
+  - {name: 'accounts:billing', description: Access billing information}
+  - {name: 'accounts:members:read', description: View account members}
+  - {name: 'accounts:members:add', description: Add new account members}
+  - {name: 'accounts:members:update', description: Update member permissions}
+  - {name: 'accounts:members:remove', description: Remove account members}
+  - {name: 'domains:read', description: List and view domain information}
+  - {name: 'domains:write', description: Add and update domains}
+  - {name: 'domains:delete:{domain}', description: Delete a specific domain, kind: domain-specific, note: Domain deletion has no global form — a :all scope cannot delete a domain.}
+  - {name: 'messages:send:all', description: Send messages from any domain, kind: global}
+  - {name: 'messages:send:{domain}', description: Send messages from a specific domain, kind: domain-specific}
+  - {name: 'messages:cancel:all', description: Cancel messages from any domain, kind: global}
+  - {name: 'messages:cancel:{domain}', description: Cancel messages from a specific domain, kind: domain-specific}
+  - {name: 'messages:read:all', description: Read messages from any domain, kind: global}
+  - {name: 'messages:read:{domain}', description: Read messages from a specific domain, kind: domain-specific}
+  - {name: 'webhooks:read:all', description: Read webhooks for all domains, kind: global}
+  - {name: 'webhooks:write:all', description: Create/update webhooks for all domains, kind: global}
+  - {name: 'webhooks:delete:all', description: Delete webhooks for all domains, kind: global}
+  - {name: 'webhooks:read:{domain}', description: Read webhooks for a specific domain, kind: domain-specific}
+  - {name: 'webhooks:write:{domain}', description: Create/update webhooks for a specific domain, kind: domain-specific}
+  - {name: 'webhooks:delete:{domain}', description: Delete webhooks for a specific domain, kind: domain-specific}
+  - {name: 'routes:read:all', description: Read routes for all domains, kind: global}
+  - {name: 'routes:write:all', description: Create/update routes for all domains, kind: global}
+  - {name: 'routes:delete:all', description: Delete routes for all domains, kind: global}
+  - {name: 'routes:read:{domain}', description: Read routes for a specific domain, kind: domain-specific}
+  - {name: 'routes:write:{domain}', description: Create/update routes for a specific domain, kind: domain-specific}
+  - {name: 'routes:delete:{domain}', description: Delete routes for a specific domain, kind: domain-specific}
+  - {name: 'smtp-credentials:read:all', description: Read SMTP credentials for all domains, kind: global}
+  - {name: 'smtp-credentials:write:all', description: Create/update SMTP credentials for all domains, kind: global}
+  - {name: 'smtp-credentials:delete:all', description: Delete SMTP credentials for all domains, kind: global}
+  - {name: 'smtp-credentials:read:{domain}', description: Read SMTP credentials for a specific domain, kind: domain-specific}
+  - {name: 'smtp-credentials:write:{domain}', description: Create/update SMTP credentials for a specific domain, kind: domain-specific}
+  - {name: 'smtp-credentials:delete:{domain}', description: Delete SMTP credentials for a specific domain, kind: domain-specific}
+  - {name: 'suppressions:read', description: View suppression lists}
+  - {name: 'suppressions:write', description: Add suppressions}
+  - {name: 'suppressions:delete', description: Remove specific suppressions}
+  - {name: 'suppressions:wipe', description: Clear the entire suppression list, note: Separated from suppressions:delete on purpose — the wipe is irreversible.}
+  - {name: 'api-keys:read', description: List and view API keys}
+  - {name: 'api-keys:write', description: Create and update API keys}
+  - {name: 'api-keys:delete', description: Delete API keys}
+  - {name: 'sub-accounts:read', description: List and read sub accounts under the parent}
+  - {name: 'sub-accounts:write', description: Create and update sub accounts}
+  - {name: 'sub-accounts:delete', description: Soft-delete sub accounts}
+  - {name: 'sub-accounts:suspend', description: Suspend and unsuspend sub accounts}
+  - {name: 'sub-accounts:usage', description: Read per-sub-account usage and allocated cost}
+  - {name: 'sub-account-api-keys:read', description: List and read API keys owned by sub accounts}
+  - {name: 'sub-account-api-keys:write', description: Create and update API keys owned by sub accounts}
+  - {name: 'sub-account-api-keys:delete', description: Delete API keys owned by sub accounts}
+  - {name: 'statistics-transactional:read:all', description: Read statistics for all domains, kind: global}
+  - {name: 'statistics-transactional:read:{domain}', description: Read statistics for a specific domain, kind: domain-specific}
+enforcement_notes:
+  - >-
+    Scopes are enforced per operation and, for domain-scoped keys, per resource — a route or
+    webhook is authorized against the domain it belongs to, not just against the caller.
+  - >-
+    Sub-account API keys are managed only with PARENT credentials holding the relevant
+    sub-account-api-keys:* scope. A sub account's own credentials cannot create or manage its
+    nested keys.
+  - >-
+    Scopes compose with IP allow lists: a key outside its allow list is rejected on every
+    endpoint regardless of the scopes it holds.
+  - >-
+    A scope failure and an IP-allow-list failure both return HTTP 403 with a free-text message
+    and no machine-distinguishable marker.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

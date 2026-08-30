@@ -1,0 +1,129 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/webhooks.yaml
+sources:
+  - https://ahasend.com/docs/webhooks.yaml
+  - https://ahasend.com/docs/api-reference/webhooks/index.md
+  - https://ahasend.com/docs/api-reference/webhooks/security.md
+  - https://ahasend.com/docs/api-reference/webhooks/retry-policy.md
+  - https://ahasend.com/docs/integrations/routing.md
+provider: AhaSend
+providerId: ahasend
+description: >-
+  AhaSend's event surface. AhaSend publishes NO AsyncAPI document; it publishes a second OpenAPI
+  3.1 document dedicated to its webhooks, using the 3.1 top-level `webhooks` object. That document
+  is saved verbatim beside this file as asyncapi/ahasend-webhooks-openapi.yaml, and this manifest
+  is the readable catalog of what it contains.
+spec:
+  type: OpenAPI 3.1 webhooks document
+  asyncapi: false
+  title: AhaSend Webhooks
+  version: 2.0.0
+  file: asyncapi/ahasend-webhooks-openapi.yaml
+  remote: https://ahasend.com/docs/webhooks.yaml
+  event_count: 11
+transport: HTTPS POST to a subscriber-configured URL
+content_type: application/json
+management_api: openapi/ahasend-webhooks-api-openapi.yml
+security:
+  standard: Standard Webhooks
+  spec_url: https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md
+  headers:
+    webhook-id: Unique event identifier; AhaSend recommends using it as the consumer's idempotency key.
+    webhook-timestamp: Unix timestamp of the send; reject deliveries outside your tolerance window in either direction.
+    webhook-signature: HMAC-SHA256 over `id.timestamp.body`.
+  key_handling_caveat: >-
+    The HMAC key is the LITERAL UTF-8 bytes of the webhook secret, including its prefix. Standard
+    Webhooks libraries that Base64-decode the secret in their default constructor derive a
+    different key and reject valid AhaSend deliveries — use raw-key mode (Go `NewWebhookRaw`,
+    JavaScript `new Webhook(secret, { format: "raw" })`).
+  verify_against: raw request body bytes, before JSON parsing
+delivery:
+  success_criteria: any 2xx from the subscriber endpoint
+  retries: 6 attempts over 16+ minutes
+  backoff: 'unsuccessful attempts ^ 4, with randomized ±10% jitter'
+  auto_disable: >-
+    After 100 consecutive failures the webhook is disabled automatically and every account member
+    is notified by email.
+  duplicate_semantics: >-
+    Events can be retried, so handlers must be idempotent — AhaSend publishes a guide on exactly
+    this failure mode (https://ahasend.com/blog/why-your-webhook-fired-twice-handling-duplicate-events/).
+scoping:
+  scope_values: [global, scoped]
+  note: >-
+    A scoped webhook requires a non-empty `domains` array and write permission on every listed
+    domain; a global webhook requires webhooks:write:all and returns `domains: []`.
+events:
+  - name: message.reception
+    group: Message Events
+    summary: Message Reception Event
+    payload_schema: MessageReceptionWebhookPayload
+    flag: on_reception
+  - name: message.delivered
+    group: Message Events
+    summary: Message Delivered Event
+    payload_schema: MessageDeliveredWebhookPayload
+    flag: on_delivered
+  - name: message.transient_error
+    group: Message Events
+    summary: Message Transient Error Event (deferred)
+    payload_schema: MessageTransientErrorWebhookPayload
+    flag: on_transient_error
+  - name: message.failed
+    group: Message Events
+    summary: Message Failed Event
+    payload_schema: MessageFailedWebhookPayload
+    flag: on_failed
+  - name: message.bounced
+    group: Message Events
+    summary: Message Bounced Event
+    payload_schema: MessageBouncedWebhookPayload
+    flag: on_bounced
+  - name: message.suppressed
+    group: Message Events
+    summary: Message Suppressed Event
+    payload_schema: MessageSuppressedWebhookPayload
+    flag: on_suppressed
+  - name: message.opened
+    group: Message Events
+    summary: Message Opened Event
+    payload_schema: MessageOpenedWebhookPayload
+    flag: on_opened
+  - name: message.clicked
+    group: Message Events
+    summary: Message Clicked Event
+    payload_schema: MessageClickedWebhookPayload
+    flag: on_clicked
+  - name: suppression.created
+    group: Suppression Events
+    summary: Suppression Created Event
+    payload_schema: SuppressionWebhookPayload
+    flag: on_suppression_created
+  - name: domain.dns_error
+    group: Domain Events
+    summary: Domain DNS Error Event
+    payload_schema: DomainWebhookPayload
+    flag: on_dns_error
+  - name: message.routing
+    group: Route Events
+    summary: Inbound Message Route Event
+    payload_schema: RouteWebhookPayload
+    note: >-
+      Inbound routing rather than outbound delivery — the parsed inbound message (latest reply
+      separated from quoted text and signature, attachments and headers included) POSTed to the
+      route's URL. Signed the same way; its own retry policy is documented separately. Attachments
+      carry a `disposition` field distinguishing a real attachment from an inline embedded image.
+testing:
+  sandbox: >-
+    Sandbox mode fires every event normally, and `sandbox_result` (deliver/bounce/defer/fail/
+    suppress) selects which ones fire — a complete event pipeline can be exercised without
+    sending mail.
+  local: >-
+    The CLI streams live webhook and inbound-route events to localhost over WebSocket, so no
+    public endpoint is needed during development.
+gap: >-
+  No AsyncAPI document. The webhook contract is machine-readable, but as an OpenAPI 3.1 `webhooks`
+  object, which most event-oriented tooling does not read.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

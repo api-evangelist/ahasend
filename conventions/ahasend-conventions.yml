@@ -1,0 +1,221 @@
+generated: '2026-08-30'
+method: searched
+source: https://ahasend.com/docs/api-reference
+sources:
+  - https://ahasend.com/docs/api-reference/authentication.md
+  - https://ahasend.com/docs/api-reference/idempotency.md
+  - https://ahasend.com/docs/api-reference/errors.md
+  - https://ahasend.com/docs/api-reference/rate-limits.md
+  - https://ahasend.com/docs/api-reference/scopes.md
+  - https://ahasend.com/docs/api-reference/messages/cancel-message.md
+  - openapi/_original/ahasend-openapi-v2.yaml
+provider: AhaSend
+providerId: ahasend
+description: >-
+  Cross-cutting runtime semantics for the AhaSend API v2 — how to authenticate, retry safely,
+  page, trace, and undo. Read from AhaSend's own API reference and confirmed against the
+  published OpenAPI 3.1 contract.
+base_url: https://api.ahasend.com/v2
+authentication:
+  style: bearer-token
+  header: 'Authorization: Bearer <api_key>'
+  key_prefix: aha-sk-
+  key_shape: aha-sk- followed by a 64-character random string
+  scheme_name: BearerAuth
+  scoped: true
+  ip_allow_list: >-
+    Each v2 API key may be pinned to up to 100 IPv4/IPv6 addresses or CIDR ranges. A request from
+    an IP outside a non-empty allow list is rejected on every endpoint regardless of scopes.
+  see: authentication/ahasend-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  methods: [POST]
+  key_format: any string up to 255 characters; AhaSend recommends a v4 UUID
+  scope: account
+  match_on:
+    - account id
+    - idempotency key
+    - request method and path including path parameters
+    - SHA-256 hash of the request body
+  retention: 24 hours
+  retention_exception: >-
+    API-key creation (createAPIKey and createSubAccountAPIKey) returns a one-time secret_key; its
+    replayable response is encrypted and expires after 5 MINUTES rather than 24 hours.
+  replay_signal:
+    header: Idempotent-Replayed
+    note: >-
+      Declared as a response header on 14 operations in the OpenAPI. This is the runtime signal an
+      agent needs to tell a fresh execution from a replay.
+  conflict_semantics:
+    409: A request with the same idempotency key is already in progress.
+    412: The original request with this key failed and cannot be retried.
+    422: The same key was reused with a different body, endpoint or resource.
+  retriable: >-
+    A 5xx or a never-completed attempt stores nothing, so an exact retry with the same key safely
+    re-executes.
+  operations_covered:
+    - createAPIKey
+    - createDomain
+    - createMessage
+    - createConversationMessage
+    - addAccountMember
+    - createSuppression
+    - createRoute
+    - createWebhook
+    - createSMTPCredential
+    - createSubAccount
+    - createSubAccountAPIKey
+pagination:
+  style: cursor
+  request_params:
+    limit: 1..100 (400 when outside the range)
+    after: opaque cursor from PaginationInfo.next_cursor
+    before: opaque cursor from PaginationInfo.previous_cursor
+  response_envelope: 'object: list, data: [...], pagination: {...}'
+  response_fields:
+    has_more: boolean
+    next_cursor: pass as `after`
+    previous_cursor: pass as `before`; absent once the start of the list is reached
+  note: >-
+    Cursor pagination throughout — no page/offset anywhere in the contract. Seven Paginated*
+    response schemas share one PaginationInfo shape.
+field_expansion:
+  supported: false
+  note: No expand / fields / sparse-fieldset parameter exists in the contract.
+filtering:
+  note: >-
+    Per-resource query filters rather than a general filter language — e.g. messages filter on
+    status, sender, recipient, subject, message_id_header, tags and from_time/to_time; webhooks
+    filter on enabled and per-event flags; routes filter on domain.
+metadata:
+  tags: >-
+    Messages carry a `tags` array that is settable on send and filterable on list — the closest
+    thing to user-defined metadata in the API.
+  substitutions: >-
+    createMessage accepts `substitutions` rendered into {{variable}} placeholders; the
+    conversational endpoint does NOT support substitutions.
+request_id_tracing:
+  supported: false
+  note: >-
+    No X-Request-Id / correlation header is documented or declared. The traceable identifiers are
+    domain objects instead: the message `id` returned on send, the `webhook-id` on every webhook
+    delivery (which doubles as the consumer's idempotency key), and Idempotent-Replayed on a
+    replayed create.
+versioning:
+  style: path
+  current: v2 (all paths prefixed /v2)
+  legacy: v1, documented as legacy and explicitly not for new integrations
+  see: lifecycle/ahasend-lifecycle.yml
+error_envelope:
+  format: bare-json
+  rfc9457: false
+  shape: '{"message": "human readable description"}'
+  stable_codes: false
+  note: >-
+    The contract says so in its own words: ErrorResponse's description states the server sends no
+    stable machine error code and that clients "must not parse `message`" to tell apart
+    IP-allow-list, scope, ownership, plan, self-lockout or suppression-duplicate errors that share
+    an HTTP status. An agent has the HTTP status and nothing else to branch on. This is the
+    clearest machine-readability gap in the API.
+  see: errors/ahasend-problem-types.yml
+rate_limit_signalling:
+  headers_documented: false
+  retry_after: Declared on the 429 of the three statistics operations only.
+  status: 429
+  see: rate-limits/ahasend-rate-limits.yml
+content_type:
+  request: application/json
+  response: application/json
+  note: Every one of the 323 declared responses is application/json. No XML, no form encoding.
+time_format: RFC 3339 throughout; a malformed time returns 400 with a message naming RFC3339.
+identifiers: UUID for account, domain, message, route, webhook, api-key and smtp-credential ids.
+dry_run_mode:
+  supported: true
+  mechanism: >-
+    Sandbox mode is a true dry run: `"sandbox": true` on a send request (or a sandbox-mode
+    credential) runs full validation, parsing and webhook emission and stops before delivery, at
+    no cost. `sandbox_result` forces the simulated outcome.
+  see: sandbox/ahasend-sandbox.yml
+reversibility:
+  grade: verified
+  applicable: true
+  summary: >-
+    AhaSend has a real write surface and publishes a reversal path for its highest-risk action
+    (sending), with a window stated in the contract itself. Suspension is reversible; deletion of
+    a sub account is a soft delete with no published restore endpoint, and domain, route, webhook
+    and SMTP-credential deletes are one-way.
+  operations:
+    - action: Send a scheduled message
+      write_operation: createMessage
+      reversal_operation: cancelMessage
+      reversal: DELETE /v2/accounts/{account_id}/messages/{message_id}/cancel
+      window: >-
+        Only while the message is still scheduled and unsent. The contract bounds that window
+        itself: `schedule.first_attempt` must be in the future and within 7 days of the request,
+        so the maximum cancellable interval is 7 days and the actual one ends at the scheduled
+        first attempt.
+      window_source: https://ahasend.com/docs/api-reference/messages/cancel-message.md
+      scope_required: 'messages:cancel:all or messages:cancel:{domain}'
+      grade: verified
+    - action: Send an immediate (unscheduled) message
+      write_operation: createMessage
+      reversal_operation: null
+      window: none
+      note: >-
+        An immediate send has no reversal. Idempotency prevents a double send; nothing recalls a
+        delivered message. Rehearse with sandbox mode before an unscheduled send.
+      grade: na
+    - action: Suspend a sub account
+      write_operation: suspendSubAccount
+      reversal_operation: unsuspendSubAccount
+      reversal: POST /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/unsuspend
+      window: >-
+        No time limit is stated; `suspended` is a documented sub-account status that the
+        unsuspend endpoint clears.
+      grade: documented
+    - action: Delete a sub account
+      write_operation: deleteSubAccount
+      reversal_operation: null
+      note: >-
+        Documented as a SOFT delete — the account moves to status `deleted` and is excluded from
+        the list endpoint, and its usage still bills to the parent through the
+        `removed_sub_accounts` aggregate. No restore endpoint is published, so from an API
+        consumer's point of view it is not reversible.
+      grade: documented
+    - action: Suppress an email address
+      write_operation: createSuppression
+      reversal_operation: deleteSuppression
+      reversal: DELETE /v2/accounts/{account_id}/suppressions?email=...
+      window: >-
+        Any time. Suppressions also carry their own `expires_at`, so a suppression can lapse on
+        its own as well as be removed.
+      grade: verified
+    - action: Wipe the whole suppression list
+      write_operation: deleteAllSuppressions
+      reversal_operation: null
+      note: >-
+        Destructive and irreversible — the account-wide bounce and complaint history that
+        protects sender reputation is gone. No undo, no confirmation parameter, and it is a
+        single DELETE. Treat as the most dangerous operation in the API.
+      grade: na
+    - action: Delete a domain, route, webhook or SMTP credential
+      write_operation: deleteDomain / deleteRoute / deleteWebhook / deleteSMTPCredential
+      reversal_operation: null
+      note: One-way. Re-creating a domain restarts DNS verification from scratch.
+      grade: na
+  data_reversibility: >-
+    Retention is configurable rather than reversible: message content can be set to 0 days on paid
+    plans, and once content is aged out it cannot be recovered from the API. S3 archiving to
+    customer-owned storage is the published way to keep a copy.
+cross_links:
+  errors: errors/ahasend-problem-types.yml
+  lifecycle: lifecycle/ahasend-lifecycle.yml
+  authentication: authentication/ahasend-authentication.yml
+  scopes: scopes/ahasend-scopes.yml
+  rate_limits: rate-limits/ahasend-rate-limits.yml
+  sandbox: sandbox/ahasend-sandbox.yml
+  webhooks: asyncapi/ahasend-webhooks.yml
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

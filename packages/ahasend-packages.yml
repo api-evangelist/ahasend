@@ -1,0 +1,139 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://ahasend.com/llms.txt (official SDK/integration list), https://ahasend.com/integration,
+  https://github.com/AhaSend, and the public registry metadata endpoints named on each entry.
+provider: AhaSend
+providerId: ahasend
+description: >-
+  First-party and community client libraries, CLI binaries and framework integrations for the
+  AhaSend transactional email API v2 and SMTP relay. Versions and publish dates were read from
+  each registry's own metadata endpoint on 2026-08-30.
+packages:
+  - name: '@ahasend/sdk'
+    language: TypeScript
+    registry: npm
+    url: https://www.npmjs.com/package/@ahasend/sdk
+    metadata_endpoint: https://registry.npmjs.org/@ahasend%2Fsdk
+    repository: https://github.com/AhaSend/ahasend-ts
+    official: true
+    version: 0.2.1
+    published: '2026-08-20'
+    note: >-
+      Official TypeScript/Node.js SDK, named in AhaSend's own llms.txt. Published from
+      the AhaSend/ahasend-ts repository via GitHub Actions.
+  - name: github.com/AhaSend/ahasend-go
+    language: Go
+    registry: go
+    url: https://pkg.go.dev/github.com/AhaSend/ahasend-go
+    metadata_endpoint: https://proxy.golang.org/github.com/!aha!send/ahasend-go/@latest
+    repository: https://github.com/AhaSend/ahasend-go
+    official: true
+    version: v0.2.0
+    published: '2026-08-20'
+    note: >-
+      Official Go SDK. The June 2026 changelog records Sub-Account and API-key IP allow-list
+      support landing in this SDK.
+  - name: github.com/AhaSend/ahasend-cli
+    language: Go
+    registry: go
+    url: https://pkg.go.dev/github.com/AhaSend/ahasend-cli
+    metadata_endpoint: https://proxy.golang.org/github.com/!aha!send/ahasend-cli/@latest
+    repository: https://github.com/AhaSend/ahasend-cli
+    official: true
+    kind: cli
+    version: v0.2.0
+    published: '2026-06-18'
+    note: >-
+      Official CLI, distributed both as a Go module and as pre-built binaries on the
+      GitHub releases page (linux/darwin/windows, amd64 + arm64). See cli/ahasend-cli.yml.
+  - name: symfony/aha-send-mailer
+    language: PHP
+    registry: packagist
+    url: https://packagist.org/packages/symfony/aha-send-mailer
+    metadata_endpoint: https://repo.packagist.org/p2/symfony/aha-send-mailer.json
+    repository: https://github.com/symfony/aha-send-mailer
+    official: true
+    version: v8.1.0
+    published: '2026-05-29'
+    note: >-
+      Symfony Mailer transport bridge. Published by the Symfony project rather than by
+      AhaSend, and listed by AhaSend's own llms.txt as the "Official AhaSend transport for
+      Symfony Mailer" — first-party by endorsement, upstream by maintenance.
+  - name: ahasend-email-api
+    language: PHP
+    registry: wordpress.org
+    url: https://wordpress.org/plugins/ahasend-email-api/
+    metadata_endpoint: https://api.wordpress.org/plugins/info/1.0/ahasend-email-api.json
+    official: true
+    version: '1.3'
+    published: '2025-05-30'
+    note: >-
+      Official WordPress plugin (author profile `ahasend`) that sends through the HTTP API.
+      Last released 2025-05-30, more than a year before API v2's Sub Accounts and IP
+      allow lists shipped — the oldest first-party artifact in this set.
+  - name: AhaSend/wordpress-plugin
+    language: PHP
+    registry: none
+    url: https://github.com/AhaSend/wordpress-plugin
+    official: true
+    version: null
+    published: null
+    note: >-
+      Official WordPress/WooCommerce SMTP plugin, distributed from GitHub only. No
+      wordpress.org listing under `ahasend-smtp` (404) and no Packagist entry, so there is
+      no registry metadata endpoint to read a version from. Repository last pushed
+      2025-05-30 per the GitHub API.
+  - name: AhaSend/ahasend-java-client
+    language: Java
+    registry: none
+    url: https://github.com/AhaSend/ahasend-java-client
+    official: true
+    version: null
+    published: null
+    note: >-
+      Official Java client, generated from the OpenAPI spec. A Maven Central search for
+      "ahasend" returns 0 artifacts (search.maven.org solrsearch, 2026-08-30), so the client
+      is source-only — a Java consumer has to build it themselves.
+  - name: payload-email-ahasend
+    language: TypeScript
+    registry: npm
+    url: https://www.npmjs.com/package/payload-email-ahasend
+    repository: https://github.com/eavan5/payload-email-ahasend
+    official: false
+    version: 2.0.0
+    published: '2026-03-09'
+    note: Community Payload CMS email adapter, linked from AhaSend's llms.txt as community-built.
+  - name: graystackit/laravel-ahasend-api
+    language: PHP
+    registry: packagist
+    url: https://packagist.org/packages/graystackit/laravel-ahasend-api
+    official: false
+    version: null
+    published: null
+    note: >-
+      Community Laravel integration found by Packagist search. Not listed by AhaSend and not
+      resolved to a released version here; recorded as a lead, not as a supported client.
+  - name: ghostfishing/ahasend-wordpress-plugin
+    language: PHP
+    registry: none
+    url: https://github.com/ghostfishing/ahasend-wordpress-plugin
+    official: false
+    version: null
+    published: null
+    note: Community WordPress plugin using the HTTP API, linked from AhaSend's llms.txt.
+gaps:
+  - >-
+    No Python SDK. pypi.org/pypi/ahasend/json returns 404 and AhaSend's own docs route Python
+    users at smtplib and the raw REST API.
+  - >-
+    No Ruby gem. rubygems.org/api/v1/gems/ahasend.json returns 404; Ruby is documented via
+    net/smtp, the Mail gem and ActionMailer.
+  - >-
+    No Maven Central artifact for the Java client, and no .NET/NuGet package — .NET is
+    documented through MailKit against the SMTP relay.
+  - >-
+    A Swoosh adapter for Elixir/Phoenix is described as "in progress" on the integrations page.
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

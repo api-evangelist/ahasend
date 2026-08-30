@@ -1,0 +1,188 @@
+# AhaSend
+
+> Email for developers.
+
+- [Introduction](https://ahasend.com/docs/index.md): Blazing fast transactional emails. Developer-friendly APIs and SMTP relay with fair, transparent pricing.
+- [Quickstart](https://ahasend.com/docs/quickstart.md): Send your first email in under 5 minutes with AhaSend
+- [Domain Setup](https://ahasend.com/docs/domains.md): Set up and verify your sending domains for optimal email deliverability with AhaSend
+- [SMTP Server Information](https://ahasend.com/docs/smtp/index.md): Complete guide to AhaSend SMTP servers, connection settings, limits, and response codes
+- [SMTP Credentials](https://ahasend.com/docs/smtp/credentials.md): Learn how to create and manage SMTP credentials for sending emails through AhaSend's SMTP relay
+- [Sandbox Mode](https://ahasend.com/docs/smtp/sandbox.md): Test your email integration safely with AhaSend's sandbox mode - simulate email sending without delivery and webhook testing at zero cost
+- [Special Email Headers](https://ahasend.com/docs/smtp/special-headers.md): Customize AhaSend's behavior with special email headers for tracking, sandbox mode, retention, and message tagging
+- [Send emails from the CLI](https://ahasend.com/docs/smtp/cli.md): Learn how to send emails using AhaSend SMTP from the command line with Swaks (Swiss Army Knife for SMTP)
+- [Sending emails in PHP](https://ahasend.com/docs/smtp/php.md): Learn how to send emails using AhaSend SMTP with PHP, including PHPMailer, Symfony Mailer, and Laravel configuration
+- [Sending emails in Go](https://ahasend.com/docs/smtp/golang.md): Learn how to send emails using AhaSend SMTP with Go, including net/smtp standard library and gomail.v2 package
+- [Sending emails in Node.js](https://ahasend.com/docs/smtp/nodejs.md): Learn how to send emails using AhaSend SMTP with Node.js and Nodemailer, the most popular email library for Node.js
+- [Sending emails in Python](https://ahasend.com/docs/smtp/python.md): Learn how to send emails using AhaSend SMTP with Python's built-in smtplib and email modules
+- [Sending emails in Ruby](https://ahasend.com/docs/smtp/ruby.md): Learn how to send emails using AhaSend SMTP with Ruby's net/smtp, Mail gem, and ActionMailer
+- [Sending emails in C#](https://ahasend.com/docs/smtp/dotnet.md): Learn how to send emails using AhaSend SMTP with C# and .NET, featuring MailKit for reliable SMTP integration
+- [Sending emails in Delphi](https://ahasend.com/docs/smtp/delphi.md): Learn how to send emails using AhaSend SMTP with Delphi and the Indy networking library
+- [API Keys](https://ahasend.com/docs/send-api/credentials.md): Learn how to create and manage API v2 keys for sending emails through AhaSend's advanced HTTP REST API
+- [Sandbox Mode](https://ahasend.com/docs/send-api/sandbox.md): Test your API v2 email integration safely with AhaSend's sandbox mode - simulate email sending without delivery and webhook testing at zero cost
+- [Send emails using the API](https://ahasend.com/docs/send-api/send-email.md): Learn how to send emails using AhaSend's API v2 create-message endpoint with comprehensive examples and best practices
+- [Open Tracking](https://ahasend.com/docs/tracking/open-tracking.md): Track email opens with AhaSend's open tracking feature - understand engagement, limitations, and implementation across SMTP and API
+- [Click Tracking](https://ahasend.com/docs/tracking/click-tracking.md): Track link clicks in your emails with AhaSend's click tracking feature - understand how it works, requirements, and implementation across SMTP and API
+- [Webhooks](https://ahasend.com/docs/integrations/webhooks.md): Receive real-time notifications about email events with AhaSend webhooks - track deliveries, bounces, opens, and more to automate your workflows
+- [Message Routing](https://ahasend.com/docs/integrations/routing.md): Automatically process inbound emails with AhaSend message routing - route emails to your applications for support tickets, replies, and automated workflows
+- [Delivery Status Notification Reports](https://ahasend.com/docs/integrations/dsn-reports.md): Generate RFC 3464 formatted bounce reports for enterprise compliance and monitoring
+- [Data Retention](https://ahasend.com/docs/retention/index.md): Customize how long AhaSend retains your email data and metadata to meet compliance requirements and privacy policies
+- [S3 Object Storage](https://ahasend.com/docs/retention/s3.md): Archive your email messages and delivery logs to S3-compatible object storage for long-term retention and compliance
+- [Two-Factor Authentication (2FA)](https://ahasend.com/docs/security/2fa.md): Secure your AhaSend account with time-based one-time passwords (TOTP) using authenticator apps
+- [2FA Enforcement](https://ahasend.com/docs/security/2fa-enforcement.md): Require all team members to enable two-factor authentication before accessing your AhaSend account
+- [Scoped API Keys](https://ahasend.com/docs/security/scoped-credentials.md): Control API access with domain restrictions and granular permissions for enhanced security
+- [IP Allow Lists](https://ahasend.com/docs/security/ip-allow-lists.md): Restrict which IP addresses can use an API key
+- [Reputation Shield](https://ahasend.com/docs/security/reputation-shield.md): Protect your sender reputation by automatically filtering toxic domains, temporary emails, and typo-squatted addresses
+- [OpenID Connect SSO](https://ahasend.com/docs/security/sso.md): Enable team login through your organization's identity provider with OpenID Connect SSO
+- [Sub Accounts](https://ahasend.com/docs/scale/sub-accounts.md): Provision isolated child accounts under one parent, each with its own domains, API keys, and sending, all under a single billing relationship.
+- [Dedicated IPs](https://ahasend.com/docs/scale/dedicated-ips.md): Get dedicated IP addresses for enhanced deliverability and sending reputation at scale
+- [IP Pool Management](https://ahasend.com/docs/scale/ip-pools.md): Organize dedicated IPs into pools for different email types and domains
+- [Bring Your Own IP (BYOIP)](https://ahasend.com/docs/scale/byoip.md): Use your own IP addresses for email sending with custom VPS infrastructure
+- [DNS Whitelabel](https://ahasend.com/docs/scale/dns-whitelabel.md): Use your own branded domain for all email authentication and tracking records
+- [Introduction](https://ahasend.com/docs/api-reference/index.md): Get started with AhaSend's powerful email delivery API. Send transactional emails, manage domains, and track delivery analytics.
+- [API Authentication](https://ahasend.com/docs/api-reference/authentication.md): Learn how to authenticate your requests using AhaSend API keys
+- [API Key Scopes](https://ahasend.com/docs/api-reference/scopes.md): Understand how API key scopes control access to resources and operations in AhaSend
+- [Rate limits](https://ahasend.com/docs/api-reference/rate-limits.md): Understanding AhaSend API rate limiting policies and best practices
+- [Request Idempotency](https://ahasend.com/docs/api-reference/idempotency.md): Ensure safe retries of API requests using idempotency keys
+- [Error Handling](https://ahasend.com/docs/api-reference/errors.md): Understanding error responses in the AhaSend API
+- [Create Message](https://ahasend.com/docs/api-reference/messages/create-message.md): Creates and sends a message to one or more recipients. This API cannot be used if you want to send a conversational/P2P message and set CC or BCC. Use [Create Conversation Message](https://ahasend.com/docs/api-reference/messages/create-conversation) instead.
+- [Create Conversational Message](https://ahasend.com/docs/api-reference/messages/create-conversation.md): Creates and sends a conversational message (with support for CC and BCC) to one or more recipients. This API does not support template substitutions, use [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) instead if you need substitutions.
+- [Get Message](https://ahasend.com/docs/api-reference/messages/get-message.md): Returns the complete message by its ID, including raw content and parsed content structure. Access requires `messages:read:all` or a read role matching the message's sender domain.
+- [List Messages](https://ahasend.com/docs/api-reference/messages/get-messages.md): Returns a list of message summaries for the account. Can be filtered by various parameters.
+- [Cancel Message](https://ahasend.com/docs/api-reference/messages/cancel-message.md): Cancels a scheduled message. Access requires `messages:cancel:all` or a cancel role matching the message's sender domain.
+- [Create Suppression](https://ahasend.com/docs/api-reference/suppressions/create-suppression.md): Creates a new suppression for an email address
+- [List Suppressions](https://ahasend.com/docs/api-reference/suppressions/get-suppressions.md): Returns a list of suppressions for the account
+- [Delete Suppression](https://ahasend.com/docs/api-reference/suppressions/delete-suppression.md): Deletes suppressions for an email address
+- [Delete All Suppressions](https://ahasend.com/docs/api-reference/suppressions/wipe-suppressions.md): Deletes all suppressions for the account
+- [Create SMTP Credential](https://ahasend.com/docs/api-reference/smtp-credentials/create-smtp-credential.md): Creates a new SMTP credential for SMTP authentication. A `scoped` credential requires at least one domain and the key must have write permission for every supplied domain. A `global` credential requires `smtp-credentials:write:all`; supplied domains are accepted but ignored, and the response contain…
+- [Get SMTP Credential](https://ahasend.com/docs/api-reference/smtp-credentials/get-smtp-credential.md): Returns a specific SMTP credential by ID. Access requires the global read role or a read role matching at least one associated domain.
+- [List SMTP Credentials](https://ahasend.com/docs/api-reference/smtp-credentials/get-smtp-credentials.md): Returns a list of SMTP credentials for the account. The global read role sees all credentials; domain-scoped roles return credentials associated with at least one authorized domain.
+- [Delete SMTP Credential](https://ahasend.com/docs/api-reference/smtp-credentials/delete-smtp-credential.md): Deletes an SMTP credential. Access requires the global delete role or a delete role matching at least one associated domain.
+- [Create Webhook](https://ahasend.com/docs/api-reference/webhooks/create-webhook.md): Creates a new webhook for event notifications. A `scoped` webhook requires at least one domain and the key must have write permission for every supplied domain. A `global` webhook requires `webhooks:write:all`; supplied domains are accepted but ignored, and the response contains `domains: []`.
+- [Get Webhook](https://ahasend.com/docs/api-reference/webhooks/get-webhook.md): Returns a specific webhook by ID. Access requires the global read role or a read role matching at least one associated domain.
+- [List Webhooks](https://ahasend.com/docs/api-reference/webhooks/get-webhooks.md): Returns a list of webhooks for the account
+- [Update Webhook](https://ahasend.com/docs/api-reference/webhooks/update-webhook.md): Updates an existing webhook. Omitted or null fields are unchanged. Omitted/null `domains` preserves associations, while `[]` clears the associations of a resulting-scoped webhook. Moving from global to scoped requires a non-empty `domains` array in the same request. Moving to global clears associati…
+- [Delete Webhook](https://ahasend.com/docs/api-reference/webhooks/delete-webhook.md): Deletes a webhook. Access requires the global delete role or a delete role matching at least one associated domain.
+- [Create Route](https://ahasend.com/docs/api-reference/routes/create-route.md): Creates a new route for inbound email routing. Authorization uses the domain in `recipient`: the global write role or its matching domain-specific write role is sufficient.
+- [Get Route](https://ahasend.com/docs/api-reference/routes/get-route.md): Returns a specific route by ID. Access requires the global read role or a read role matching the route's recipient domain.
+- [List Routes](https://ahasend.com/docs/api-reference/routes/get-routes.md): Returns a list of routes for the account. A domain-scoped key must provide the matching `domain` query parameter; the global read role can list without that filter.
+- [Update Route](https://ahasend.com/docs/api-reference/routes/update-route.md): Updates an existing route. A domain-scoped key must authorize the existing recipient domain and, when `recipient` changes, the new domain; `routes:write:all` satisfies both checks.
+- [Delete Route](https://ahasend.com/docs/api-reference/routes/delete-route.md): Deletes a route. Access requires the global delete role or a delete role matching the route's recipient domain.
+- [Create Domain](https://ahasend.com/docs/api-reference/domains/create-domain.md): Creates a new domain
+- [Get Domain](https://ahasend.com/docs/api-reference/domains/get-domain.md): Returns a specific domain by name
+- [List Domains](https://ahasend.com/docs/api-reference/domains/get-domains.md): Returns a list of domains for the account
+- [Update Domain](https://ahasend.com/docs/api-reference/domains/update-domain.md): Updates DNS domain settings such as custom subdomains and DKIM rotation interval.
+- [Check Domain DNS](https://ahasend.com/docs/api-reference/domains/check-dns.md): Triggers a DNS validation check for the domain. If the domain was checked within the last 60 seconds, the cached validation result is returned instead of performing a fresh lookup.
+- [Delete Domain](https://ahasend.com/docs/api-reference/domains/delete-domain.md): Deletes a domain
+- [Get Account Details](https://ahasend.com/docs/api-reference/accounts/get-account.md): Returns account information
+- [Update Account](https://ahasend.com/docs/api-reference/accounts/update-account.md): Updates account settings
+- [List Account Members](https://ahasend.com/docs/api-reference/accounts/get-account-members.md): Returns a list of account members
+- [Add Account Member](https://ahasend.com/docs/api-reference/accounts/create-account-member.md): Adds a new member to the account
+- [Remove Account Member](https://ahasend.com/docs/api-reference/accounts/delete-account-member.md): Removes a member from the account
+- [Sub Accounts API](https://ahasend.com/docs/api-reference/sub-accounts/overview.md): Create and manage isolated sub accounts under a parent account, provision their API keys, and track per-sub-account usage and allocated cost
+- [Create Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/create-sub-account.md): Creates a new sub account under the parent account
+- [List Sub Accounts](https://ahasend.com/docs/api-reference/sub-accounts/get-sub-accounts.md): Returns a cursor-paginated list of sub accounts under the parent account. Soft-deleted sub accounts are not included; usage billed for sub accounts deleted during the current period is reported by the usage endpoint's `removed_sub_accounts` aggregate.
+- [Get Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/get-sub-account.md): Returns a specific sub account under the parent account
+- [Update Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/update-sub-account.md): Updates a sub account's editable settings
+- [Suspend Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/suspend-sub-account.md): Suspends a sub account under the parent account
+- [Unsuspend Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/unsuspend-sub-account.md): Unsuspends a sub account under the parent account
+- [Delete Sub Account](https://ahasend.com/docs/api-reference/sub-accounts/delete-sub-account.md): Soft-deletes a sub account under the parent account
+- [Get Sub-Account Usage](https://ahasend.com/docs/api-reference/sub-accounts/get-sub-accounts-usage.md): Returns current billing-period usage and proportional allocated cost for the parent and active sub accounts
+- [Create Sub-Account API Key](https://ahasend.com/docs/api-reference/sub-accounts/create-sub-account-api-key.md): Creates an API key owned by the sub account. Parent credentials must belong to the parent account and include `sub-account-api-keys:write`; sub-account credentials cannot manage nested API keys. The returned `secret_key` authenticates as the child account and should be stored immediately.
+- [Get Sub-Account API Key](https://ahasend.com/docs/api-reference/sub-accounts/get-sub-account-api-key.md): Returns a specific API key owned by a sub account. The `secret_key` field is omitted from read responses.
+- [List Sub-Account API Keys](https://ahasend.com/docs/api-reference/sub-accounts/get-sub-account-api-keys.md): Returns a cursor-paginated list of API keys owned by a sub account. The `secret_key` field is omitted from list responses.
+- [Update Sub-Account API Key](https://ahasend.com/docs/api-reference/sub-accounts/update-sub-account-api-key.md): Updates the label and scopes for an API key owned by a sub account. Updated scopes are validated against the child account.
+- [Delete Sub-Account API Key](https://ahasend.com/docs/api-reference/sub-accounts/delete-sub-account-api-key.md): Deletes an API key owned by a sub account.
+- [Deliverability Reports](https://ahasend.com/docs/api-reference/reports/get-deliverability-report.md): Returns transactional deliverability statistics grouped by status
+- [Bounce Reports](https://ahasend.com/docs/api-reference/reports/get-bounce-report.md): Returns transactional bounce statistics grouped by classification
+- [Delivery Time Statistics](https://ahasend.com/docs/api-reference/reports/get-delivery-time-report.md): Returns transactional delivery time statistics grouped by recipient domain
+- [Create API Key](https://ahasend.com/docs/api-reference/api-keys/create-api-key.md): Creates a new API key with the specified scopes
+- [Get API Key](https://ahasend.com/docs/api-reference/api-keys/get-api-key.md): Returns a specific API key by ID
+- [List API Keys](https://ahasend.com/docs/api-reference/api-keys/get-api-keys.md): Returns a list of API keys for the account
+- [Update API Key](https://ahasend.com/docs/api-reference/api-keys/update-api-key.md): Updates an existing API key's label and scopes
+- [Delete API Key](https://ahasend.com/docs/api-reference/api-keys/delete-api-key.md): Deletes an API key
+- [Ping](https://ahasend.com/docs/api-reference/utility/ping.md): Health check endpoint for testing API connectivity and authentication
+- [Webhooks API](https://ahasend.com/docs/api-reference/webhooks/index.md): Real-time HTTP callbacks for email events following the Standard Webhooks specification
+- [Webhook Security and Verification](https://ahasend.com/docs/api-reference/webhooks/security.md)
+- [Webhook Delivery Retry Policy](https://ahasend.com/docs/api-reference/webhooks/retry-policy.md)
+- [Message Reception Webhook](https://ahasend.com/docs/api-reference/webhooks/message-reception.md): &nbsp;
+- [Message Delivery Webhook](https://ahasend.com/docs/api-reference/webhooks/message-delivered.md): &nbsp;
+- [Message Deferred Webhook](https://ahasend.com/docs/api-reference/webhooks/message-transient_error.md): &nbsp;
+- [Message Delivery Failed Webhook](https://ahasend.com/docs/api-reference/webhooks/message-failed.md): &nbsp;
+- [Message Bounce Webhook](https://ahasend.com/docs/api-reference/webhooks/message-bounced.md): &nbsp;
+- [Message Suppressed Webhook](https://ahasend.com/docs/api-reference/webhooks/message-suppressed.md): &nbsp;
+- [Message Opened Webhook](https://ahasend.com/docs/api-reference/webhooks/message-opened.md): &nbsp;
+- [Message Click Webhook](https://ahasend.com/docs/api-reference/webhooks/message-clicked.md): &nbsp;
+- [Suppression Created Webhook](https://ahasend.com/docs/api-reference/webhooks/suppression-created.md): &nbsp;
+- [Domain DNS Error Webhook](https://ahasend.com/docs/api-reference/webhooks/domain-dns_error.md): &nbsp;
+- [Message Routes API](https://ahasend.com/docs/api-reference/routes/index.md): Process inbound emails with configurable routing rules for support tickets, reply handling, and automated workflows
+- [Email Routing Security and Verification](https://ahasend.com/docs/api-reference/routes/security.md)
+- [Message Routing Retry Policy](https://ahasend.com/docs/api-reference/routes/retry-policy.md)
+- [Inbound Message Route Event](https://ahasend.com/docs/api-reference/routes/route-message.md): &nbsp;
+- [API v1 vs v2](https://ahasend.com/docs/api-reference/v1/v1-vs-v2.md): Compare AhaSend API v1 and v2 to choose the right version for your integration
+- [Send Email (APIv1 - Legacy)](https://ahasend.com/docs/api-reference/v1/index.md): Legacy API v1 for sending emails - simple and straightforward
+- [AhaSend CLI Overview](https://ahasend.com/docs/cli/index.md): Command-line interface for AhaSend's transactional email service
+- [Installation](https://ahasend.com/docs/cli/installation.md): Install the AhaSend CLI on your system
+- [Quick Start](https://ahasend.com/docs/cli/quickstart.md): Get started with the AhaSend CLI in minutes
+- [Authentication](https://ahasend.com/docs/cli/authentication.md): Manage API credentials and authentication profiles
+- [Configuration](https://ahasend.com/docs/cli/configuration.md): Configure the AhaSend CLI behavior and preferences
+- [Examples](https://ahasend.com/docs/cli/examples.md): Real-world examples and use cases for the AhaSend CLI
+- [Messages](https://ahasend.com/docs/cli/commands/messages.md): Send and manage email messages
+- [Domains](https://ahasend.com/docs/cli/commands/domains.md): Manage sending domains and DNS configuration
+- [Webhooks](https://ahasend.com/docs/cli/commands/webhooks.md): Configure and test webhook endpoints for real-time events
+- [Routes](https://ahasend.com/docs/cli/commands/routes.md): Manage inbound email routes for processing incoming messages
+- [Suppressions](https://ahasend.com/docs/cli/commands/suppressions.md): Manage email suppressions (bounces, complaints, unsubscribes)
+- [SMTP](https://ahasend.com/docs/cli/commands/smtp.md): Manage SMTP credentials for sending emails through AhaSend's SMTP service
+- [API Keys](https://ahasend.com/docs/cli/commands/apikeys.md): Manage API keys for authentication and access control
+- [Stats](https://ahasend.com/docs/cli/commands/stats.md): View email statistics and analytics
+- [Auth](https://ahasend.com/docs/cli/commands/auth.md): Manage authentication and profiles
+- [Ping](https://ahasend.com/docs/cli/commands/ping.md): Test connectivity to the AhaSend API and validate authentication
+- [Batch Processing](https://ahasend.com/docs/cli/batch-processing.md): Send high-volume emails efficiently with the CLI
+- [Template System](https://ahasend.com/docs/cli/templates.md): Using templates for personalized emails
+- [Webhook Testing](https://ahasend.com/docs/cli/webhook-testing.md): Test and debug webhooks locally with the CLI
+- [Route Testing](https://ahasend.com/docs/cli/route-testing.md): Test inbound email routing locally with the CLI
+- [Integration Guides](https://ahasend.com/docs/guides/index.md): Step-by-step guides for sending transactional email from your framework, runtime, deployment platform, or AI coding tool with the AhaSend SDKs.
+- [AhaSend Node.js SDK](https://ahasend.com/docs/guides/nodejs-sdk.md): The official Node.js and TypeScript SDK for AhaSend: a typed client, automatic retries with idempotency keys, and signed webhook verification.
+- [AhaSend Go SDK](https://ahasend.com/docs/guides/go-sdk.md): The official Go SDK for AhaSend: typed models for every endpoint, built-in retries and idempotency, and a Standard Webhooks verifier for any net/http router.
+- [How to Send Email with Astro](https://ahasend.com/docs/guides/astro.md): Send transactional email from Astro API endpoints in minutes with the AhaSend SDK, plus signed webhook handling: on-demand rendering, Node adapter.
+- [How to Send Email with AWS Lambda](https://ahasend.com/docs/guides/aws-lambda.md): Send transactional email from AWS Lambda with the AhaSend Node.js SDK, including bundling, environment config, and signed webhooks behind API Gateway.
+- [How to Send Email with Azure Functions (Go)](https://ahasend.com/docs/guides/azure-functions.md): Send transactional email from Azure Functions in Go using custom handlers and the AhaSend email API, with HMAC-verified delivery webhooks.
+- [How to Send Email with Bun](https://ahasend.com/docs/guides/bun.md): Send transactional email with Bun in minutes using the AhaSend SDK: a Bun.serve send route plus signed webhook verification, no shims required.
+- [How to Send Email with chi (Go)](https://ahasend.com/docs/guides/chi.md): Send transactional email from a chi (Go) app with the AhaSend email API: SDK setup, send handlers, and HMAC-verified delivery webhooks.
+- [How to Send Email with Cloudflare Workers](https://ahasend.com/docs/guides/cloudflare-workers.md): Send transactional email from Cloudflare Workers with the AhaSend SDK, which runs on workerd natively, plus signed webhook verification.
+- [How to Send Email with Deno Deploy](https://ahasend.com/docs/guides/deno-deploy.md): Send transactional email on Deno Deploy in minutes with the AhaSend SDK via npm specifiers, plus signed webhook handling, no build step required.
+- [How to Send Email with Echo (Go)](https://ahasend.com/docs/guides/echo.md): Send transactional email from an Echo (Go) app with the AhaSend email API: SDK setup, send handlers, and HMAC-verified delivery webhooks.
+- [How to Send Email with ElysiaJS](https://ahasend.com/docs/guides/elysiajs.md): Send transactional email from an ElysiaJS app on Bun in under 5 minutes with the AhaSend SDK, plus signed webhook verification.
+- [How to Send Email with Encore.ts](https://ahasend.com/docs/guides/encore.md): Send transactional email from an Encore.ts backend in minutes with the AhaSend SDK: typed endpoints, built-in secrets, and signed webhook handling.
+- [How to Send Email with Express](https://ahasend.com/docs/guides/express.md): Send transactional email from Express in under 5 minutes with the AhaSend Node.js SDK, plus signed webhook handling via the built-in Express adapter.
+- [How to Send Email with Fastify](https://ahasend.com/docs/guides/fastify.md): Send transactional email from Fastify in under 5 minutes with the AhaSend Node.js SDK, plus signed webhook handling via the built-in Fastify adapter.
+- [How to Send Email with Fiber (Go)](https://ahasend.com/docs/guides/fiber.md): Send transactional email from a Fiber (Go) app with the AhaSend email API, including fasthttp-safe webhook verification with verifier.Parse.
+- [How to Send Email with Gin (Go)](https://ahasend.com/docs/guides/gin.md): Send transactional email from a Gin (Go) app with the AhaSend email API: client setup, send handlers, and HMAC-verified delivery webhooks.
+- [How to Send Email with Cloud Run Functions (Go)](https://ahasend.com/docs/guides/google-cloud-functions.md): Send transactional email from Cloud Run functions in Go with the Functions Framework and the AhaSend Go SDK.
+- [How to Send Email with gorilla/mux (Go)](https://ahasend.com/docs/guides/gorilla-mux.md): Send transactional email from a gorilla/mux (Go) app with the AhaSend email API: SDK setup, send handlers, and HMAC-verified delivery webhooks.
+- [How to Send Email with Hono](https://ahasend.com/docs/guides/hono.md): Send transactional email from a Hono app with the AhaSend SDK, plus signed webhook verification.
+- [How to Send Email with Koa](https://ahasend.com/docs/guides/koa.md): Send transactional email from a Koa app with the AhaSend Node.js SDK: install, send from a route, and verify AhaSend webhooks with raw-body.
+- [How to Send Email with NestJS](https://ahasend.com/docs/guides/nestjs.md): Send transactional email from a NestJS app with the AhaSend email API: injectable service, controller route, and verified webhooks with rawBody.
+- [How to Send Email with Next.js](https://ahasend.com/docs/guides/nextjs.md): Send transactional email from Next.js App Router route handlers and Server Actions with the AhaSend SDK, plus verified webhooks via nextRouteHandler.
+- [How to Send Email with Nuxt](https://ahasend.com/docs/guides/nuxt.md): Send transactional email from Nuxt server routes with the AhaSend TypeScript SDK, map runtimeConfig env vars, and verify webhooks in Nitro.
+- [How to Send Email with Railway](https://ahasend.com/docs/guides/railway.md): Deploy a Node.js app that sends transactional email with the AhaSend SDK to Railway: set variables, expose a public webhook URL, and go live.
+- [How to Send Email with Remix](https://ahasend.com/docs/guides/remix.md): Send transactional email from React Router framework actions and resource routes with the AhaSend SDK, including bounded, replay-safe webhook handling.
+- [How to Send Email with SvelteKit](https://ahasend.com/docs/guides/sveltekit.md): Send transactional email from SvelteKit server endpoints with the AhaSend TypeScript SDK, keep keys in private env modules, and verify webhooks.
+- [How to Send Email with Vercel](https://ahasend.com/docs/guides/vercel.md): Deploy email-sending apps to Vercel with the AhaSend SDK, environment variables, safe preview deployments, and verified webhook endpoints.
+- [How to Send Email with Vite](https://ahasend.com/docs/guides/vite.md): Send transactional email from a Vite app safely: an Express backend holds the AhaSend API key while the browser calls an authenticated endpoint.
+- [How to Send Email from a Bolt.new Project](https://ahasend.com/docs/guides/bolt-new.md): Add transactional email to a Bolt.new app with the AhaSend SDK, using a Bolt or Supabase server function or a Node backend, with the key stored where the send runs.
+- [How to Build a Transactional Email Workflow with Claude](https://ahasend.com/docs/guides/claude.md): Use Claude to plan, write, and run a complete transactional email workflow on AhaSend with the Node.js SDK, verified in sandbox before any real mail goes out.
+- [How to Add Email to Your App with Cursor](https://ahasend.com/docs/guides/cursor.md): Give Cursor's agent the real AhaSend SDK as standing context, so the transactional email integration it writes compiles, sends, and survives production.
+- [How to Add Email to Your App with GitHub Copilot](https://ahasend.com/docs/guides/github-copilot.md): Delegate an AhaSend transactional email integration to GitHub's Copilot cloud agent, then review the pull request for correctness and credential safety.
+- [How to Send Email from a Lovable App](https://ahasend.com/docs/guides/lovable.md): Add transactional email to a Lovable app: send from a Supabase Edge Function with the AhaSend SDK, with your key kept in Lovable Cloud secrets.
+- [How to Send Email from a v0-Generated App](https://ahasend.com/docs/guides/v0.md): Add transactional email to a v0 Next.js app with the AhaSend SDK: send from a Route Handler, with your API key out of the bundle.
+- [How to Build Email Features with Windsurf](https://ahasend.com/docs/guides/windsurf.md): Ground Windsurf's Cascade agent in the AhaSend Node.js SDK, then capture the transactional email integration as a Workflow you can replay on demand.
+- [Product Updates](https://ahasend.com/docs/changelog.md): New releases and improvements
+- [Roadmap](https://ahasend.com/docs/roadmap.md): Where AhaSend is headed, from active work to future ideas.
+- [Set up your domains](https://ahasend.com/docs/domains/index.md): This is the introduction to the documentation
+
+## OpenAPI Specs
+
+- [openapi](/docs/api-reference/openapi.json)
+- [openapi-v1](/docs/openapi-v1.yaml)
+- [openapi](/docs/openapi.yaml)
+- [webhooks](/docs/webhooks.yaml)

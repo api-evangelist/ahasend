@@ -1,0 +1,2006 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Accounts Sub Accounts API
+  description: "The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and\
+    \ view statistics.\n\n## Authentication\nAll API requests must be authenticated using a Bearer token in the Authorization\
+    \ header:\n```\nAuthorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING\n```\n\n## Scopes\nAPI keys have specific scopes\
+    \ that control access to different resources and actions:\n\n### Message Scopes\n- `messages:send:all` - Send messages\
+    \ from any domain in the account\n- `messages:send:{domain}` - Send messages from a specific domain\n- `messages:cancel:all`\
+    \ - Cancel messages from any domain\n- `messages:cancel:{domain}` - Cancel messages from a specific domain\n- `messages:read:all`\
+    \ - Read messages from any domain\n- `messages:read:{domain}` - Read messages from a specific domain\n\n### Domain Scopes\n\
+    - `domains:read` - Read all domains\n- `domains:write` - Create and update domains\n- `domains:delete:all` - Delete any\
+    \ domain\n- `domains:delete:{domain}` - Delete a specific domain\n\n### Account Scopes\n- `accounts:read` - Read account\
+    \ information\n- `accounts:write` - Update account settings\n- `accounts:billing` - Access billing information\n- `accounts:members:read`\
+    \ - Read account members\n- `accounts:members:add` - Add account members\n- `accounts:members:update` - Update account\
+    \ members\n- `accounts:members:remove` - Remove account members\n\n### Webhook Scopes\n- `webhooks:read:all` - Read all\
+    \ webhooks\n- `webhooks:read:{domain}` - Read webhooks for a specific domain\n- `webhooks:write:all` - Create and update\
+    \ webhooks\n- `webhooks:write:{domain}` - Create and update webhooks for a specific domain\n- `webhooks:delete:all` -\
+    \ Delete any webhook\n- `webhooks:delete:{domain}` - Delete webhooks for a specific domain\n\n### Route Scopes\n- `routes:read:all`\
+    \ - Read all routes\n- `routes:read:{domain}` - Read routes for a specific domain\n- `routes:write:all` - Create and update\
+    \ routes\n- `routes:write:{domain}` - Create and update routes for a specific domain\n- `routes:delete:all` - Delete any\
+    \ route\n- `routes:delete:{domain}` - Delete routes for a specific domain\n\n### Suppression Scopes\n- `suppressions:read`\
+    \ - Read suppressions\n- `suppressions:write` - Create suppressions\n- `suppressions:delete` - Delete suppressions\n-\
+    \ `suppressions:wipe` - Delete all suppressions (dangerous)\n\n### SMTP Credentials Scopes\n- `smtp-credentials:read:all`\
+    \ - Read all SMTP credentials\n- `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain\n- `smtp-credentials:write:all`\
+    \ - Create SMTP credentials\n- `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain\n- `smtp-credentials:delete:all`\
+    \ - Delete any SMTP credentials\n- `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain\n\
+    \n### Statistics Scopes\n- `statistics-transactional:read:all` - Read all transactional statistics\n- `statistics-transactional:read:{domain}`\
+    \ - Read transactional statistics for a specific domain\n\n### API Key Scopes\n- `api-keys:read` - Read API keys\n- `api-keys:write`\
+    \ - Create and update API keys\n- `api-keys:delete` - Delete API keys\n\n### Sub-Account Scopes\n- `sub-accounts:read`\
+    \ - List and read sub accounts under the parent\n- `sub-accounts:write` - Create and update sub accounts\n- `sub-accounts:delete`\
+    \ - Soft-delete sub accounts\n- `sub-accounts:suspend` - Suspend and unsuspend sub accounts\n- `sub-accounts:usage` -\
+    \ Read per-sub-account usage and allocated cost\n- `sub-account-api-keys:read` - List and read API keys owned by sub accounts\n\
+    - `sub-account-api-keys:write` - Create and update API keys owned by sub accounts\n- `sub-account-api-keys:delete` - Delete\
+    \ API keys owned by sub accounts\n\n## Rate Limiting\n- General API endpoints: 100 requests per second, 200 burst\n- Statistics\
+    \ endpoints: 1 request per second, 1 burst\n\n## Pagination\nList endpoints use cursor-based pagination with the following\
+    \ parameters:\n- `limit`: Maximum number of items to return (default: 100, max: 100)\n- `after`: Pass `pagination.next_cursor`\
+    \ to fetch the next page\n- `before`: Pass `pagination.previous_cursor` to fetch the previous page\n\n`after` and `before`\
+    \ are mutually exclusive. A legacy `cursor` query may be\naccepted by parts of the server for backwards compatibility,\
+    \ but it is not\npart of the v2 public contract.\n\n## Time Formats\nAll timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`\n\
+    \n## Idempotency\nThe operations that explicitly declare the optional `Idempotency-Key`\nheader support idempotency. Other\
+    \ POST operations do not gain idempotency\nimplicitly. When the header is provided:\n- A fresh execution does not return\
+    \ `Idempotent-Replayed`.\n- A completed stored response is replayed with its original status and body\n  and `Idempotent-Replayed:\
+    \ true`.\n- An unexpired in-progress execution returns HTTP 409 with\n  `Idempotent-Replayed: false` and a positive integer\
+    \ `Retry-After` header.\n- Reusing a key with a different HTTP method, resolved request path, or\n  request body returns\
+    \ HTTP 422. That response has neither\n  `Idempotent-Replayed` nor `Retry-After`.\n- For ordinary idempotent operations,\
+    \ deterministic 2xx and 4xx outcomes\n  produced after the idempotency middleware are stored and replayed.\n  Authentication\
+    \ and IP-allow-list failures happen before idempotency and\n  are therefore not stored.\n- The two secret-bearing API-key\
+    \ create operations use manual encrypted\n  completion. They store and replay a successful 201, including the same\n \
+    \ one-time `secret_key`; a controller-produced 4xx is not stored and leaves\n  the key in progress until its execution\
+    \ lease expires.\n- Server errors (5xx), handler failures, and panics are not stored. The key\n  is released so retrying\
+    \ the same request with the same key re-executes it.\n  The v2 API does not use an HTTP 412 failed-key tombstone.\n- Idempotency\
+    \ keys for non-secret responses expire after 24 hours.\n- Encrypted API-key creation replay responses expire after 5 minutes.\n\
+    \n## IP Allow Lists\nEach API key can carry an `ip_allow_list`: a set of source IPs that restrict where the key may authenticate\
+    \ from.\n- Entries are CIDR blocks (e.g. `203.0.113.0/24`) or bare IPv4/IPv6 addresses (stored as a `/32` or `/128`).\
+    \ They are canonicalized and de-duplicated; the allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100\
+    \ entries are allowed after de-duplication (a longer list is rejected with HTTP 400).\n- An empty list (the default) places\
+    \ no restriction.\n- When the list is non-empty, any authenticated request whose client IP is not covered by an entry\
+    \ is rejected with HTTP 403 on every v2 endpoint, regardless of the key's scopes.\n- Manage the list with the `ip_allow_list`\
+    \ field on the API-key create and update endpoints (including the sub-account API-key endpoints).\n- When a key updates\
+    \ its own `ip_allow_list` to a value that excludes the caller's current IP, the update is rejected with HTTP 409 to prevent\
+    \ self-lockout. Updating a sub-account key from a parent key has no such guard.\n"
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Sub Accounts
+  description: Provision and manage isolated sub accounts under a parent account, including their API keys and usage.
+paths:
+  /v2/accounts/{account_id}/sub-accounts:
+    get:
+      summary: List Sub Accounts
+      description: Returns a cursor-paginated list of sub accounts under the parent account. Soft-deleted sub accounts are
+        not included; usage billed for sub accounts deleted during the current period is reported by the usage endpoint's
+        `removed_sub_accounts` aggregate.
+      operationId: listSubAccounts
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value from `next_cursor` in the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value from `previous_cursor` in the response.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - sub-accounts:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"\
+          github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\
+          \n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"\
+          aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx\
+          \ := context.Background()\n\n  // List sub accounts (limit results to 50 per page)\n  response, httpResp, err :=\
+          \ client.SubAccountsAPI.ListSubAccounts(ctx, accountID, &common.PaginationParams{Limit: ahasend.Int32(50)})\n  if\
+          \ err != nil {\n    log.Fatalf(\"Error listing sub accounts: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200\
+          \ {\n    fmt.Printf(\"✅ Sub accounts listed! Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"Found %d sub\
+          \ accounts\\n\", len(response.Data))\n    for _, sub := range response.Data {\n      fmt.Printf(\"- ID: %s, Name:\
+          \ %s, Status: %s\\n\", sub.ID, sub.Name, sub.Status)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code:\
+          \ %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.subAccounts.list({ limit: 20 });
+
+          console.log("Sub-accounts listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: List of sub accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubAccountsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Parent account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Sub Account
+      description: Creates a new sub account under the parent account
+      operationId: createSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - sub-accounts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"\
+          github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\
+          \n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"\
+          aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx\
+          \ := context.Background()\n\n  // Create a sub account with an idempotency key for safe retries\n  response, httpResp,\
+          \ err := client.SubAccountsAPI.CreateSubAccount(ctx, accountID, requests.CreateSubAccountRequest{\n    Name:   \
+          \       \"Acme Subsidiary\",\n    Website:       \"acme.example.com\",\n    MonthlyCredit: ahasend.Int64(0),\n \
+          \ }, api.WithIdempotencyKey(\"subacct-20240101-acme\"))\n  if err != nil {\n    log.Fatalf(\"Error creating sub\
+          \ account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Sub account created! Status:\
+          \ %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"\
+          Name: %s\\n\", response.Name)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n    }\n  } else {\n    fmt.Printf(\"\
+          ❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccount\
+          \ = await client.subAccounts.create(\n  { name: \"Example subsidiary\", website: \"subsidiary.example.com\" },\n\
+          \  { idempotencyKey: \"sdk-sample-create-sub-account\" },\n);\nconsole.log(\"Sub-account created.\", { id: subAccount.id,\
+          \ status: subAccount.status });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubAccountRequest'
+      responses:
+        '201':
+          description: Sub account created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Parent account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/usage:
+    get:
+      summary: Get Sub-Account Usage
+      description: Returns current billing-period usage and proportional allocated cost for the parent and active sub accounts
+      operationId: getSubAccountsUsage
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:usage
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context\
+          \ for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.GetSubAccountsUsage(ctx,\
+          \ accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting sub-accounts usage: %v\", err)\n  }\n\n  if httpResp.StatusCode\
+          \ == 200 {\n    fmt.Printf(\"✅ Retrieved sub-accounts usage! Status: %d\\n\", httpResp.StatusCode)\n    if response\
+          \ != nil {\n      fmt.Printf(\"Currency: %s\\n\", response.Currency)\n      fmt.Printf(\"Allocation method: %s\\\
+          n\", response.AllocationMethod)\n      fmt.Printf(\"Total reception count: %d\\n\", response.Total.ReceptionCount)\n\
+          \      fmt.Printf(\"Total allocated cost: %.2f\\n\", response.Total.AllocatedCost)\n\n      fmt.Printf(\"Sub-accounts:\
+          \ %d\\n\", len(response.SubAccounts))\n      for i, sub := range response.SubAccounts {\n        fmt.Printf(\" \
+          \ [%d] reception count: %d, allocated cost: %.2f\\n\", i, sub.ReceptionCount, sub.AllocatedCost)\n      }\n    }\n\
+          \  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst usage =\
+          \ await client.subAccounts.usage();\nconsole.log(\"Sub-account usage loaded.\", {\n  currency: usage.currency,\n\
+          \  subAccountCount: usage.sub_accounts.length,\n});\n"
+      responses:
+        '200':
+          description: Sub-account usage breakdown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccountUsageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Parent account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}:
+    get:
+      summary: Get Sub Account
+      description: Returns a specific sub account under the parent account
+      operationId: getSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\
+          \n  // Create context for the API call\n  ctx := context.Background()\n\n  // Get a single sub account by ID\n \
+          \ response, httpResp, err := client.SubAccountsAPI.GetSubAccount(\n    ctx,\n    accountID,\n    subAccountID,\n\
+          \  )\n  if err != nil {\n    log.Fatalf(\"Error getting sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode\
+          \ == 200 {\n    fmt.Printf(\"✅ Retrieved sub account. Status: %d\\n\", httpResp.StatusCode)\n    if response !=\
+          \ nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      fmt.Printf(\"\
+          Website: %s\\n\", response.Website)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n      fmt.Printf(\"Domain\
+          \ count: %d\\n\", response.DomainCount)\n      fmt.Printf(\"Member count: %d\\n\", response.MemberCount)\n    }\n\
+          \  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const subAccount = await client.subAccounts.get(subAccountId);
+
+          console.log("Sub-account found.", { id: subAccount.id, status: subAccount.status });
+
+          '
+      responses:
+        '200':
+          description: Sub account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Sub Account
+      description: Updates a sub account's editable settings
+      operationId: updateSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"\
+          github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\
+          \n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"\
+          aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create\
+          \ context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.UpdateSubAccount(ctx,\
+          \ accountID, subAccountID, requests.UpdateSubAccountRequest{Name: ahasend.String(\"Acme Subsidiary\"), MonthlyCredit:\
+          \ ahasend.Int64(50000)})\n  if err != nil {\n    log.Fatalf(\"Error updating sub account: %v\", err)\n  }\n\n  if\
+          \ httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub account updated! Status: %d\\n\", httpResp.StatusCode)\n\
+          \    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n\
+          \      fmt.Printf(\"MonthlyCredit: %d\\n\", response.MonthlyCredit)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected\
+          \ status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId\
+          \ = \"00000000-0000-4000-8000-000000000004\";\nconst subAccount = await client.subAccounts.update(subAccountId,\
+          \ {\n  name: \"Renamed subsidiary\",\n});\nconsole.log(\"Sub-account updated.\", { id: subAccount.id, status: subAccount.status\
+          \ });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubAccountRequest'
+      responses:
+        '200':
+          description: Sub account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Sub Account
+      description: Soft-deletes a sub account under the parent account
+      operationId: deleteSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:delete
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\
+          \n  // Create context for the API call\n  ctx := context.Background()\n\n  // Soft-delete the sub account\n  response,\
+          \ httpResp, err := client.SubAccountsAPI.DeleteSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n   \
+          \ log.Fatalf(\"Error deleting sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"\
+          ✅ Sub account deleted! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil && response.Message != \"\"\
+          \ {\n      fmt.Printf(\"Response: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status\
+          \ code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const result = await client.subAccounts.delete(subAccountId);
+
+          console.log("Sub-account deleted.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Sub account deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: sub account deleted
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/suspend:
+    post:
+      summary: Suspend Sub Account
+      description: Suspends a sub account under the parent account
+      operationId: suspendSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:suspend
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create\
+          \ API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"\
+          ),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx\
+          \ := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.SuspendSubAccount(ctx, accountID,\
+          \ subAccountID, requests.SuspendSubAccountRequest{\n    Reason: \"Customer requested temporary pause\",\n  })\n\
+          \  if err != nil {\n    log.Fatalf(\"Error suspending sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode ==\
+          \ 200 {\n    fmt.Printf(\"✅ Sub account suspended. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\\
+          n\", response.ID)\n    fmt.Printf(\"Status: %s\\n\", response.Status)\n  } else {\n    fmt.Printf(\"❌ Unexpected\
+          \ status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId\
+          \ = \"00000000-0000-4000-8000-000000000004\";\nconst subAccount = await client.subAccounts.suspend(subAccountId,\
+          \ {\n  reason: \"Requested by account administrator\",\n});\nconsole.log(\"Sub-account suspended.\", { id: subAccount.id,\
+          \ status: subAccount.status });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuspendSubAccountRequest'
+      responses:
+        '200':
+          description: Sub account suspended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/unsuspend:
+    post:
+      summary: Unsuspend Sub Account
+      description: Unsuspends a sub account under the parent account
+      operationId: unsuspendSubAccount
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-accounts:suspend
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\
+          \n  // Create context for the API call\n  ctx := context.Background()\n\n  // Unsuspend the sub account\n  response,\
+          \ httpResp, err := client.SubAccountsAPI.UnsuspendSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n\
+          \    log.Fatalf(\"Error unsuspending sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"\
+          ✅ Sub account unsuspended! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"\
+          Sub Account ID: %s\\n\", response.ID)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n    }\n  } else {\n\
+          \    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const subAccount = await client.subAccounts.unsuspend(subAccountId);
+
+          console.log("Sub-account unsuspended.", { id: subAccount.id, status: subAccount.status });
+
+          '
+      responses:
+        '200':
+          description: Sub account unsuspended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/api-keys:
+    get:
+      summary: List Sub-Account API Keys
+      description: Returns a cursor-paginated list of API keys owned by a sub account. The `secret_key` field is omitted from
+        list responses.
+      operationId: listSubAccountAPIKeys
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value from `next_cursor` in the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value from `previous_cursor` in the response.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - sub-account-api-keys:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"\
+          github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\
+          \n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"\
+          aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create\
+          \ context for the API call\n  ctx := context.Background()\n\n  // List a sub-account's API keys (paginated, up to\
+          \ 50 per page).\n  // Note: secret_key is omitted from list responses; only create returns it once.\n  response,\
+          \ httpResp, err := client.SubAccountsAPI.ListSubAccountAPIKeys(\n    ctx,\n    accountID,\n    subAccountID,\n \
+          \   &common.PaginationParams{Limit: ahasend.Int32(50)},\n  )\n  if err != nil {\n    log.Fatalf(\"Error listing\
+          \ sub-account API keys: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Listed sub-account\
+          \ API keys. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d API keys\\\
+          n\", len(response.Data))\n      for _, key := range response.Data {\n        fmt.Printf(\"API key %s: %s\\n\", key.ID,\
+          \ key.Label)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n\
+          \  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const page = await client.subAccounts.apiKeys.list(subAccountId, { limit: 20 });
+
+          console.log("Sub-account API keys listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: List of sub-account API keys
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAPIKeysResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Sub-Account API Key
+      description: 'Creates an API key owned by the sub account. Parent credentials must belong to the parent account and
+        include `sub-account-api-keys:write`; sub-account credentials cannot manage nested API keys. The returned `secret_key`
+        authenticates as the child account and should be stored immediately.
+
+
+        Bootstrap example:
+
+        1. Create the sub account with `POST /v2/accounts/{account_id}/sub-accounts` and a unique `Idempotency-Key`.
+
+        2. Create the bootstrap child API key with this endpoint and a different unique `Idempotency-Key`.
+
+        3. Store the one-time `secret_key` from the `201` response. Exact idempotent replays within 5 minutes return the same
+        `secret_key`.
+
+        4. Use that child secret with the child `sub_account_id` as the `account_id` on ordinary v2 routes.
+
+        '
+      operationId: createSubAccountAPIKey
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - sub-account-api-keys:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create\
+          \ API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"\
+          ),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx\
+          \ := context.Background()\n\n  // Bootstrap an API key for the sub-account (idempotency key makes retries safe)\n\
+          \  response, httpResp, err := client.SubAccountsAPI.CreateSubAccountAPIKey(\n    ctx,\n    accountID,\n    subAccountID,\n\
+          \    requests.CreateAPIKeyRequest{\n      Label:  \"Bootstrap key\",\n      Scopes: []string{\"messages:send:all\"\
+          , \"domains:read\"},\n      // Optional: restrict the sub-account key to specific source IPs.\n      IPAllowList:\
+          \ []string{\"203.0.113.0/24\"},\n    },\n    api.WithIdempotencyKey(\"child-bootstrap-key-20240101-acme\"),\n  )\n\
+          \  if err != nil {\n    log.Fatalf(\"Error creating sub-account API key: %v\", err)\n  }\n\n  if httpResp.StatusCode\
+          \ == 201 {\n    fmt.Printf(\"✅ Sub-account API key created. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"\
+          ID: %s\\n\", response.ID)\n    fmt.Printf(\"Label: %s\\n\", response.Label)\n    fmt.Printf(\"Public key: %s\\n\"\
+          , response.PublicKey)\n    // SecretKey is the one-time secret, returned ONLY on create.\n    if response.SecretKey\
+          \ != nil {\n      // Store this value immediately — it cannot be retrieved again later.\n      fmt.Printf(\"Secret\
+          \ key (store this now, shown only once): %s\\n\", *response.SecretKey)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected\
+          \ status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: shell
+        label: Bootstrap child API key
+        source: "PARENT_ACCOUNT_ID=\"9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1\"\nPARENT_SECRET=\"aha-sk-parent-64-character-key\"\
+          \n\ncurl -sS -X POST \"https://api.ahasend.com/v2/accounts/${PARENT_ACCOUNT_ID}/sub-accounts\" \\\n  -H \"Authorization:\
+          \ Bearer ${PARENT_SECRET}\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Idempotency-Key: subacct-20240101-acme\"\
+          \ \\\n  -d '{\"name\":\"Acme Subsidiary\",\"website\":\"acme.example.com\"}' \\\n  > sub-account.json\n\nCHILD_ACCOUNT_ID=\"\
+          $(jq -r '.id' sub-account.json)\"\n\ncurl -sS -X POST \"https://api.ahasend.com/v2/accounts/${PARENT_ACCOUNT_ID}/sub-accounts/${CHILD_ACCOUNT_ID}/api-keys\"\
+          \ \\\n  -H \"Authorization: Bearer ${PARENT_SECRET}\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Idempotency-Key:\
+          \ child-bootstrap-key-20240101-acme\" \\\n  -d '{\"label\":\"Bootstrap key\",\"scopes\":[\"messages:send:all\",\"\
+          domains:read\"]}' \\\n  > child-api-key.json\n\nCHILD_SECRET=\"$(jq -r '.secret_key' child-api-key.json)\"\nprintf\
+          \ 'Store this one-time child secret securely: %s\\n' \"${CHILD_SECRET}\"\n\ncurl -sS \"https://api.ahasend.com/v2/accounts/${CHILD_ACCOUNT_ID}/domains\"\
+          \ \\\n  -H \"Authorization: Bearer ${CHILD_SECRET}\"\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId\
+          \ = \"00000000-0000-4000-8000-000000000004\";\nconst apiKey = await client.subAccounts.apiKeys.create(\n  subAccountId,\n\
+          \  { label: \"Bootstrap key\", scopes: [\"messages:send:all\"] },\n  { idempotencyKey: \"sdk-sample-create-sub-account-api-key\"\
+          \ },\n);\nconsole.log(\"Sub-account API key created.\", { id: apiKey.id, label: apiKey.label });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAPIKeyRequest'
+            example:
+              label: Bootstrap key
+              scopes:
+              - messages:send:all
+              - domains:read
+      responses:
+        '201':
+          description: Sub-account API key created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/APIKey'
+                - type: object
+                  required:
+                  - secret_key
+                  properties:
+                    secret_key:
+                      type: string
+                      readOnly: true
+                      description: 'One-time secret key. Store it immediately. Exact
+
+                        successful idempotent replays return the same secret
+
+                        during the 5-minute encrypted replay window.
+
+                        '
+              example:
+                object: api_key
+                id: 13b3aa8e-78d3-48a1-92d2-4b8b1228c2dd
+                created_at: '2024-01-01T00:05:00Z'
+                updated_at: '2024-01-01T00:05:00Z'
+                last_used_at: null
+                account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+                label: Bootstrap key
+                public_key: aha-pk-child-public-key
+                secret_key: aha-sk-child-secret-key
+                scopes:
+                - id: c574470d-76ef-4f74-9b24-70a583a17e03
+                  created_at: '2024-01-01T00:05:00Z'
+                  updated_at: '2024-01-01T00:05:00Z'
+                  api_key_id: 13b3aa8e-78d3-48a1-92d2-4b8b1228c2dd
+                  scope: messages:send:all
+                  domain_id: null
+                ip_allow_list: []
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/api-keys/{key_id}:
+    get:
+      summary: Get Sub-Account API Key
+      description: Returns a specific API key owned by a sub account. The `secret_key` field is omitted from read responses.
+      operationId: getSubAccountAPIKey
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - name: key_id
+        in: path
+        required: true
+        description: API key ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-account-api-keys:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\
+          \  keyID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Get a single\
+          \ sub-account API key\n  response, httpResp, err := client.SubAccountsAPI.GetSubAccountAPIKey(\n    ctx,\n    accountID,\n\
+          \    subAccountID,\n    keyID,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting sub-account API key: %v\"\
+          , err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved sub-account\
+          \ API key. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n\
+          \      fmt.Printf(\"Label: %s\\n\", response.Label)\n      fmt.Printf(\"PublicKey: %s\\n\", response.PublicKey)\n\
+          \      fmt.Printf(\"Scopes: %d\\n\", len(response.Scopes))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status\
+          \ code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const keyId = "00000000-0000-4000-8000-000000000005";
+
+          const apiKey = await client.subAccounts.apiKeys.get(subAccountId, keyId);
+
+          console.log("Sub-account API key found.", { id: apiKey.id, label: apiKey.label });
+
+          '
+      responses:
+        '200':
+          description: Sub-account API key details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKey'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: API key or sub account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Sub-Account API Key
+      description: Updates the label and scopes for an API key owned by a sub account. Updated scopes are validated against
+        the child account.
+      operationId: updateSubAccountAPIKey
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - name: key_id
+        in: path
+        required: true
+        description: API key ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-account-api-keys:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"\
+          github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\
+          \n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"\
+          aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n  keyID := uuid.New()\n\
+          \n  // Create context for the API call\n  ctx := context.Background()\n\n  // IPAllowList replaces the allowed source\
+          \ IPs; use &[]string{} to\n  // clear it (any IP), or omit it to leave the current list unchanged.\n  response,\
+          \ httpResp, err := client.SubAccountsAPI.UpdateSubAccountAPIKey(ctx, accountID, subAccountID, keyID, requests.UpdateAPIKeyRequest{Label:\
+          \ ahasend.String(\"Updated bootstrap key\"), Scopes: &[]string{\"messages:send:all\", \"domains:read\"}, IPAllowList:\
+          \ &[]string{\"203.0.113.0/24\"}})\n  if err != nil {\n    log.Fatalf(\"Error updating sub-account API key: %v\"\
+          , err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub-account API key updated. Status: %d\\n\"\
+          , httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Label: %s\\n\", response.Label)\n\
+          \    fmt.Printf(\"Scopes: %d\\n\", len(response.Scopes))\n  } else {\n    fmt.Printf(\"❌ Unexpected status code:\
+          \ %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId\
+          \ = \"00000000-0000-4000-8000-000000000004\";\nconst keyId = \"00000000-0000-4000-8000-000000000005\";\nconst apiKey\
+          \ = await client.subAccounts.apiKeys.update(subAccountId, keyId, {\n  label: \"Renamed bootstrap key\",\n});\nconsole.log(\"\
+          Sub-account API key updated.\", { id: apiKey.id, label: apiKey.label });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAPIKeyRequest'
+            example:
+              label: Updated bootstrap key
+              scopes:
+              - messages:send:all
+              - domains:read
+      responses:
+        '200':
+          description: Sub-account API key updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKey'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: API key or sub account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Sub-Account API Key
+      description: Deletes an API key owned by a sub account.
+      operationId: deleteSubAccountAPIKey
+      tags:
+      - Sub Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - name: key_id
+        in: path
+        required: true
+        description: API key ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - sub-account-api-keys:delete
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n\
+          \  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n\
+          \    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\
+          \  keyID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp,\
+          \ err := client.SubAccountsAPI.DeleteSubAccountAPIKey(ctx, accountID, subAccountID, keyID)\n  if err != nil {\n\
+          \    log.Fatalf(\"Error deleting sub-account API key: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n   \
+          \ fmt.Printf(\"✅ Sub-account API key deleted. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n\
+          \      fmt.Printf(\"Message: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status\
+          \ code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const keyId = "00000000-0000-4000-8000-000000000005";
+
+          const result = await client.subAccounts.apiKeys.delete(subAccountId, keyId);
+
+          console.log("Sub-account API key deleted.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Sub-account API key deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: api key {id} ({label}) deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: API key or sub account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  headers:
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  schemas:
+    APIKey:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - api_key
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the API key
+        created_at:
+          type: string
+          format: date-time
+          description: When the API key was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the API key was last updated
+        last_used_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the API key was last used (updates every 5-10 minutes)
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this API key belongs to
+        label:
+          type: string
+          description: Human-readable label for the API key
+        public_key:
+          type: string
+          description: Public portion of the API key
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKeyScope'
+          description: Scopes granted to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Source IPs allowed to authenticate with this API key, as canonical CIDR blocks (a bare address is stored
+            as a `/32` for IPv4 or `/128` for IPv6). Always present; an empty array means the key may be used from any source
+            IP. When non-empty, an authenticated request whose client IP is not covered by an entry is rejected with HTTP
+            403 on every v2 endpoint, regardless of the key's scopes.
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - last_used_at
+      - account_id
+      - label
+      - public_key
+      - scopes
+      - ip_allow_list
+    APIKeyScope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the scope
+        created_at:
+          type: string
+          format: date-time
+          description: When the scope was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the scope was last updated
+        api_key_id:
+          type: string
+          format: uuid
+          description: ID of the API key this scope belongs to
+        scope:
+          type: string
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
+      required:
+      - id
+      - created_at
+      - updated_at
+      - api_key_id
+      - scope
+      - domain_id
+    CreateAPIKeyRequest:
+      type: object
+      required:
+      - label
+      - scopes
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key; must not be empty
+        scopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g.
+            `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits
+            are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries
+            are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
+      example:
+        label: Production API Key
+        scopes:
+        - messages:send:all
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+        - 198.51.100.7
+    CreateSubAccountRequest:
+      type: object
+      required:
+      - name
+      - website
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result
+            must not be blank
+        website:
+          type: string
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          default: 0
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 0
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    PaginatedAPIKeysResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    PaginatedSubAccountsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubAccount'
+          description: Array of sub accounts
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has
+            been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    SubAccount:
+      type: object
+      required:
+      - object
+      - id
+      - parent_account_id
+      - name
+      - website
+      - status
+      - monthly_credit
+      - created_at
+      - domain_count
+      - member_count
+      - last_activity_at
+      properties:
+        object:
+          type: string
+          enum:
+          - sub_account
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the sub account
+        parent_account_id:
+          type: string
+          format: uuid
+          description: Parent account ID
+        created_at:
+          type: string
+          format: date-time
+          description: When the sub account was created
+        name:
+          type: string
+          description: Sub account name
+        website:
+          type: string
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          - parent-suspended
+          - deleted
+          description: Current sub-account status
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional monthly cap; 0 means no cap
+        domain_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of domains owned by the sub account
+        member_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of direct members on the sub account
+        last_activity_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Last recorded sub-account email activity
+      example:
+        object: sub_account
+        id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+        parent_account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+        name: Acme Subsidiary
+        website: acme.example.com
+        status: active
+        monthly_credit: 0
+        created_at: '2024-01-01T00:00:00Z'
+        domain_count: 2
+        member_count: 3
+        last_activity_at: '2024-01-15T12:00:00Z'
+    SubAccountUsageBreakdown:
+      type: object
+      required:
+      - reception_count
+      - allocated_cost
+      properties:
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID for this usage bucket
+        name:
+          type: string
+          description: Sub account name when this bucket is for a sub account
+        reception_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of received messages in the billing period
+        allocated_cost:
+          type: number
+          format: double
+          minimum: 0
+          description: Proportional allocated cost for this usage bucket
+      example:
+        account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+        name: Acme Subsidiary
+        reception_count: 3000000
+        allocated_cost: 60.0
+    SubAccountUsageResponse:
+      type: object
+      required:
+      - billing_period
+      - currency
+      - allocation_method
+      - allocation_note
+      - parent
+      - sub_accounts
+      - removed_sub_accounts
+      - total
+      properties:
+        billing_period:
+          type: object
+          required:
+          - start
+          - end
+          properties:
+            start:
+              type: string
+              format: date-time
+              description: Billing period start
+            end:
+              type: string
+              format: date-time
+              description: Billing period end
+        currency:
+          type: string
+          description: Currency code used for cost allocation
+        allocation_method:
+          type: string
+          enum:
+          - proportional
+          description: Method used to allocate the pooled parent invoice cost
+        allocation_note:
+          type: string
+          description: Disclaimer explaining that allocated cost is not standalone sub-account pricing
+        parent:
+          allOf:
+          - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          - type: object
+            required:
+            - account_id
+        sub_accounts:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+            - type: object
+              required:
+              - account_id
+              - name
+          description: Per-sub-account usage and allocated cost
+        removed_sub_accounts:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          description: Aggregated usage from sub accounts deleted during the period; still billed to the parent and not identified
+            individually
+        total:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+      example:
+        billing_period:
+          start: '2024-01-01T00:00:00Z'
+          end: '2024-02-01T00:00:00Z'
+        currency: usd
+        allocation_method: proportional
+        allocation_note: allocated_cost is a proportional share of the parent's pooled invoice for the period, not what the
+          sub would pay on its own plan.
+        parent:
+          account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+          reception_count: 1000000
+          allocated_cost: 20.0
+        sub_accounts:
+        - account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+          name: Acme Subsidiary
+          reception_count: 3000000
+          allocated_cost: 60.0
+        removed_sub_accounts:
+          reception_count: 0
+          allocated_cost: 0.0
+        total:
+          reception_count: 4000000
+          allocated_cost: 80.0
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    SuspendSubAccountRequest:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reason shown on the sub account suspension record
+      example:
+        reason: Customer requested temporary pause
+    UpdateAPIKeyRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current
+        value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - label
+        properties:
+          label:
+            type: string
+      - required:
+        - scopes
+        properties:
+          scopes:
+            type: array
+      - required:
+        - ip_allow_list
+        properties:
+          ip_allow_list:
+            type: array
+      properties:
+        label:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key. Omit to keep the existing label.
+        scopes:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and
+            de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send
+            null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty
+            array to replace it.
+      example:
+        label: Updated API Key
+        scopes:
+        - messages:send:{example.com}
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+    UpdateSubAccountRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current
+        value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - name
+        properties:
+          name:
+            type: string
+      - required:
+        - website
+        properties:
+          website:
+            type: string
+      - required:
+        - monthly_credit
+        properties:
+          monthly_credit:
+            type: integer
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result
+            must not be blank
+        website:
+          type:
+          - string
+          - 'null'
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 50000
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '
