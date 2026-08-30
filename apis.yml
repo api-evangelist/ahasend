@@ -235,7 +235,7 @@ apis:
   humanURL: https://ahasend.com/docs/api-reference/sub-accounts/overview
   baseURL: https://api.ahasend.com
   tags:
-  - SubAccounts
+  - Sub Accounts
   tags_raw:
   - Sub Accounts
   properties:
