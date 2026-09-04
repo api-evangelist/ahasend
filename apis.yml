@@ -288,13 +288,17 @@ accessModel:
   source:
   - plans
   - authentication
-  generated: '2026-07-22'
+  - scopes
+  - rate-limits
+  - security
+  - sandbox
+  generated: '2026-09-03'
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ahasend.png
 access: 3rd-Party
 created: '2025-02-06'
 modified: '2026-08-30'
-position: Consumer
+position: Consuming
 description: >-
   AhaSend is a developer-focused transactional email platform providing fast, reliable email delivery via REST API and
   SMTP relay. It offers features including email tracking, webhooks, email routing, suppression management, domain
