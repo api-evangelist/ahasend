@@ -229,20 +229,16 @@ apis:
     url: https://ahasend.com/docs/quickstart
   - type: Authentication
     url: https://ahasend.com/docs/api-reference/authentication
-- aid: ahasend:ahasend-sub-accounts-api
-  name: AhaSend Sub Accounts API
-  description: Provision and manage isolated sub accounts under a parent account, their API keys, and their usage.
-  humanURL: https://ahasend.com/docs/api-reference/sub-accounts/overview
+- aid: ahasend:ahasend-subaccounts-api
+  name: AhaSend Subaccounts API
+  description: The Subaccounts API from AhaSend — 7 operation(s) for subaccounts.
+  humanURL: https://ahasend.com/docs
   baseURL: https://api.ahasend.com
   tags:
   - Subaccounts
-  tags_raw:
-  - Sub Accounts
   properties:
   - type: OpenAPI
-    url: openapi/ahasend-sub-accounts-api-openapi.yml
-  - type: Overlay
-    url: overlays/ahasend-sub-accounts-overlay.yaml
+    url: openapi/ahasend-subaccounts-api-openapi.yml
   - type: Documentation
     url: https://ahasend.com/docs
   - type: APIReference
@@ -312,6 +308,8 @@ maintainers:
     email: kin@apievangelist.com
 specificationVersion: '0.23'
 common:
+  - type: Overlay
+    url: overlays/ahasend-sub-accounts-overlay.yaml
   - type: Website
     url: https://ahasend.com/
   - type: TrustCenter
