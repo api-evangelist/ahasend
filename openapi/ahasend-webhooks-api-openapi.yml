@@ -1,176 +1,7 @@
 openapi: 3.2.0
 info:
-  title: AhaSend API v2 Accounts Webhooks API
-  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
-
-
-    ## Authentication
-
-    All API requests must be authenticated using a Bearer token in the Authorization header:
-
-    ```
-
-    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
-
-    ```
-
-
-    ## Scopes
-
-    API keys have specific scopes that control access to different resources and actions:
-
-
-    ### Message Scopes
-
-    - `messages:send:all` - Send messages from any domain in the account
-
-    - `messages:send:{domain}` - Send messages from a specific domain
-
-    - `messages:cancel:all` - Cancel messages from any domain
-
-    - `messages:cancel:{domain}` - Cancel messages from a specific domain
-
-    - `messages:read:all` - Read messages from any domain
-
-    - `messages:read:{domain}` - Read messages from a specific domain
-
-
-    ### Domain Scopes
-
-    - `domains:read` - Read all domains
-
-    - `domains:write` - Create and update domains
-
-    - `domains:delete:all` - Delete any domain
-
-    - `domains:delete:{domain}` - Delete a specific domain
-
-
-    ### Account Scopes
-
-    - `accounts:read` - Read account information
-
-    - `accounts:write` - Update account settings
-
-    - `accounts:billing` - Access billing information
-
-    - `accounts:members:read` - Read account members
-
-    - `accounts:members:add` - Add account members
-
-    - `accounts:members:update` - Update account members
-
-    - `accounts:members:remove` - Remove account members
-
-
-    ### Webhook Scopes
-
-    - `webhooks:read:all` - Read all webhooks
-
-    - `webhooks:read:{domain}` - Read webhooks for a specific domain
-
-    - `webhooks:write:all` - Create and update webhooks
-
-    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
-
-    - `webhooks:delete:all` - Delete any webhook
-
-    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
-
-
-    ### Route Scopes
-
-    - `routes:read:all` - Read all routes
-
-    - `routes:read:{domain}` - Read routes for a specific domain
-
-    - `routes:write:all` - Create and update routes
-
-    - `routes:write:{domain}` - Create and update routes for a specific domain
-
-    - `routes:delete:all` - Delete any route
-
-    - `routes:delete:{domain}` - Delete routes for a specific domain
-
-
-    ### Suppression Scopes
-
-    - `suppressions:read` - Read suppressions
-
-    - `suppressions:write` - Create suppressions
-
-    - `suppressions:delete` - Delete suppressions
-
-    - `suppressions:wipe` - Delete all suppressions (dangerous)
-
-
-    ### SMTP Credentials Scopes
-
-    - `smtp-credentials:read:all` - Read all SMTP credentials
-
-    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
-
-    - `smtp-credentials:write:all` - Create SMTP credentials
-
-    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
-
-    - `smtp-credentials:delete:all` - Delete any SMTP credentials
-
-    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
-
-
-    ### Statistics Scopes
-
-    - `statistics-transactional:read:all` - Read all transactional statistics
-
-    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
-
-
-    ### API Key Scopes
-
-    - `api-keys:read` - Read API keys
-
-    - `api-keys:write` - Create and update API keys
-
-    - `api-keys:delete` - Delete API keys
-
-
-    ## Rate Limiting
-
-    - General API endpoints: 100 requests per second, 200 burst
-
-    - Statistics endpoints: 1 request per second, 1 burst
-
-
-    ## Pagination
-
-    List endpoints use cursor-based pagination with the following parameters:
-
-    - `limit`: Maximum number of items to return (default: 100, max: 100)
-
-    - `cursor`: Pagination cursor for the next page
-
-
-    ## Time Formats
-
-    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
-
-
-    ## Idempotency
-
-    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
-
-    - The same request can be safely retried multiple times
-
-    - Duplicate requests return the same response with `Idempotent-Replayed: true`
-
-    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
-
-    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
-
-    - Idempotency keys expire after 24 hours
-
-    '
+  title: AhaSend API v2 Webhooks API
+  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -188,8 +19,13 @@ tags:
 paths:
   /v2/accounts/{account_id}/webhooks:
     get:
-      summary: AhaSend Get Webhooks
+      summary: Get Webhooks
       description: 'Returns a list of webhooks for the account
+
+
+        The global read role sees all webhooks. Domain-scoped read roles return
+
+        only webhooks associated with at least one authorized domain.
 
 
         **Query Parameters:**
@@ -200,9 +36,9 @@ paths:
 
         - `limit`: Maximum number of items to return (1-100, default: 100)
 
-        - `cursor`: Pagination cursor for the next page
+        - `after`: Pagination cursor for the next page
 
-        '
+        - `before`: Pagination cursor for the previous page'
       operationId: getWebhooks
       tags:
       - Webhooks
@@ -214,73 +50,61 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: enabled
         in: query
         description: Filter by enabled status
         schema:
           type: boolean
-        example: true
       - name: on_reception
         in: query
         description: Filter by reception event trigger
         schema:
           type: boolean
-        example: true
       - name: on_delivered
         in: query
         description: Filter by delivery event trigger
         schema:
           type: boolean
-        example: true
       - name: on_transient_error
         in: query
         description: Filter by transient error event trigger
         schema:
           type: boolean
-        example: true
       - name: on_failed
         in: query
         description: Filter by failure event trigger
         schema:
           type: boolean
-        example: true
       - name: on_bounced
         in: query
         description: Filter by bounce event trigger
         schema:
           type: boolean
-        example: true
       - name: on_suppressed
         in: query
         description: Filter by suppression event trigger
         schema:
           type: boolean
-        example: true
       - name: on_opened
         in: query
         description: Filter by open event trigger
         schema:
           type: boolean
-        example: true
       - name: on_clicked
         in: query
         description: Filter by click event trigger
         schema:
           type: boolean
-        example: true
       - name: on_suppression_created
         in: query
         description: Filter by suppression creation event trigger
         schema:
           type: boolean
-        example: true
       - name: on_dns_error
         in: query
         description: Filter by DNS error event trigger
         schema:
           type: boolean
-        example: true
       - name: limit
         in: query
         description: Maximum number of items to return (1-100)
@@ -289,27 +113,37 @@ paths:
           minimum: 1
           maximum: 100
           default: 100
-        example: 1
       - name: after
         in: query
         description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
         schema:
           type: string
-        example: example_value
       - name: before
         in: query
         description: Pagination cursor for the previous page.
         schema:
           type: string
-        example: example_value
       security:
       - BearerAuth:
         - webhooks:read:all
+      - BearerAuth:
         - webhooks:read:{domain}
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.GetWebhooks(\n    ctx,\n    accountID,\n    api.GetWebhooksParams{\n      Limit: ahasend.Int32(100),\n    },\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting webhooks: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d webhooks\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.webhooks.list({ limit: 20 });
+
+          console.log("Webhooks listed.", { count: page.data.length });
+
+          '
       responses:
         '200':
           description: List of webhooks
@@ -317,72 +151,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedWebhooksResponse'
-              examples:
-                getWebhooks200Example:
-                  summary: Default getWebhooks 200 response
-                  x-microcks-default: true
-                  value:
-                    object: list
-                    data:
-                    - {}
-                    pagination:
-                      has_more: {}
-                      next_cursor: {}
-                      previous_cursor: {}
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhooks400Example:
-                  summary: Default getWebhooks 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhooks401Example:
-                  summary: Default getWebhooks 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhooks403Example:
-                  summary: Default getWebhooks 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhooks500Example:
-                  summary: Default getWebhooks 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     post:
-      summary: AhaSend Create Webhook
-      description: Creates a new webhook for event notifications
+      summary: Create Webhook
+      description: 'Creates a new webhook for event notifications. A `scoped` webhook
+
+        requires at least one domain and the key must have write permission for
+
+        every supplied domain. A `global` webhook requires
+
+        `webhooks:write:all`; supplied domains are accepted but ignored, and
+
+        the response contains `domains: []`.'
       operationId: createWebhook
       tags:
       - Webhooks
@@ -394,17 +197,19 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - $ref: '#/components/parameters/IdempotencyKey'
-        example: example
       security:
       - BearerAuth:
         - webhooks:write:all
+      - BearerAuth:
         - webhooks:write:{domain}
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.CreateWebhook(\n    ctx,\n    accountID,\n    requests.CreateWebhookRequest{\n      Name:   \"Failures\",\n      URL:    \"https://mystartup.com/webhook\",\n      Enabled: true,\n      OnBounced: true,\n      OnTransientError: true,\n      OnFailed: true,\n    },\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.CreateWebhook(\n    ctx,\n    accountID,\n    requests.CreateWebhookRequest{\n      Name:   \"Failures\",\n      URL:    \"https://mystartup.com/webhook\",\n      Scope:  \"global\",\n      Enabled: true,\n      OnBounced: true,\n      OnTransientError: true,\n      OnFailed: true,\n    },\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst webhook = await client.webhooks.create(\n  {\n    name: \"Delivery events\",\n    url: \"https://example.com/webhooks/ahasend\",\n    scope: \"global\",\n    on_delivered: true,\n  },\n  { idempotencyKey: \"sdk-sample-create-webhook\" },\n);\nconsole.log(\"Webhook created.\", { id: webhook.id, name: webhook.name });\n"
       requestBody:
         required: true
         content:
@@ -420,76 +225,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Webhook'
-              examples:
-                createWebhook201Example:
-                  summary: Default createWebhook 201 response
-                  x-microcks-default: true
-                  value:
-                    object: webhook
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    name: Example Name
+                $ref: '#/components/schemas/CreatedWebhook'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createWebhook400Example:
-                  summary: Default createWebhook 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createWebhook401Example:
-                  summary: Default createWebhook 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createWebhook403Example:
-                  summary: Default createWebhook 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '409':
           $ref: '#/components/responses/IdempotencyConflict'
-        '412':
-          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createWebhook500Example:
-                  summary: Default createWebhook 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
   /v2/accounts/{account_id}/webhooks/{webhook_id}:
     get:
-      summary: AhaSend Get Webhook
-      description: Returns a specific webhook by ID
+      summary: Get Webhook
+      description: 'Returns a specific webhook by ID. Access requires the global read role
+
+        or a read role matching at least one associated domain.'
       operationId: getWebhook
       tags:
       - Webhooks
@@ -501,7 +271,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: webhook_id
         in: path
         required: true
@@ -509,15 +278,29 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - webhooks:read:all
+      - BearerAuth:
         - webhooks:read:{domain}
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.GetWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const webhookId = "00000000-0000-4000-8000-000000000007";
+
+          const webhook = await client.webhooks.get(webhookId);
+
+          console.log("Webhook found.", { id: webhook.id, name: webhook.name });
+
+          '
       responses:
         '200':
           description: Webhook details
@@ -525,87 +308,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Webhook'
-              examples:
-                getWebhook200Example:
-                  summary: Default getWebhook 200 response
-                  x-microcks-default: true
-                  value:
-                    object: webhook
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    name: Example Name
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhook400Example:
-                  summary: Default getWebhook 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhook401Example:
-                  summary: Default getWebhook 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhook403Example:
-                  summary: Default getWebhook 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: Webhook not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhook404Example:
-                  summary: Default getWebhook 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getWebhook500Example:
-                  summary: Default getWebhook 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     put:
-      summary: AhaSend Update Webhook
-      description: 'Updates an existing webhook
+      summary: Update Webhook
+      description: 'Updates an existing webhook. Omitted or null fields are unchanged.
+
+        Omitted/null `domains` preserves associations, while `[]` clears the
+
+        associations of a resulting-scoped webhook. Moving from global to
+
+        scoped requires a non-empty `domains` array in the same request. Moving
+
+        to global clears associations and ignores supplied domains.
 
 
-        **Note:** The webhook secret is not updatable
+        A domain-scoped key must be authorized for the existing webhook and
 
-        '
+        every newly supplied domain; changing to global requires
+
+        `webhooks:write:all`.
+
+
+        **Note:** The webhook secret is not updatable'
       operationId: updateWebhook
       tags:
       - Webhooks
@@ -617,7 +370,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: webhook_id
         in: path
         required: true
@@ -625,15 +377,18 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - webhooks:write:all
+      - BearerAuth:
         - webhooks:write:{domain}
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.UpdateWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    requests.UpdateWebhookRequest{\n      Name:      ahasend.String(\"Failures\"),\n      URL:       ahasend.String(\"https://mystartup.com/webhook\"),\n      Enabled:   ahasend.Bool(true),\n      OnBounced: ahasend.Bool(true),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Updated webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst webhookId = \"00000000-0000-4000-8000-000000000007\";\nconst webhook = await client.webhooks.update(webhookId, {\n  name: \"Transactional delivery events\",\n});\nconsole.log(\"Webhook updated.\", { id: webhook.id, name: webhook.name });\n"
       requestBody:
         required: true
         content:
@@ -647,82 +402,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Webhook'
-              examples:
-                updateWebhook200Example:
-                  summary: Default updateWebhook 200 response
-                  x-microcks-default: true
-                  value:
-                    object: webhook
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    name: Example Name
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateWebhook400Example:
-                  summary: Default updateWebhook 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateWebhook401Example:
-                  summary: Default updateWebhook 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateWebhook403Example:
-                  summary: Default updateWebhook 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: Webhook not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateWebhook404Example:
-                  summary: Default updateWebhook 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateWebhook500Example:
-                  summary: Default updateWebhook 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     delete:
-      summary: AhaSend Delete Webhook
-      description: Deletes a webhook
+      summary: Delete Webhook
+      description: 'Deletes a webhook. Access requires the global delete role or a delete
+
+        role matching at least one associated domain.'
       operationId: deleteWebhook
       tags:
       - Webhooks
@@ -734,7 +448,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: webhook_id
         in: path
         required: true
@@ -742,15 +455,29 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - webhooks:delete:all
+      - BearerAuth:
         - webhooks:delete:{domain}
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.DeleteWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const webhookId = "00000000-0000-4000-8000-000000000007";
+
+          const result = await client.webhooks.delete(webhookId);
+
+          console.log("Webhook deleted.", { message: result.message });
+
+          '
       responses:
         '200':
           description: Webhook deleted successfully
@@ -758,99 +485,180 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
-              examples:
-                deleteWebhook200Example:
-                  summary: Default deleteWebhook 200 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteWebhook400Example:
-                  summary: Default deleteWebhook 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteWebhook401Example:
-                  summary: Default deleteWebhook 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteWebhook403Example:
-                  summary: Default deleteWebhook 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: Webhook not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteWebhook404Example:
-                  summary: Default deleteWebhook 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteWebhook500Example:
-                  summary: Default deleteWebhook 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
 components:
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
   schemas:
-    SuccessResponse:
+    CreateWebhookRequest:
       type: object
       required:
-      - message
+      - name
+      - url
+      - scope
       properties:
-        message:
+        name:
           type: string
-          description: Success message
-          example: example_value
-      example:
-        message: Operation completed successfully
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
+          maxLength: 255
+          description: Webhook name
+        url:
           type: string
-          description: Error description
-          example: example_value
+          format: uri
+          description: Webhook URL
+        enabled:
+          type: boolean
+          description: Whether the webhook is enabled
+          default: true
+        on_reception:
+          type: boolean
+          description: Trigger on message reception
+          default: false
+        on_delivered:
+          type: boolean
+          description: Trigger on message delivery
+          default: false
+        on_transient_error:
+          type: boolean
+          description: Trigger on transient errors
+          default: false
+        on_failed:
+          type: boolean
+          description: Trigger on permanent failures
+          default: false
+        on_bounced:
+          type: boolean
+          description: Trigger on bounces
+          default: false
+        on_suppressed:
+          type: boolean
+          description: Trigger on suppressions
+          default: false
+        on_opened:
+          type: boolean
+          description: Trigger on opens
+          default: false
+        on_clicked:
+          type: boolean
+          description: Trigger on clicks
+          default: false
+        on_suppression_created:
+          type: boolean
+          description: Trigger on suppression creation
+          default: false
+        on_dns_error:
+          type: boolean
+          description: Trigger on DNS errors
+          default: false
+        scope:
+          type: string
+          enum:
+          - global
+          - scoped
+          description: Webhook scope
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'For `scoped`, a non-empty array is required. For `global`, this may
+
+            be omitted, null, empty, or non-empty; supplied values are accepted
+
+            but ignored.
+
+            '
+      allOf:
+      - if:
+          properties:
+            scope:
+              const: scoped
+          required:
+          - scope
+        then:
+          required:
+          - domains
+          properties:
+            domains:
+              type: array
+              minItems: 1
+              items:
+                type: string
       example:
-        message: Error message
+        name: Delivery Webhook
+        url: https://example.com/webhook
+        scope: global
+        enabled: true
+        on_delivered: true
+    CreatedWebhook:
+      allOf:
+      - $ref: '#/components/schemas/Webhook'
+      - type: object
+        properties:
+          secret:
+            type: string
+            description: Webhook signing secret. Returned only when the webhook is created.
+        required:
+        - secret
     PaginatedWebhooksResponse:
       type: object
       required:
@@ -863,20 +671,165 @@ components:
           enum:
           - list
           description: Object type identifier
-          example: list
         data:
           type: array
           items:
             $ref: '#/components/schemas/Webhook'
           description: Array of webhooks
-          example:
-          - object: webhook
-            id: '500123'
-            created_at: '2025-03-15T14:30:00Z'
-            updated_at: '2025-03-15T14:30:00Z'
-            name: Example Name
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    UpdateWebhookRequest:
+      type: object
+      description: 'Partial update. Omitted and null scalar fields leave their stored values
+
+        unchanged. Domain transition rules depend on the webhook''s existing
+
+        scope and are described on `domains`.
+
+        '
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Webhook name
+        url:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: Webhook URL
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the webhook is enabled
+        on_reception:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message reception
+        on_delivered:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message delivery
+        on_transient_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on transient errors
+        on_failed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on permanent failures
+        on_bounced:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on bounces
+        on_suppressed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppressions
+        on_opened:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on opens
+        on_clicked:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on clicks
+        on_suppression_created:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppression creation
+        on_dns_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on DNS errors
+        scope:
+          type:
+          - string
+          - 'null'
+          enum:
+          - global
+          - scoped
+          - null
+          description: Webhook scope. Omit or send null to keep the current scope.
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'Omit or send null to leave domain associations unchanged. An array
+
+            replaces associations when the resulting scope is `scoped`; `[]`
+
+            explicitly clears them. Changing a global webhook to `scoped`
+
+            requires a non-empty array in the same request and otherwise
+
+            returns HTTP 400. Changing to `global` clears all associations;
+
+            supplied domains are ignored when the resulting scope is global.
+
+            '
     Webhook:
       type: object
       properties:
@@ -885,103 +838,91 @@ components:
           enum:
           - webhook
           description: Object type identifier
-          example: webhook
         id:
           type: string
           format: uuid
           description: Unique identifier for the webhook
-          example: '500123'
         created_at:
           type: string
           format: date-time
           description: When the webhook was created
-          example: '2025-03-15T14:30:00Z'
         updated_at:
           type: string
           format: date-time
           description: When the webhook was last updated
-          example: '2025-03-15T14:30:00Z'
         name:
           type: string
           description: Webhook name
-          example: Example Name
         url:
           type: string
           format: uri
           description: Webhook URL
-          example: https://example.com
         enabled:
           type: boolean
           description: Whether the webhook is enabled
-          example: true
         on_reception:
           type: boolean
           description: Trigger on message reception
-          example: true
         on_delivered:
           type: boolean
           description: Trigger on message delivery
-          example: true
         on_transient_error:
           type: boolean
           description: Trigger on transient errors
-          example: true
         on_failed:
           type: boolean
           description: Trigger on permanent failures
-          example: true
         on_bounced:
           type: boolean
           description: Trigger on bounces
-          example: true
         on_suppressed:
           type: boolean
           description: Trigger on suppressions
-          example: true
         on_opened:
           type: boolean
           description: Trigger on opens
-          example: true
         on_clicked:
           type: boolean
           description: Trigger on clicks
-          example: true
         on_suppression_created:
           type: boolean
           description: Trigger on suppression creation
-          example: true
         on_dns_error:
           type: boolean
           description: Trigger on DNS errors
-          example: true
         scope:
           type: string
+          enum:
+          - global
+          - scoped
           description: Webhook scope
-          example: example_value
         domains:
           type: array
           items:
             type: string
-          description: Domains this webhook applies to
-          example:
-          - mail.example.com
+          description: Domains this webhook applies to. Always present; global webhooks return an empty array.
         success_count:
           type: integer
+          minimum: 0
           description: Number of successful calls
-          example: 1
         error_count:
           type: integer
+          minimum: 0
           description: Number of unsuccessful calls
-          example: 1
         errors_since_last_success:
           type: integer
-          description: Number of consecutive failed calls
-          example: 1
+          minimum: 0
+          description: 'Number of consecutive failed calls. Reset to zero by the next
+
+            successful call.
+
+            '
         last_request_at:
-          type: string
+          type:
+          - string
+          - 'null'
           format: date-time
           description: When the webhook was last called
-          example: '2025-03-15T14:30:00Z'
       required:
       - object
       - id
@@ -990,214 +931,52 @@ components:
       - name
       - url
       - enabled
-    CreateWebhookRequest:
-      type: object
-      required:
-      - name
-      - url
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Webhook name
-          example: Example Name
-        url:
-          type: string
-          format: uri
-          description: Webhook URL
-          example: https://example.com
-        enabled:
-          type: boolean
-          description: Whether the webhook is enabled
-          default: true
-          example: true
-        on_reception:
-          type: boolean
-          description: Trigger on message reception
-          default: false
-          example: true
-        on_delivered:
-          type: boolean
-          description: Trigger on message delivery
-          default: false
-          example: true
-        on_transient_error:
-          type: boolean
-          description: Trigger on transient errors
-          default: false
-          example: true
-        on_failed:
-          type: boolean
-          description: Trigger on permanent failures
-          default: false
-          example: true
-        on_bounced:
-          type: boolean
-          description: Trigger on bounces
-          default: false
-          example: true
-        on_suppressed:
-          type: boolean
-          description: Trigger on suppressions
-          default: false
-          example: true
-        on_opened:
-          type: boolean
-          description: Trigger on opens
-          default: false
-          example: true
-        on_clicked:
-          type: boolean
-          description: Trigger on clicks
-          default: false
-          example: true
-        on_suppression_created:
-          type: boolean
-          description: Trigger on suppression creation
-          default: false
-          example: true
-        on_dns_error:
-          type: boolean
-          description: Trigger on DNS errors
-          default: false
-          example: true
-        scope:
-          type: string
-          description: Webhook scope
-          example: example_value
-        domains:
-          type: array
-          items:
-            type: string
-          nullable: true
-          description: Domains this webhook applies to
-          example:
-          - mail.example.com
-      example:
-        name: Delivery Webhook
-        url: https://example.com/webhook
-        enabled: true
-        on_delivered: true
-    UpdateWebhookRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          nullable: true
-          description: Webhook name
-          example: Example Name
-        url:
-          type: string
-          format: uri
-          nullable: true
-          description: Webhook URL
-          example: https://example.com
-        enabled:
-          type: boolean
-          nullable: true
-          description: Whether the webhook is enabled
-          example: true
-        on_reception:
-          type: boolean
-          nullable: true
-          description: Trigger on message reception
-          example: true
-        on_delivered:
-          type: boolean
-          nullable: true
-          description: Trigger on message delivery
-          example: true
-        on_transient_error:
-          type: boolean
-          nullable: true
-          description: Trigger on transient errors
-          example: true
-        on_failed:
-          type: boolean
-          nullable: true
-          description: Trigger on permanent failures
-          example: true
-        on_bounced:
-          type: boolean
-          nullable: true
-          description: Trigger on bounces
-          example: true
-        on_suppressed:
-          type: boolean
-          nullable: true
-          description: Trigger on suppressions
-          example: true
-        on_opened:
-          type: boolean
-          nullable: true
-          description: Trigger on opens
-          example: true
-        on_clicked:
-          type: boolean
-          nullable: true
-          description: Trigger on clicks
-          example: true
-        on_suppression_created:
-          type: boolean
-          nullable: true
-          description: Trigger on suppression creation
-          example: true
-        on_dns_error:
-          type: boolean
-          nullable: true
-          description: Trigger on DNS errors
-          example: true
-        scope:
-          type: string
-          nullable: true
-          description: Webhook scope
-          example: example_value
-        domains:
-          type: array
-          nullable: true
-          items:
-            type: string
-          description: Domains this webhook applies to
-          example:
-          - mail.example.com
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether there are more items available
-          example: true
-        next_cursor:
-          type: string
-          description: Cursor for the next page of results
-          example: example_value
-        previous_cursor:
-          type: string
-          description: Cursor for the previous page of results
-          example: example_value
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
+      - on_reception
+      - on_delivered
+      - on_transient_error
+      - on_failed
+      - on_bounced
+      - on_suppressed
+      - on_opened
+      - on_clicked
+      - on_suppression_created
+      - on_dns_error
+      - scope
+      - domains
+      - success_count
+      - error_count
+      - errors_since_last_success
+      - last_request_at
   responses:
-    IdempotencyPreconditionFailed:
-      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            message: The original request with this idempotency key failed and cannot be retried
+            message: idempotency key was already used with a different request payload
     IdempotencyConflict:
-      description: Request in progress - a request with this idempotency key is already being processed
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
       headers:
         Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
       content:
         application/json:
           schema:
@@ -1211,30 +990,28 @@ components:
       required: false
       description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
 
-        Requests with the same key will return the same response. Keys expire after 24 hours.
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
 
         '
       schema:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  headers:
-    IdempotentReplayed:
-      description: 'Indicates whether this response is replayed from a previous identical request.
-
-        - `true`: Response was replayed from cache (duplicate request)
-
-        - `false`: Response from original processing or error state
-
-        '
-      schema:
-        type: string
-        enum:
-        - true
-        - false
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
-      description: API key for authentication
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

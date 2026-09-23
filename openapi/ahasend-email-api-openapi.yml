@@ -1,187 +1,16 @@
 openapi: 3.2.0
 info:
-  title: AhaSend API v2 Accounts Email API
-  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
-
-
-    ## Authentication
-
-    All API requests must be authenticated using a Bearer token in the Authorization header:
-
-    ```
-
-    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
-
-    ```
-
-
-    ## Scopes
-
-    API keys have specific scopes that control access to different resources and actions:
-
-
-    ### Message Scopes
-
-    - `messages:send:all` - Send messages from any domain in the account
-
-    - `messages:send:{domain}` - Send messages from a specific domain
-
-    - `messages:cancel:all` - Cancel messages from any domain
-
-    - `messages:cancel:{domain}` - Cancel messages from a specific domain
-
-    - `messages:read:all` - Read messages from any domain
-
-    - `messages:read:{domain}` - Read messages from a specific domain
-
-
-    ### Domain Scopes
-
-    - `domains:read` - Read all domains
-
-    - `domains:write` - Create and update domains
-
-    - `domains:delete:all` - Delete any domain
-
-    - `domains:delete:{domain}` - Delete a specific domain
-
-
-    ### Account Scopes
-
-    - `accounts:read` - Read account information
-
-    - `accounts:write` - Update account settings
-
-    - `accounts:billing` - Access billing information
-
-    - `accounts:members:read` - Read account members
-
-    - `accounts:members:add` - Add account members
-
-    - `accounts:members:update` - Update account members
-
-    - `accounts:members:remove` - Remove account members
-
-
-    ### Webhook Scopes
-
-    - `webhooks:read:all` - Read all webhooks
-
-    - `webhooks:read:{domain}` - Read webhooks for a specific domain
-
-    - `webhooks:write:all` - Create and update webhooks
-
-    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
-
-    - `webhooks:delete:all` - Delete any webhook
-
-    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
-
-
-    ### Route Scopes
-
-    - `routes:read:all` - Read all routes
-
-    - `routes:read:{domain}` - Read routes for a specific domain
-
-    - `routes:write:all` - Create and update routes
-
-    - `routes:write:{domain}` - Create and update routes for a specific domain
-
-    - `routes:delete:all` - Delete any route
-
-    - `routes:delete:{domain}` - Delete routes for a specific domain
-
-
-    ### Suppression Scopes
-
-    - `suppressions:read` - Read suppressions
-
-    - `suppressions:write` - Create suppressions
-
-    - `suppressions:delete` - Delete suppressions
-
-    - `suppressions:wipe` - Delete all suppressions (dangerous)
-
-
-    ### SMTP Credentials Scopes
-
-    - `smtp-credentials:read:all` - Read all SMTP credentials
-
-    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
-
-    - `smtp-credentials:write:all` - Create SMTP credentials
-
-    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
-
-    - `smtp-credentials:delete:all` - Delete any SMTP credentials
-
-    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
-
-
-    ### Statistics Scopes
-
-    - `statistics-transactional:read:all` - Read all transactional statistics
-
-    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
-
-
-    ### API Key Scopes
-
-    - `api-keys:read` - Read API keys
-
-    - `api-keys:write` - Create and update API keys
-
-    - `api-keys:delete` - Delete API keys
-
-
-    ## Rate Limiting
-
-    - General API endpoints: 100 requests per second, 200 burst
-
-    - Statistics endpoints: 1 request per second, 1 burst
-
-
-    ## Pagination
-
-    List endpoints use cursor-based pagination with the following parameters:
-
-    - `limit`: Maximum number of items to return (default: 100, max: 100)
-
-    - `cursor`: Pagination cursor for the next page
-
-
-    ## Time Formats
-
-    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
-
-
-    ## Idempotency
-
-    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
-
-    - The same request can be safely retried multiple times
-
-    - Duplicate requests return the same response with `Idempotent-Replayed: true`
-
-    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
-
-    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
-
-    - Idempotency keys expire after 24 hours
-
-    '
-  version: 2.0.0
+  title: AhaSend Email API
+  description: This is the API documentation for sending emails via AhaSend.com. To use this API you need to get your API Key from your account under the API Keys page.
+  termsOfService: https://ahasend.com/terms/
   contact:
     email: support@ahasend.com
   license:
-    name: MIT
-    identifier: MIT
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
 servers:
-- url: https://api.ahasend.com
-  description: Production server
-security:
-- BearerAuth: []
+- url: https://api.ahasend.com/v1
 tags:
 - name: Email
   description: APIs for sending emails
@@ -261,6 +90,77 @@ paths:
         dispatcher: FALLBACK
 components:
   schemas:
+    Contact:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          examples:
+          - john@nasa.gov
+          - jane@nasa.gov
+          example: user@example.com
+        name:
+          type: string
+          examples:
+          - John Smith
+          - Jane Williams
+          example: Example Name
+    AccessDeniedResponse:
+      type: object
+      example:
+        status: invalid credentials
+      properties:
+        status:
+          type: string
+          description: The reason your request failed.
+          examples:
+          - invalid credentials
+          - domain DNS config is not valid
+          example: example_value
+    Content:
+      type: object
+      required:
+      - subject
+      properties:
+        subject:
+          type: string
+          examples:
+          - Sample subject
+          example: example_value
+        text_body:
+          type: string
+          description: Plaintext body of the email
+          examples:
+          - Sample email body
+          example: example_value
+        html_body:
+          type: string
+          description: HTML body of the email
+          examples:
+          - <p>Sample email body</p>
+          example: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          example:
+          - data: example_value
+            base64: true
+            content_type: example_value
+            content_id: '500123'
+            file_name: Example Name
+        reply_to:
+          $ref: '#/components/schemas/Contact'
+        headers:
+          type: object
+          description: Specify arbitary headers.
+          additionalProperties:
+            type: string
+          example:
+            X-My-Mail-ID: '12345'
+            X-Comment-ID: '456789'
     BadRequestResponse:
       type: object
       example:
@@ -272,6 +172,42 @@ components:
           - domain is not yours
           - domain DNS config is not valid
           example: example_value
+    Attachment:
+      type: object
+      required:
+      - data
+      - file_name
+      - content_type
+      properties:
+        data:
+          type: string
+          examples:
+          - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+          description: The attachment data. If the base64 field is true, this data must be encoded using base64. Otherwise, it will be interpreted as UTF-8.
+          example: example_value
+        base64:
+          type: boolean
+          examples:
+          - true
+          - false
+          description: If set to true, data needs to be encoded using base64. Otherwise data will be interpreted as UTF-8.
+          example: true
+        content_type:
+          type: string
+          examples:
+          - image/gif
+          example: example_value
+        content_id:
+          type: string
+          examples:
+          - my-image
+          description: If specified, this attachment will be added as an inline attachment and a multipart/related MIME container will be generated in the message to hold it and the textual content.
+          example: '500123'
+        file_name:
+          type: string
+          examples:
+          - my_image.gif
+          example: Example Name
     Email:
       required:
       - from
@@ -316,116 +252,11 @@ components:
           items:
             type: string
             description: The reason the email failed to be sent to a recipient.
-    Contact:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          examples:
-          - john@nasa.gov
-          - jane@nasa.gov
-          example: user@example.com
-        name:
-          type: string
-          examples:
-          - John Smith
-          - Jane Williams
-          example: Example Name
-    AccessDeniedResponse:
-      type: object
-      example:
-        status: invalid credentials
-      properties:
-        status:
-          type: string
-          description: The reason your request failed.
-          examples:
-          - invalid credentials
-          - domain DNS config is not valid
-          example: example_value
-    Attachment:
-      type: object
-      required:
-      - data
-      - file_name
-      - content_type
-      properties:
-        data:
-          type: string
-          examples:
-          - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
-          description: The attachment data. If the base64 field is true, this data must be encoded using base64. Otherwise, it will be interpreted as UTF-8.
-          example: example_value
-        base64:
-          type: boolean
-          examples:
-          - true
-          - false
-          description: If set to true, data needs to be encoded using base64. Otherwise data will be interpreted as UTF-8.
-          example: true
-        content_type:
-          type: string
-          examples:
-          - image/gif
-          example: example_value
-        content_id:
-          type: string
-          examples:
-          - my-image
-          description: If specified, this attachment will be added as an inline attachment and a multipart/related MIME container will be generated in the message to hold it and the textual content.
-          example: '500123'
-        file_name:
-          type: string
-          examples:
-          - my_image.gif
-          example: Example Name
-    Content:
-      type: object
-      required:
-      - subject
-      properties:
-        subject:
-          type: string
-          examples:
-          - Sample subject
-          example: example_value
-        text_body:
-          type: string
-          description: Plaintext body of the email
-          examples:
-          - Sample email body
-          example: example_value
-        html_body:
-          type: string
-          description: HTML body of the email
-          examples:
-          - <p>Sample email body</p>
-          example: example_value
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          example:
-          - data: example_value
-            base64: true
-            content_type: example_value
-            content_id: '500123'
-            file_name: Example Name
-        reply_to:
-          $ref: '#/components/schemas/Contact'
-        headers:
-          type: object
-          description: Specify arbitary headers.
-          additionalProperties:
-            type: string
-          example:
-            X-My-Mail-ID: '12345'
-            X-Comment-ID: '456789'
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
-      description: API key for authentication
+    api_key:
+      type: apiKey
+      name: X-Api-Key
+      in: header
+externalDocs:
+  description: Find out more about AhaSend
+  url: https://ahasend.com

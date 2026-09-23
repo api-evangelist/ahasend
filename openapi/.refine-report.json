@@ -1,36 +1,48 @@
 {
   "provider": "ahasend",
   "sources": [
-    "ahasend-accounts-api-openapi.yml",
-    "ahasend-api-keys-api-openapi.yml",
-    "ahasend-domains-api-openapi.yml",
-    "ahasend-email-api-openapi.yml",
-    "ahasend-messages-api-openapi.yml",
-    "ahasend-routes-api-openapi.yml",
-    "ahasend-smtp-credentials-api-openapi.yml",
-    "ahasend-statistics-api-openapi.yml",
-    "ahasend-suppressions-api-openapi.yml",
-    "ahasend-utility-api-openapi.yml",
-    "ahasend-webhooks-api-openapi.yml"
+    "_original/ahasend-openapi-v2.yaml",
+    "_original/ahasend-openapi.yml"
   ],
   "outputs": [
-    "ahasend-accounts-api-openapi.yml",
     "ahasend-api-keys-api-openapi.yml",
+    "ahasend-accounts-api-openapi.yml",
     "ahasend-domains-api-openapi.yml",
-    "ahasend-email-api-openapi.yml",
     "ahasend-messages-api-openapi.yml",
     "ahasend-routes-api-openapi.yml",
     "ahasend-smtp-credentials-api-openapi.yml",
     "ahasend-statistics-api-openapi.yml",
+    "ahasend-sub-accounts-api-openapi.yml",
     "ahasend-suppressions-api-openapi.yml",
     "ahasend-utility-api-openapi.yml",
-    "ahasend-webhooks-api-openapi.yml"
+    "ahasend-webhooks-api-openapi.yml",
+    "ahasend-email-api-openapi.yml"
   ],
-  "archived": [],
+  "archived": [
+    "deleted 1 superseded output(s) from the previous generation"
+  ],
   "errors": [],
   "warnings": [],
   "notes": [
-    "apis.yml register: already-registered"
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "ahasend-openapi-v2.yaml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "ahasend-openapi-v2.yaml: declared missing tag: Sub Accounts",
+    "ahasend-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "superseded outputs removed: ahasend-subaccounts-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 12 total)"
   ],
-  "skipped": []
+  "skipped": [
+    "ahasend-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-api-keys-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-domains-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-email-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-messages-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-routes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-smtp-credentials-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-statistics-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-subaccounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-suppressions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-utility-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ahasend-webhooks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

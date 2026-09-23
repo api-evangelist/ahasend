@@ -1,176 +1,7 @@
 openapi: 3.2.0
 info:
-  title: AhaSend API v2 Accounts API Keys API
-  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
-
-
-    ## Authentication
-
-    All API requests must be authenticated using a Bearer token in the Authorization header:
-
-    ```
-
-    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
-
-    ```
-
-
-    ## Scopes
-
-    API keys have specific scopes that control access to different resources and actions:
-
-
-    ### Message Scopes
-
-    - `messages:send:all` - Send messages from any domain in the account
-
-    - `messages:send:{domain}` - Send messages from a specific domain
-
-    - `messages:cancel:all` - Cancel messages from any domain
-
-    - `messages:cancel:{domain}` - Cancel messages from a specific domain
-
-    - `messages:read:all` - Read messages from any domain
-
-    - `messages:read:{domain}` - Read messages from a specific domain
-
-
-    ### Domain Scopes
-
-    - `domains:read` - Read all domains
-
-    - `domains:write` - Create and update domains
-
-    - `domains:delete:all` - Delete any domain
-
-    - `domains:delete:{domain}` - Delete a specific domain
-
-
-    ### Account Scopes
-
-    - `accounts:read` - Read account information
-
-    - `accounts:write` - Update account settings
-
-    - `accounts:billing` - Access billing information
-
-    - `accounts:members:read` - Read account members
-
-    - `accounts:members:add` - Add account members
-
-    - `accounts:members:update` - Update account members
-
-    - `accounts:members:remove` - Remove account members
-
-
-    ### Webhook Scopes
-
-    - `webhooks:read:all` - Read all webhooks
-
-    - `webhooks:read:{domain}` - Read webhooks for a specific domain
-
-    - `webhooks:write:all` - Create and update webhooks
-
-    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
-
-    - `webhooks:delete:all` - Delete any webhook
-
-    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
-
-
-    ### Route Scopes
-
-    - `routes:read:all` - Read all routes
-
-    - `routes:read:{domain}` - Read routes for a specific domain
-
-    - `routes:write:all` - Create and update routes
-
-    - `routes:write:{domain}` - Create and update routes for a specific domain
-
-    - `routes:delete:all` - Delete any route
-
-    - `routes:delete:{domain}` - Delete routes for a specific domain
-
-
-    ### Suppression Scopes
-
-    - `suppressions:read` - Read suppressions
-
-    - `suppressions:write` - Create suppressions
-
-    - `suppressions:delete` - Delete suppressions
-
-    - `suppressions:wipe` - Delete all suppressions (dangerous)
-
-
-    ### SMTP Credentials Scopes
-
-    - `smtp-credentials:read:all` - Read all SMTP credentials
-
-    - `smtp-credentials:read:{domain}` - Read SMTP credentials for a specific domain
-
-    - `smtp-credentials:write:all` - Create SMTP credentials
-
-    - `smtp-credentials:write:{domain}` - Create SMTP credentials for a specific domain
-
-    - `smtp-credentials:delete:all` - Delete any SMTP credentials
-
-    - `smtp-credentials:delete:{domain}` - Delete SMTP credentials for a specific domain
-
-
-    ### Statistics Scopes
-
-    - `statistics-transactional:read:all` - Read all transactional statistics
-
-    - `statistics-transactional:read:{domain}` - Read transactional statistics for a specific domain
-
-
-    ### API Key Scopes
-
-    - `api-keys:read` - Read API keys
-
-    - `api-keys:write` - Create and update API keys
-
-    - `api-keys:delete` - Delete API keys
-
-
-    ## Rate Limiting
-
-    - General API endpoints: 100 requests per second, 200 burst
-
-    - Statistics endpoints: 1 request per second, 1 burst
-
-
-    ## Pagination
-
-    List endpoints use cursor-based pagination with the following parameters:
-
-    - `limit`: Maximum number of items to return (default: 100, max: 100)
-
-    - `cursor`: Pagination cursor for the next page
-
-
-    ## Time Formats
-
-    All timestamps must be in RFC3339 format, e.g., `2023-12-25T10:30:00Z`
-
-
-    ## Idempotency
-
-    POST requests support idempotency through the optional `Idempotency-Key` header. When provided:
-
-    - The same request can be safely retried multiple times
-
-    - Duplicate requests return the same response with `Idempotent-Replayed: true`
-
-    - In-progress requests return HTTP 409 with `Idempotent-Replayed: false`
-
-    - Failed requests return HTTP 412 with `Idempotent-Replayed: false`
-
-    - Idempotency keys expire after 24 hours
-
-    '
+  title: AhaSend API v2 API Keys API
+  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -188,7 +19,7 @@ tags:
 paths:
   /v2/accounts/{account_id}/api-keys:
     get:
-      summary: AhaSend Get API Keys
+      summary: Get API Keys
       description: Returns a list of API keys for the account
       operationId: getAPIKeys
       tags:
@@ -201,7 +32,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: limit
         in: query
         description: Maximum number of items to return
@@ -210,19 +40,16 @@ paths:
           minimum: 1
           maximum: 100
           default: 100
-        example: 1
       - name: after
         in: query
         description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
         schema:
           type: string
-        example: example_value
       - name: before
         in: query
         description: Pagination cursor for the previous page.
         schema:
           type: string
-        example: example_value
       security:
       - BearerAuth:
         - api-keys:read
@@ -230,6 +57,18 @@ paths:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.APIKeysAPI.GetAPIKeys(\n    ctx,\n    accountID,\n    nil,\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting API keys: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d API keys\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.apiKeys.list({ limit: 20 });
+
+          console.log("API keys listed.", { count: page.data.length });
+
+          '
       responses:
         '200':
           description: List of API keys
@@ -237,59 +76,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedAPIKeysResponse'
-              examples:
-                getAPIKeys200Example:
-                  summary: Default getAPIKeys 200 response
-                  x-microcks-default: true
-                  value:
-                    object: list
-                    data:
-                    - {}
-                    pagination:
-                      has_more: {}
-                      next_cursor: {}
-                      previous_cursor: {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKeys401Example:
-                  summary: Default getAPIKeys 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKeys403Example:
-                  summary: Default getAPIKeys 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKeys500Example:
-                  summary: Default getAPIKeys 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     post:
-      summary: AhaSend Create API Key
+      summary: Create API Key
       description: Creates a new API key with the specified scopes
       operationId: createAPIKey
       tags:
@@ -302,16 +114,17 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - $ref: '#/components/parameters/IdempotencyKey'
-        example: example
       security:
       - BearerAuth:
         - api-keys:write
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.APIKeysAPI.CreateAPIKey(\n    ctx,\n    accountID,\n    requests.CreateAPIKeyRequest{\n      Label: \"My API Key\",\n      Scopes: []string{\n        \"messages:read:all\",\n        \"domains:read:all\",\n      },\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created API key, secret key: %s\\n\", response.SecretKey)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Create a new API key\n  response, httpResp, err := client.APIKeysAPI.CreateAPIKey(\n    ctx,\n    accountID,\n    requests.CreateAPIKeyRequest{\n      Label: \"My API Key\",\n      Scopes: []string{\n        \"messages:read:all\",\n        \"domains:read\",\n      },\n      // Optional: restrict this key to specific source IPs (CIDR\n      // blocks or bare IPv4/IPv6 addresses). Omit or leave empty to\n      // allow the key to be used from any IP.\n      IPAllowList: []string{\"203.0.113.0/24\", \"198.51.100.7\"},\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    // SecretKey is the one-time secret, returned ONLY on create.\n    if response != nil && response.SecretKey != nil {\n      // Store this value immediately — it cannot be retrieved again later.\n      fmt.Printf(\"Created API key, secret key: %s\\n\", *response.SecretKey)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst apiKey = await client.apiKeys.create(\n  { label: \"Production API key\", scopes: [\"messages:send:all\"] },\n  { idempotencyKey: \"sdk-sample-create-api-key\" },\n);\nconsole.log(\"API key created.\", { id: apiKey.id, label: apiKey.label });\n"
       requestBody:
         required: true
         content:
@@ -327,63 +140,53 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIKey'
-              examples:
-                createAPIKey201Example:
-                  summary: Default createAPIKey 201 response
-                  x-microcks-default: true
-                  value:
-                    object: api_key
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    last_used_at: '2025-03-15T14:30:00Z'
+                allOf:
+                - $ref: '#/components/schemas/APIKey'
+                - type: object
+                  required:
+                  - secret_key
+                  properties:
+                    secret_key:
+                      type: string
+                      readOnly: true
+                      description: 'One-time secret key. Store it immediately. Exact
+
+                        successful idempotent replays return the same secret
+
+                        during the 5-minute encrypted replay window.
+
+                        '
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createAPIKey401Example:
-                  summary: Default createAPIKey 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createAPIKey403Example:
-                  summary: Default createAPIKey 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '409':
           $ref: '#/components/responses/IdempotencyConflict'
-        '412':
-          $ref: '#/components/responses/IdempotencyPreconditionFailed'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                createAPIKey500Example:
-                  summary: Default createAPIKey 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
   /v2/accounts/{account_id}/api-keys/{key_id}:
     get:
-      summary: AhaSend Get API Key
+      summary: Get API Key
       description: Returns a specific API key by ID
       operationId: getAPIKey
       tags:
@@ -396,7 +199,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: key_id
         in: path
         required: true
@@ -404,7 +206,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - api-keys:read
@@ -412,6 +213,20 @@ paths:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.APIKeysAPI.GetAPIKey(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"API key: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const keyId = "00000000-0000-4000-8000-000000000001";
+
+          const apiKey = await client.apiKeys.get(keyId);
+
+          console.log("API key found.", { id: apiKey.id, label: apiKey.label });
+
+          '
       responses:
         '200':
           description: API key details
@@ -419,81 +234,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIKey'
-              examples:
-                getAPIKey200Example:
-                  summary: Default getAPIKey 200 response
-                  x-microcks-default: true
-                  value:
-                    object: api_key
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    last_used_at: '2025-03-15T14:30:00Z'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKey400Example:
-                  summary: Default getAPIKey 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKey401Example:
-                  summary: Default getAPIKey 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKey403Example:
-                  summary: Default getAPIKey 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: API key not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKey404Example:
-                  summary: Default getAPIKey 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                getAPIKey500Example:
-                  summary: Default getAPIKey 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     put:
-      summary: AhaSend Update API Key
+      summary: Update API Key
       description: Updates an existing API key's label and scopes
       operationId: updateAPIKey
       tags:
@@ -506,7 +278,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: key_id
         in: path
         required: true
@@ -514,14 +285,27 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - api-keys:write
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.APIKeysAPI.UpdateAPIKey(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    requests.UpdateAPIKeyRequest{\n      Label: ahasend.String(\"My API Key\"),\n      Scopes: &[]string{\n        \"messages:read:all\",\n        \"domains:read:all\",\n      },\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Updated API key: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Update an existing API key\n  response, httpResp, err := client.APIKeysAPI.UpdateAPIKey(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    requests.UpdateAPIKeyRequest{\n      Label: ahasend.String(\"My API Key\"),\n      Scopes: &[]string{\n        \"messages:read:all\",\n        \"domains:read\",\n      },\n      // Replace the allowed source IPs. Use &[]string{} to clear the\n      // list (usable from any IP), or omit the field to leave the\n      // current list unchanged.\n      IPAllowList: &[]string{\"203.0.113.0/24\"},\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Updated API key: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const keyId = "00000000-0000-4000-8000-000000000001";
+
+          const apiKey = await client.apiKeys.update(keyId, { label: "Renamed API key" });
+
+          console.log("API key updated.", { id: apiKey.id, label: apiKey.label });
+
+          '
       requestBody:
         required: true
         content:
@@ -535,81 +319,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIKey'
-              examples:
-                updateAPIKey200Example:
-                  summary: Default updateAPIKey 200 response
-                  x-microcks-default: true
-                  value:
-                    object: api_key
-                    id: '500123'
-                    created_at: '2025-03-15T14:30:00Z'
-                    updated_at: '2025-03-15T14:30:00Z'
-                    last_used_at: '2025-03-15T14:30:00Z'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateAPIKey400Example:
-                  summary: Default updateAPIKey 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateAPIKey401Example:
-                  summary: Default updateAPIKey 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateAPIKey403Example:
-                  summary: Default updateAPIKey 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: API key not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateAPIKey404Example:
-                  summary: Default updateAPIKey 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
+        '409':
+          description: Conflict — the request would lock the calling API key out of its own account. Returned only when a key updates itself with an `ip_allow_list` that does not cover the caller's current source IP. No change is persisted. This is a terminal message-only conflict; it has no server error code or idempotency headers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                updateAPIKey500Example:
-                  summary: Default updateAPIKey 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
     delete:
-      summary: AhaSend Delete API Key
+      summary: Delete API Key
       description: Deletes an API key
       operationId: deleteAPIKey
       tags:
@@ -622,7 +369,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       - name: key_id
         in: path
         required: true
@@ -630,7 +376,6 @@ paths:
         schema:
           type: string
           format: uuid
-        example: '500123'
       security:
       - BearerAuth:
         - api-keys:delete
@@ -638,6 +383,20 @@ paths:
       - lang: go
         label: AhaSend Go SDK
         source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.APIKeysAPI.DeleteAPIKey(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted API key: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const keyId = "00000000-0000-4000-8000-000000000001";
+
+          const result = await client.apiKeys.delete(keyId);
+
+          console.log("API key deleted.", { message: result.message });
+
+          '
       responses:
         '200':
           description: API key deleted successfully
@@ -653,177 +412,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteAPIKey400Example:
-                  summary: Default deleteAPIKey 400 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteAPIKey401Example:
-                  summary: Default deleteAPIKey 401 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteAPIKey403Example:
-                  summary: Default deleteAPIKey 403 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '404':
           description: API key not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteAPIKey404Example:
-                  summary: Default deleteAPIKey 404 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                deleteAPIKey500Example:
-                  summary: Default deleteAPIKey 500 response
-                  x-microcks-default: true
-                  value:
-                    message: example_value
-      x-microcks-operation:
-        delay: 0
-        dispatcher: FALLBACK
 components:
   schemas:
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-          example: example_value
-      example:
-        message: Operation completed successfully
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-          example: example_value
-      example:
-        message: Error message
-    APIKey:
+    APIKeyScope:
       type: object
       properties:
-        object:
-          type: string
-          enum:
-          - api_key
-          description: Object type identifier
-          example: api_key
         id:
           type: string
           format: uuid
-          description: Unique identifier for the API key
-          example: '500123'
+          description: Unique identifier for the scope
         created_at:
           type: string
           format: date-time
-          description: When the API key was created
-          example: '2025-03-15T14:30:00Z'
+          description: When the scope was created
         updated_at:
           type: string
           format: date-time
-          description: When the API key was last updated
-          example: '2025-03-15T14:30:00Z'
-        last_used_at:
-          type: string
-          format: date-time
-          description: When the API key was last used (updates every 5-10 minutes)
-          example: '2025-03-15T14:30:00Z'
-        account_id:
+          description: When the scope was last updated
+        api_key_id:
           type: string
           format: uuid
-          description: Account ID this API key belongs to
-          example: '500123'
-        label:
+          description: ID of the API key this scope belongs to
+        scope:
           type: string
-          description: Human-readable label for the API key
-          example: example_value
-        public_key:
-          type: string
-          description: Public portion of the API key
-          example: aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        secret_key:
-          type: string
-          description: Secret key (only returned on creation)
-          example: aha-sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        scopes:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKeyScope'
-          description: Scopes granted to this API key
-          example:
-          - id: '500123'
-            created_at: '2025-03-15T14:30:00Z'
-            updated_at: '2025-03-15T14:30:00Z'
-            api_key_id: '500123'
-            scope: example_value
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
       required:
-      - object
       - id
       - created_at
       - updated_at
-      - account_id
-      - label
-      - public_key
-      - scopes
-    CreateAPIKeyRequest:
-      type: object
-      required:
-      - label
-      - scopes
-      properties:
-        label:
-          type: string
-          maxLength: 255
-          description: Human-readable label for the API key
-          example: example_value
-        scopes:
-          type: array
-          items:
-            type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-          example:
-          - example_value
-      example:
-        label: Production API Key
-        scopes:
-        - messages:send:all
-        - domains:read
+      - api_key_id
+      - scope
+      - domain_id
     PaginatedAPIKeysResponse:
       type: object
       required:
@@ -836,20 +485,112 @@ components:
           enum:
           - list
           description: Object type identifier
-          example: list
         data:
           type: array
           items:
             $ref: '#/components/schemas/APIKey'
           description: Array of API keys
-          example:
-          - object: api_key
-            id: '500123'
-            created_at: '2025-03-15T14:30:00Z'
-            updated_at: '2025-03-15T14:30:00Z'
-            last_used_at: '2025-03-15T14:30:00Z'
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
+    CreateAPIKeyRequest:
+      type: object
+      required:
+      - label
+      - scopes
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key; must not be empty
+        scopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g. `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
+      example:
+        label: Production API Key
+        scopes:
+        - messages:send:all
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+        - 198.51.100.7
+    UpdateAPIKeyRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - label
+        properties:
+          label:
+            type: string
+      - required:
+        - scopes
+        properties:
+          scopes:
+            type: array
+      - required:
+        - ip_allow_list
+        properties:
+          ip_allow_list:
+            type: array
+      properties:
+        label:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key. Omit to keep the existing label.
+        scopes:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty array to replace it.
+      example:
+        label: Updated API Key
+        scopes:
+        - messages:send:{example.com}
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
     PaginationInfo:
       type: object
       required:
@@ -857,95 +598,145 @@ components:
       properties:
         has_more:
           type: boolean
-          description: Whether there are more items available
-          example: true
+          description: Whether more items exist after the last item of this page
         next_cursor:
           type: string
-          description: Cursor for the next page of results
-          example: example_value
+          description: Pass as `after` to fetch the next page
         previous_cursor:
           type: string
-          description: Cursor for the previous page of results
-          example: example_value
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
-    APIKeyScope:
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    APIKey:
       type: object
       properties:
+        object:
+          type: string
+          enum:
+          - api_key
+          description: Object type identifier
         id:
           type: string
           format: uuid
-          description: Unique identifier for the scope
-          example: '500123'
+          description: Unique identifier for the API key
         created_at:
           type: string
           format: date-time
-          description: When the scope was created
-          example: '2025-03-15T14:30:00Z'
+          description: When the API key was created
         updated_at:
           type: string
           format: date-time
-          description: When the scope was last updated
-          example: '2025-03-15T14:30:00Z'
-        api_key_id:
+          description: When the API key was last updated
+        last_used_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the API key was last used (updates every 5-10 minutes)
+        account_id:
           type: string
           format: uuid
-          description: ID of the API key this scope belongs to
-          example: '500123'
-        scope:
-          type: string
-          description: The scope string
-          example: example_value
-        domain_id:
-          type: string
-          format: uuid
-          description: Domain ID for domain-specific scopes
-          example: '500123'
-      required:
-      - id
-      - created_at
-      - updated_at
-      - api_key_id
-      - scope
-    UpdateAPIKeyRequest:
-      type: object
-      properties:
+          description: Account ID this API key belongs to
         label:
           type: string
-          maxLength: 255
           description: Human-readable label for the API key
-          example: example_value
+        public_key:
+          type: string
+          description: Public portion of the API key
         scopes:
           type: array
           items:
+            $ref: '#/components/schemas/APIKeyScope'
+          description: Scopes granted to this API key
+        ip_allow_list:
+          type: array
+          items:
             type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-          example:
-          - example_value
-      example:
-        label: Updated API Key
-        scopes:
-        - messages:send:example.com
-        - domains:read
+          description: Source IPs allowed to authenticate with this API key, as canonical CIDR blocks (a bare address is stored as a `/32` for IPv4 or `/128` for IPv6). Always present; an empty array means the key may be used from any source IP. When non-empty, an authenticated request whose client IP is not covered by an entry is rejected with HTTP 403 on every v2 endpoint, regardless of the key's scopes.
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - last_used_at
+      - account_id
+      - label
+      - public_key
+      - scopes
+      - ip_allow_list
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
   responses:
-    IdempotencyPreconditionFailed:
-      description: Original request failed - the request with this idempotency key previously failed and cannot be retried
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            message: The original request with this idempotency key failed and cannot be retried
+            message: idempotency key was already used with a different request payload
     IdempotencyConflict:
-      description: Request in progress - a request with this idempotency key is already being processed
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
       headers:
         Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotentReplayed'
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
       content:
         application/json:
           schema:
@@ -959,30 +750,28 @@ components:
       required: false
       description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
 
-        Requests with the same key will return the same response. Keys expire after 24 hours.
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
 
         '
       schema:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  headers:
-    IdempotentReplayed:
-      description: 'Indicates whether this response is replayed from a previous identical request.
-
-        - `true`: Response was replayed from cache (duplicate request)
-
-        - `false`: Response from original processing or error state
-
-        '
-      schema:
-        type: string
-        enum:
-        - true
-        - false
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
-      description: API key for authentication
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '
