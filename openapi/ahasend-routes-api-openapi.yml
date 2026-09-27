@@ -434,39 +434,119 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
   schemas:
+    PaginatedRoutesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Route'
+          description: Array of routes
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    CreateRouteRequest:
+      type: object
+      required:
+      - name
+      - url
+      - recipient
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Route name
+        url:
+          type: string
+          format: uri
+          description: Webhook URL for the route
+        recipient:
+          type: string
+          maxLength: 255
+          description: Recipient filter
+        attachments:
+          type: boolean
+          description: Whether to include attachments in webhooks
+          default: false
+        headers:
+          type: boolean
+          description: Whether to include headers in webhooks
+          default: false
+        group_by_message_id:
+          type: boolean
+          description: Whether to group by message ID
+          default: false
+        strip_replies:
+          type: boolean
+          description: Whether to strip reply content
+          default: false
+        enabled:
+          type: boolean
+          description: Whether the route is enabled
+          default: true
+      example:
+        name: Support Route
+        url: https://example.com/webhook
+        recipient: support@example.com
+        enabled: true
+    UpdateRouteRequest:
+      type: object
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Route name
+        url:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: Webhook URL for the route
+        recipient:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Recipient filter
+        attachments:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to include attachments in webhooks
+        headers:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to include headers in webhooks
+        group_by_message_id:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to group by message ID
+        strip_replies:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to strip reply content
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the route is enabled
+      example:
+        name: Updated Support Route
+        enabled: false
     Route:
       type: object
       properties:
@@ -561,118 +641,6 @@ components:
             description: Route signing secret. Returned only when the route is created.
         required:
         - secret
-    CreateRouteRequest:
-      type: object
-      required:
-      - name
-      - url
-      - recipient
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Route name
-        url:
-          type: string
-          format: uri
-          description: Webhook URL for the route
-        recipient:
-          type: string
-          maxLength: 255
-          description: Recipient filter
-        attachments:
-          type: boolean
-          description: Whether to include attachments in webhooks
-          default: false
-        headers:
-          type: boolean
-          description: Whether to include headers in webhooks
-          default: false
-        group_by_message_id:
-          type: boolean
-          description: Whether to group by message ID
-          default: false
-        strip_replies:
-          type: boolean
-          description: Whether to strip reply content
-          default: false
-        enabled:
-          type: boolean
-          description: Whether the route is enabled
-          default: true
-      example:
-        name: Support Route
-        url: https://example.com/webhook
-        recipient: support@example.com
-        enabled: true
-    UpdateRouteRequest:
-      type: object
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-          description: Route name
-        url:
-          type:
-          - string
-          - 'null'
-          format: uri
-          description: Webhook URL for the route
-        recipient:
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-          description: Recipient filter
-        attachments:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to include attachments in webhooks
-        headers:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to include headers in webhooks
-        group_by_message_id:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to group by message ID
-        strip_replies:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to strip reply content
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Whether the route is enabled
-      example:
-        name: Updated Support Route
-        enabled: false
-    PaginatedRoutesResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Route'
-          description: Array of routes
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -720,6 +688,58 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
@@ -756,26 +776,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
-  parameters:
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
-
-        An identical request with a completed stored outcome returns the original status and body. An in-progress
-
-        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
-
-        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
-
-        so successful encrypted replay responses for those operations expire after 5 minutes.
-
-        '
-      schema:
-        type: string
-        maxLength: 255
-      example: user-12345-create-domain-20240101
   securitySchemes:
     BearerAuth:
       type: http

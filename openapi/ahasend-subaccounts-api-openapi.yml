@@ -1131,339 +1131,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    PaginatedAPIKeysResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKey'
-          description: Array of API keys
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    UpdateSubAccountRequest:
-      type: object
-      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
-      anyOf:
-      - required:
-        - name
-        properties:
-          name:
-            type: string
-      - required:
-        - website
-        properties:
-          website:
-            type: string
-      - required:
-        - monthly_credit
-        properties:
-          monthly_credit:
-            type: integer
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type:
-          - string
-          - 'null'
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 50000
-    APIKeyScope:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the scope
-        created_at:
-          type: string
-          format: date-time
-          description: When the scope was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the scope was last updated
-        api_key_id:
-          type: string
-          format: uuid
-          description: ID of the API key this scope belongs to
-        scope:
-          type: string
-          description: The scope string
-        domain_id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
-      required:
-      - id
-      - created_at
-      - updated_at
-      - api_key_id
-      - scope
-      - domain_id
-    CreateAPIKeyRequest:
-      type: object
-      required:
-      - label
-      - scopes
-      properties:
-        label:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Human-readable label for the API key; must not be empty
-        scopes:
-          type: array
-          items:
-            type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-        ip_allow_list:
-          type: array
-          items:
-            type: string
-          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g. `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
-      example:
-        label: Production API Key
-        scopes:
-        - messages:send:all
-        - domains:read
-        ip_allow_list:
-        - 203.0.113.0/24
-        - 198.51.100.7
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    CreateSubAccountRequest:
-      type: object
-      required:
-      - name
-      - website
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type: string
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          default: 0
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 0
-    UpdateAPIKeyRequest:
-      type: object
-      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
-      anyOf:
-      - required:
-        - label
-        properties:
-          label:
-            type: string
-      - required:
-        - scopes
-        properties:
-          scopes:
-            type: array
-      - required:
-        - ip_allow_list
-        properties:
-          ip_allow_list:
-            type: array
-      properties:
-        label:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: Human-readable label for the API key. Omit to keep the existing label.
-        scopes:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-        ip_allow_list:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty array to replace it.
-      example:
-        label: Updated API Key
-        scopes:
-        - messages:send:{example.com}
-        - domains:read
-        ip_allow_list:
-        - 203.0.113.0/24
-    SubAccountUsageResponse:
-      type: object
-      required:
-      - billing_period
-      - currency
-      - allocation_method
-      - allocation_note
-      - parent
-      - sub_accounts
-      - removed_sub_accounts
-      - total
-      properties:
-        billing_period:
-          type: object
-          required:
-          - start
-          - end
-          properties:
-            start:
-              type: string
-              format: date-time
-              description: Billing period start
-            end:
-              type: string
-              format: date-time
-              description: Billing period end
-        currency:
-          type: string
-          description: Currency code used for cost allocation
-        allocation_method:
-          type: string
-          enum:
-          - proportional
-          description: Method used to allocate the pooled parent invoice cost
-        allocation_note:
-          type: string
-          description: Disclaimer explaining that allocated cost is not standalone sub-account pricing
-        parent:
-          allOf:
-          - $ref: '#/components/schemas/SubAccountUsageBreakdown'
-          - type: object
-            required:
-            - account_id
-        sub_accounts:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/SubAccountUsageBreakdown'
-            - type: object
-              required:
-              - account_id
-              - name
-          description: Per-sub-account usage and allocated cost
-        removed_sub_accounts:
-          $ref: '#/components/schemas/SubAccountUsageBreakdown'
-          description: Aggregated usage from sub accounts deleted during the period; still billed to the parent and not identified individually
-        total:
-          $ref: '#/components/schemas/SubAccountUsageBreakdown'
-      example:
-        billing_period:
-          start: '2024-01-01T00:00:00Z'
-          end: '2024-02-01T00:00:00Z'
-        currency: usd
-        allocation_method: proportional
-        allocation_note: allocated_cost is a proportional share of the parent's pooled invoice for the period, not what the sub would pay on its own plan.
-        parent:
-          account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
-          reception_count: 1000000
-          allocated_cost: 20.0
-        sub_accounts:
-        - account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
-          name: Acme Subsidiary
-          reception_count: 3000000
-          allocated_cost: 60.0
-        removed_sub_accounts:
-          reception_count: 0
-          allocated_cost: 0.0
-        total:
-          reception_count: 4000000
-          allocated_cost: 80.0
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
     APIKey:
       type: object
       properties:
@@ -1521,25 +1188,55 @@ components:
       - public_key
       - scopes
       - ip_allow_list
-    PaginatedSubAccountsResponse:
+    UpdateAPIKeyRequest:
       type: object
-      required:
-      - object
-      - data
-      - pagination
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - label
+        properties:
+          label:
+            type: string
+      - required:
+        - scopes
+        properties:
+          scopes:
+            type: array
+      - required:
+        - ip_allow_list
+        properties:
+          ip_allow_list:
+            type: array
       properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
+        label:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key. Omit to keep the existing label.
+        scopes:
+          type:
+          - array
+          - 'null'
           items:
-            $ref: '#/components/schemas/SubAccount'
-          description: Array of sub accounts
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty array to replace it.
+      example:
+        label: Updated API Key
+        scopes:
+        - messages:send:{example.com}
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
     SubAccountUsageBreakdown:
       type: object
       required:
@@ -1568,6 +1265,231 @@ components:
         name: Acme Subsidiary
         reception_count: 3000000
         allocated_cost: 60.0
+    CreateAPIKeyRequest:
+      type: object
+      required:
+      - label
+      - scopes
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key; must not be empty
+        scopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g. `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
+      example:
+        label: Production API Key
+        scopes:
+        - messages:send:all
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+        - 198.51.100.7
+    APIKeyScope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the scope
+        created_at:
+          type: string
+          format: date-time
+          description: When the scope was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the scope was last updated
+        api_key_id:
+          type: string
+          format: uuid
+          description: ID of the API key this scope belongs to
+        scope:
+          type: string
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
+      required:
+      - id
+      - created_at
+      - updated_at
+      - api_key_id
+      - scope
+      - domain_id
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    CreateSubAccountRequest:
+      type: object
+      required:
+      - name
+      - website
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type: string
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          default: 0
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 0
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    PaginatedSubAccountsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubAccount'
+          description: Array of sub accounts
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    PaginatedAPIKeysResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    SuspendSubAccountRequest:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reason shown on the sub account suspension record
+      example:
+        reason: Customer requested temporary pause
+    UpdateSubAccountRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - name
+        properties:
+          name:
+            type: string
+      - required:
+        - website
+        properties:
+          website:
+            type: string
+      - required:
+        - monthly_credit
+        properties:
+          monthly_credit:
+            type: integer
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type:
+          - string
+          - 'null'
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 50000
     SubAccount:
       type: object
       required:
@@ -1649,50 +1571,96 @@ components:
         domain_count: 2
         member_count: 3
         last_activity_at: '2024-01-15T12:00:00Z'
-    SuspendSubAccountRequest:
+    SuccessResponse:
       type: object
       required:
-      - reason
+      - message
       properties:
-        reason:
+        message:
           type: string
-          minLength: 1
-          maxLength: 500
-          description: Reason shown on the sub account suspension record
+          description: Success message
       example:
-        reason: Customer requested temporary pause
-  headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
+        message: Operation completed successfully
+    SubAccountUsageResponse:
+      type: object
+      required:
+      - billing_period
+      - currency
+      - allocation_method
+      - allocation_note
+      - parent
+      - sub_accounts
+      - removed_sub_accounts
+      - total
+      properties:
+        billing_period:
+          type: object
+          required:
+          - start
+          - end
+          properties:
+            start:
+              type: string
+              format: date-time
+              description: Billing period start
+            end:
+              type: string
+              format: date-time
+              description: Billing period end
+        currency:
+          type: string
+          description: Currency code used for cost allocation
+        allocation_method:
+          type: string
+          enum:
+          - proportional
+          description: Method used to allocate the pooled parent invoice cost
+        allocation_note:
+          type: string
+          description: Disclaimer explaining that allocated cost is not standalone sub-account pricing
+        parent:
+          allOf:
+          - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          - type: object
+            required:
+            - account_id
+        sub_accounts:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+            - type: object
+              required:
+              - account_id
+              - name
+          description: Per-sub-account usage and allocated cost
+        removed_sub_accounts:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          description: Aggregated usage from sub accounts deleted during the period; still billed to the parent and not identified individually
+        total:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+      example:
+        billing_period:
+          start: '2024-01-01T00:00:00Z'
+          end: '2024-02-01T00:00:00Z'
+        currency: usd
+        allocation_method: proportional
+        allocation_note: allocated_cost is a proportional share of the parent's pooled invoice for the period, not what the sub would pay on its own plan.
+        parent:
+          account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+          reception_count: 1000000
+          allocated_cost: 20.0
+        sub_accounts:
+        - account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+          name: Acme Subsidiary
+          reception_count: 3000000
+          allocated_cost: 60.0
+        removed_sub_accounts:
+          reception_count: 0
+          allocated_cost: 0.0
+        total:
+          reception_count: 4000000
+          allocated_cost: 80.0
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -1713,21 +1681,39 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+  headers:
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
 
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
+        header is emitted only on the specialized HTTP 409 response.
 
         '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  responses:
     IdempotencyConflict:
       description: 'Request in progress. This response always includes
 
@@ -1749,6 +1735,20 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

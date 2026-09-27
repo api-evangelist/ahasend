@@ -460,80 +460,27 @@ components:
         type: string
         enum:
         - 'true'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
   schemas:
-    UpdateAccountRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Account name
-        website:
-          type: string
-          format: uri
-          description: Account website URL
-        about:
-          type: string
-          description: Account description (used for account verification)
-        track_opens:
-          type: boolean
-          description: Default open tracking setting
-        track_clicks:
-          type: boolean
-          description: Default click tracking setting
-        reject_bad_recipients:
-          type: boolean
-          description: Whether to reject bad recipients
-        reject_mistyped_recipients:
-          type: boolean
-          description: Whether to reject mistyped recipients
-        message_metadata_retention:
-          type: integer
-          minimum: 1
-          maximum: 30
-          description: Default message metadata retention in days
-        message_data_retention:
-          type: integer
-          minimum: 0
-          maximum: 30
-          description: Default message data retention in days
-      example:
-        name: Updated Company Name
-        website: https://example.com
-        track_opens: true
-    UserAccount:
-      type: object
-      properties:
-        created_at:
-          type: string
-          format: date-time
-          description: When the relationship was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the relationship was last updated
-        user_id:
-          type: string
-          format: uuid
-          description: User ID
-        account_id:
-          type: string
-          format: uuid
-          description: Account ID
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: User role in the account
-      required:
-      - created_at
-      - updated_at
-      - user_id
-      - account_id
-      - role
     AccountMembersResponse:
       type: object
       required:
@@ -570,31 +517,6 @@ components:
           description: Error description
       example:
         message: Error message
-    AddMemberRequest:
-      type: object
-      required:
-      - email
-      - role
-      properties:
-        email:
-          type: string
-          format: email
-          description: Email address of the user to add
-        name:
-          type: string
-          description: Display name for the user
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: Role to assign to the user
-      example:
-        email: user@example.com
-        name: John Doe
-        role: Developer
     Account:
       type: object
       properties:
@@ -669,6 +591,104 @@ components:
       - message_metadata_retention
       - message_data_retention
       - owner_id
+    AddMemberRequest:
+      type: object
+      required:
+      - email
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to add
+        name:
+          type: string
+          description: Display name for the user
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: Role to assign to the user
+      example:
+        email: user@example.com
+        name: John Doe
+        role: Developer
+    UserAccount:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          description: When the relationship was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the relationship was last updated
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: User role in the account
+      required:
+      - created_at
+      - updated_at
+      - user_id
+      - account_id
+      - role
+    UpdateAccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Account name
+        website:
+          type: string
+          format: uri
+          description: Account website URL
+        about:
+          type: string
+          description: Account description (used for account verification)
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+        message_metadata_retention:
+          type: integer
+          minimum: 1
+          maximum: 30
+          description: Default message metadata retention in days
+        message_data_retention:
+          type: integer
+          minimum: 0
+          maximum: 30
+          description: Default message data retention in days
+      example:
+        name: Updated Company Name
+        website: https://example.com
+        track_opens: true
     SuccessResponse:
       type: object
       required:
@@ -694,26 +714,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: idempotency key was already used with a different request payload
-  parameters:
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
-
-        An identical request with a completed stored outcome returns the original status and body. An in-progress
-
-        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
-
-        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
-
-        so successful encrypted replay responses for those operations expire after 5 minutes.
-
-        '
-      schema:
-        type: string
-        maxLength: 255
-      example: user-12345-create-domain-20240101
   securitySchemes:
     BearerAuth:
       type: http

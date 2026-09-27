@@ -537,66 +537,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
   schemas:
-    UpdateDomainRequest:
-      type: object
-      properties:
-        tracking_subdomain:
-          type: string
-          description: Optional custom tracking subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        return_path_subdomain:
-          type: string
-          description: Optional custom return-path subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        subscription_subdomain:
-          type: string
-          description: Optional custom subscription management subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        media_subdomain:
-          type: string
-          description: Optional custom media subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        dkim_rotation_interval_days:
-          type: integer
-          description: Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.
-        dkim_selector:
-          type:
-          - string
-          - 'null'
-          description: 'Optional custom DKIM selector for the domain. Omit or send null to leave the current value unchanged; send an empty or whitespace-only string to clear the override and revert to the default selector. The value is trimmed before it is interpreted, so whitespace-only input clears the override just like an empty string.
-
-
-            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen. It cannot be changed once the selector locks after DNS verification or while a DKIM key rotation is in progress.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-            '
-      example:
-        tracking_subdomain: click
-        return_path_subdomain: mail
-        subscription_subdomain: preferences
-        media_subdomain: media
-        dkim_rotation_interval_days: 45
     DNSRecord:
       type: object
       properties:
@@ -624,98 +565,25 @@ components:
       - content
       - required
       - propagated
-    CreateDomainRequest:
+    PaginatedDomainsResponse:
       type: object
       required:
-      - domain
+      - object
+      - data
+      - pagination
       properties:
-        domain:
+        object:
           type: string
-          format: hostname
-          description: Fully qualified domain name
-        dkim_private_key:
-          type: string
-          description: 'DKIM Private Key for the domain. Only RSA keys with a minimum key size of 1024 bits are supported.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-
-            <Note>Key size of at least 1024 bits is supported; 2048 bit keys are strongly recommended for improved security.</Note>
-
-            '
-        tracking_subdomain:
-          type: string
-          description: Optional custom tracking subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        return_path_subdomain:
-          type: string
-          description: Optional custom return-path subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        subscription_subdomain:
-          type: string
-          description: Optional custom subscription management subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        media_subdomain:
-          type: string
-          description: Optional custom media subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        dkim_rotation_interval_days:
-          type: integer
-          description: Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.
-        dkim_selector:
-          type:
-          - string
-          - 'null'
-          description: 'Optional custom DKIM selector for the domain. Omit, send null, or send an empty or whitespace-only string to use the default selector (no per-domain override); the value is trimmed before it is interpreted, so whitespace-only input is treated as empty.
-
-
-            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-            '
-      example:
-        domain: example.com
-        tracking_subdomain: click
-        return_path_subdomain: mail
-        subscription_subdomain: preferences
-        media_subdomain: media
-        dkim_rotation_interval_days: 45
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain'
+          description: Array of domains
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     Domain:
       type: object
       properties:
@@ -828,40 +696,157 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
-    PaginatedDomainsResponse:
+    ErrorResponse:
       type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Domain'
-          description: Array of domains
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+      description: 'Human-readable API error. The server currently sends no stable machine
 
-        request path, or request body. This response includes neither
+        error code. In particular, clients must not parse `message` to
 
-        `Idempotent-Replayed` nor `Retry-After`.
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
 
         '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    UpdateDomainRequest:
+      type: object
+      properties:
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.
+        dkim_selector:
+          type:
+          - string
+          - 'null'
+          description: 'Optional custom DKIM selector for the domain. Omit or send null to leave the current value unchanged; send an empty or whitespace-only string to clear the override and revert to the default selector. The value is trimmed before it is interpreted, so whitespace-only input clears the override just like an empty string.
+
+
+            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen. It cannot be changed once the selector locks after DNS verification or while a DKIM key rotation is in progress.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+            '
+      example:
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+    CreateDomainRequest:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          format: hostname
+          description: Fully qualified domain name
+        dkim_private_key:
+          type: string
+          description: 'DKIM Private Key for the domain. Only RSA keys with a minimum key size of 1024 bits are supported.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+
+            <Note>Key size of at least 1024 bits is supported; 2048 bit keys are strongly recommended for improved security.</Note>
+
+            '
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.
+        dkim_selector:
+          type:
+          - string
+          - 'null'
+          description: 'Optional custom DKIM selector for the domain. Omit, send null, or send an empty or whitespace-only string to use the default selector (no per-domain override); the value is trimmed before it is interpreted, so whitespace-only input is treated as empty.
+
+
+            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+            '
+      example:
+        domain: example.com
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -882,6 +867,21 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http
