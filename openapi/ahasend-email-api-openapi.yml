@@ -126,23 +126,6 @@ components:
           examples:
           - my_image.gif
           example: Example Name
-    Contact:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          examples:
-          - john@nasa.gov
-          - jane@nasa.gov
-          example: user@example.com
-        name:
-          type: string
-          examples:
-          - John Smith
-          - Jane Williams
-          example: Example Name
     Content:
       type: object
       required:
@@ -185,6 +168,25 @@ components:
           example:
             X-My-Mail-ID: '12345'
             X-Comment-ID: '456789'
+    Email:
+      required:
+      - from
+      - recipients
+      - content
+      type: object
+      properties:
+        from:
+          $ref: '#/components/schemas/Contact'
+        recipients:
+          type: array
+          description: Specifies the list of recipients to which message will be sent.
+          items:
+            $ref: '#/components/schemas/Contact'
+          example:
+          - email: user@example.com
+            name: Example Name
+        content:
+          $ref: '#/components/schemas/Content'
     SuccessfulResponse:
       type: object
       properties:
@@ -210,25 +212,6 @@ components:
           items:
             type: string
             description: The reason the email failed to be sent to a recipient.
-    Email:
-      required:
-      - from
-      - recipients
-      - content
-      type: object
-      properties:
-        from:
-          $ref: '#/components/schemas/Contact'
-        recipients:
-          type: array
-          description: Specifies the list of recipients to which message will be sent.
-          items:
-            $ref: '#/components/schemas/Contact'
-          example:
-          - email: user@example.com
-            name: Example Name
-        content:
-          $ref: '#/components/schemas/Content'
     BadRequestResponse:
       type: object
       example:
@@ -240,6 +223,23 @@ components:
           - domain is not yours
           - domain DNS config is not valid
           example: example_value
+    Contact:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          examples:
+          - john@nasa.gov
+          - jane@nasa.gov
+          example: user@example.com
+        name:
+          type: string
+          examples:
+          - John Smith
+          - Jane Williams
+          example: Example Name
     AccessDeniedResponse:
       type: object
       example:

@@ -394,6 +394,18 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    Bounce:
+      type: object
+      properties:
+        classification:
+          type: string
+          description: Bounce classification
+        count:
+          type: integer
+          description: Number of bounces
+      required:
+      - classification
+      - count
     DeliveryTime:
       type: object
       properties:
@@ -413,52 +425,6 @@ components:
       - recipient_domain
       - delivery_time
       - count
-    DeliverabilityStatistics:
-      type: object
-      properties:
-        from_timestamp:
-          type: string
-          format: date-time
-          description: Start time of the statistics bucket
-        to_timestamp:
-          type: string
-          format: date-time
-          description: End time of the statistics bucket
-        reception_count:
-          type: integer
-          description: Number of messages accepted for delivery
-        delivered_count:
-          type: integer
-          description: Number of messages delivered
-        deferred_count:
-          type: integer
-          description: Number of messages deferred
-        bounced_count:
-          type: integer
-          description: Number of messages bounced
-        failed_count:
-          type: integer
-          description: Number of messages failed
-        suppressed_count:
-          type: integer
-          description: Number of messages suppressed
-        opened_count:
-          type: integer
-          description: Number of messages opened at least once
-        clicked_count:
-          type: integer
-          description: Number of messages that have at least one link in them clicked.
-      required:
-      - from_timestamp
-      - to_timestamp
-      - reception_count
-      - delivered_count
-      - deferred_count
-      - bounced_count
-      - failed_count
-      - suppressed_count
-      - opened_count
-      - clicked_count
     BounceStatistics:
       type: object
       properties:
@@ -508,50 +474,6 @@ components:
       - avg_delivery_time
       - delivered_count
       - delivery_times
-    BounceStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BounceStatistics'
-          description: Array of bounce statistics
-    Bounce:
-      type: object
-      properties:
-        classification:
-          type: string
-          description: Bounce classification
-        count:
-          type: integer
-          description: Number of bounces
-      required:
-      - classification
-      - count
-    DeliveryTimeStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/DeliveryTimeStatistics'
-          description: Array of delivery time statistics
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -572,6 +494,84 @@ components:
           description: Error description
       example:
         message: Error message
+    DeliveryTimeStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTimeStatistics'
+          description: Array of delivery time statistics
+    BounceStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
+    DeliverabilityStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        reception_count:
+          type: integer
+          description: Number of messages accepted for delivery
+        delivered_count:
+          type: integer
+          description: Number of messages delivered
+        deferred_count:
+          type: integer
+          description: Number of messages deferred
+        bounced_count:
+          type: integer
+          description: Number of messages bounced
+        failed_count:
+          type: integer
+          description: Number of messages failed
+        suppressed_count:
+          type: integer
+          description: Number of messages suppressed
+        opened_count:
+          type: integer
+          description: Number of messages opened at least once
+        clicked_count:
+          type: integer
+          description: Number of messages that have at least one link in them clicked.
+      required:
+      - from_timestamp
+      - to_timestamp
+      - reception_count
+      - delivered_count
+      - deferred_count
+      - bounced_count
+      - failed_count
+      - suppressed_count
+      - opened_count
+      - clicked_count
     DeliverabilityStatisticsResponse:
       type: object
       required:

@@ -438,85 +438,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-  parameters:
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
-
-        An identical request with a completed stored outcome returns the original status and body. An in-progress
-
-        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
-
-        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
-
-        so successful encrypted replay responses for those operations expire after 5 minutes.
-
-        '
-      schema:
-        type: string
-        maxLength: 255
-      example: user-12345-create-domain-20240101
   schemas:
-    AccountMembersResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserAccount'
-          description: Array of account members
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
     Account:
       type: object
       properties:
@@ -591,64 +513,26 @@ components:
       - message_metadata_retention
       - message_data_retention
       - owner_id
-    AddMemberRequest:
+    ErrorResponse:
       type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
       required:
-      - email
-      - role
+      - message
       properties:
-        email:
+        message:
           type: string
-          format: email
-          description: Email address of the user to add
-        name:
-          type: string
-          description: Display name for the user
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: Role to assign to the user
+          description: Error description
       example:
-        email: user@example.com
-        name: John Doe
-        role: Developer
-    UserAccount:
-      type: object
-      properties:
-        created_at:
-          type: string
-          format: date-time
-          description: When the relationship was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the relationship was last updated
-        user_id:
-          type: string
-          format: uuid
-          description: User ID
-        account_id:
-          type: string
-          format: uuid
-          description: Account ID
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: User role in the account
-      required:
-      - created_at
-      - updated_at
-      - user_id
-      - account_id
-      - role
+        message: Error message
     UpdateAccountRequest:
       type: object
       properties:
@@ -689,6 +573,47 @@ components:
         name: Updated Company Name
         website: https://example.com
         track_opens: true
+    AddMemberRequest:
+      type: object
+      required:
+      - email
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to add
+        name:
+          type: string
+          description: Display name for the user
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: Role to assign to the user
+      example:
+        email: user@example.com
+        name: John Doe
+        role: Developer
+    AccountMembersResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+          description: Array of account members
     SuccessResponse:
       type: object
       required:
@@ -699,6 +624,39 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
+    UserAccount:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          description: When the relationship was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the relationship was last updated
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: User role in the account
+      required:
+      - created_at
+      - updated_at
+      - user_id
+      - account_id
+      - role
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
@@ -714,6 +672,48 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: idempotency key was already used with a different request payload
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
   securitySchemes:
     BearerAuth:
       type: http

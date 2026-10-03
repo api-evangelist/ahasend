@@ -516,38 +516,42 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
 
-        lease may be retried with the same key and unchanged request.
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
 
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
+        Clients must use that header tuple, not the human-readable message, to
 
-        header is emitted only on the specialized HTTP 409 response.
+        distinguish this retryable idempotency state from other HTTP 409s.
 
         '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
 
-        When this header is absent, the response is not a stored replay. Ordinary fresh
+        request path, or request body. This response includes neither
 
-        responses do not send `false`; that value is reserved for an in-progress 409.
+        `Idempotent-Replayed` nor `Retry-After`.
 
         '
-      schema:
-        type: string
-        enum:
-        - 'true'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   schemas:
     Webhook:
       type: object
@@ -666,6 +670,36 @@ components:
       - error_count
       - errors_since_last_success
       - last_request_at
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    CreatedWebhook:
+      allOf:
+      - $ref: '#/components/schemas/Webhook'
+      - type: object
+        properties:
+          secret:
+            type: string
+            description: Webhook signing secret. Returned only when the webhook is created.
+        required:
+        - secret
     PaginatedWebhooksResponse:
       type: object
       required:
@@ -685,6 +719,23 @@ components:
           description: Array of webhooks
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
     CreateWebhookRequest:
       type: object
       required:
@@ -785,26 +836,16 @@ components:
         scope: global
         enabled: true
         on_delivered: true
-    ErrorResponse:
+    SuccessResponse:
       type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
       required:
       - message
       properties:
         message:
           type: string
-          description: Error description
+          description: Success message
       example:
-        message: Error message
+        message: Operation completed successfully
     UpdateWebhookRequest:
       type: object
       description: 'Partial update. Omitted and null scalar fields leave their stored values
@@ -910,43 +951,38 @@ components:
             supplied domains are ignored when the resulting scope is global.
 
             '
-    CreatedWebhook:
-      allOf:
-      - $ref: '#/components/schemas/Webhook'
-      - type: object
-        properties:
-          secret:
-            type: string
-            description: Webhook signing secret. Returned only when the webhook is created.
-        required:
-        - secret
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -967,42 +1003,6 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
   securitySchemes:
     BearerAuth:
       type: http

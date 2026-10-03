@@ -429,64 +429,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
   schemas:
-    PaginatedSuppressionsResponse:
+    ErrorResponse:
       type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
       required:
-      - object
-      - data
-      - pagination
+      - message
       properties:
-        object:
+        message:
           type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Suppression'
-          description: Array of suppressions
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    CreateSuppressionResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Suppression'
-          description: Array of suppressions
+          description: Error description
+      example:
+        message: Error message
     Suppression:
       type: object
       properties:
@@ -552,26 +515,41 @@ components:
         domain: example.com
         reason: User requested removal
         expires_at: '2024-12-25T10:30:00Z'
-    ErrorResponse:
+    CreateSuppressionResponse:
       type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
       required:
-      - message
+      - object
+      - data
       properties:
-        message:
+        object:
           type: string
-          description: Error description
-      example:
-        message: Error message
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+    PaginatedSuppressionsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     PaginationInfo:
       type: object
       required:
@@ -599,6 +577,43 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -619,21 +634,6 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

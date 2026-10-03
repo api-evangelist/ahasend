@@ -1131,6 +1131,321 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    PaginatedSubAccountsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubAccount'
+          description: Array of sub accounts
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    SubAccountUsageResponse:
+      type: object
+      required:
+      - billing_period
+      - currency
+      - allocation_method
+      - allocation_note
+      - parent
+      - sub_accounts
+      - removed_sub_accounts
+      - total
+      properties:
+        billing_period:
+          type: object
+          required:
+          - start
+          - end
+          properties:
+            start:
+              type: string
+              format: date-time
+              description: Billing period start
+            end:
+              type: string
+              format: date-time
+              description: Billing period end
+        currency:
+          type: string
+          description: Currency code used for cost allocation
+        allocation_method:
+          type: string
+          enum:
+          - proportional
+          description: Method used to allocate the pooled parent invoice cost
+        allocation_note:
+          type: string
+          description: Disclaimer explaining that allocated cost is not standalone sub-account pricing
+        parent:
+          allOf:
+          - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          - type: object
+            required:
+            - account_id
+        sub_accounts:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SubAccountUsageBreakdown'
+            - type: object
+              required:
+              - account_id
+              - name
+          description: Per-sub-account usage and allocated cost
+        removed_sub_accounts:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+          description: Aggregated usage from sub accounts deleted during the period; still billed to the parent and not identified individually
+        total:
+          $ref: '#/components/schemas/SubAccountUsageBreakdown'
+      example:
+        billing_period:
+          start: '2024-01-01T00:00:00Z'
+          end: '2024-02-01T00:00:00Z'
+        currency: usd
+        allocation_method: proportional
+        allocation_note: allocated_cost is a proportional share of the parent's pooled invoice for the period, not what the sub would pay on its own plan.
+        parent:
+          account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+          reception_count: 1000000
+          allocated_cost: 20.0
+        sub_accounts:
+        - account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+          name: Acme Subsidiary
+          reception_count: 3000000
+          allocated_cost: 60.0
+        removed_sub_accounts:
+          reception_count: 0
+          allocated_cost: 0.0
+        total:
+          reception_count: 4000000
+          allocated_cost: 80.0
+    UpdateSubAccountRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - name
+        properties:
+          name:
+            type: string
+      - required:
+        - website
+        properties:
+          website:
+            type: string
+      - required:
+        - monthly_credit
+        properties:
+          monthly_credit:
+            type: integer
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type:
+          - string
+          - 'null'
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 50000
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    SubAccount:
+      type: object
+      required:
+      - object
+      - id
+      - parent_account_id
+      - name
+      - website
+      - status
+      - monthly_credit
+      - created_at
+      - domain_count
+      - member_count
+      - last_activity_at
+      properties:
+        object:
+          type: string
+          enum:
+          - sub_account
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the sub account
+        parent_account_id:
+          type: string
+          format: uuid
+          description: Parent account ID
+        created_at:
+          type: string
+          format: date-time
+          description: When the sub account was created
+        name:
+          type: string
+          description: Sub account name
+        website:
+          type: string
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          - parent-suspended
+          - deleted
+          description: Current sub-account status
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional monthly cap; 0 means no cap
+        domain_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of domains owned by the sub account
+        member_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of direct members on the sub account
+        last_activity_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Last recorded sub-account email activity
+      example:
+        object: sub_account
+        id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+        parent_account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+        name: Acme Subsidiary
+        website: acme.example.com
+        status: active
+        monthly_credit: 0
+        created_at: '2024-01-01T00:00:00Z'
+        domain_count: 2
+        member_count: 3
+        last_activity_at: '2024-01-15T12:00:00Z'
+    APIKeyScope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the scope
+        created_at:
+          type: string
+          format: date-time
+          description: When the scope was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the scope was last updated
+        api_key_id:
+          type: string
+          format: uuid
+          description: ID of the API key this scope belongs to
+        scope:
+          type: string
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
+      required:
+      - id
+      - created_at
+      - updated_at
+      - api_key_id
+      - scope
+      - domain_id
+    CreateSubAccountRequest:
+      type: object
+      required:
+      - name
+      - website
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type: string
+          format: fqdn
+          maxLength: 255
+          description: Account website domain
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          default: 0
+          description: Optional monthly cap; 0 means no cap
+      example:
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 0
     APIKey:
       type: object
       properties:
@@ -1237,34 +1552,25 @@ components:
         - domains:read
         ip_allow_list:
         - 203.0.113.0/24
-    SubAccountUsageBreakdown:
+    PaginatedAPIKeysResponse:
       type: object
       required:
-      - reception_count
-      - allocated_cost
+      - object
+      - data
+      - pagination
       properties:
-        account_id:
+        object:
           type: string
-          format: uuid
-          description: Account ID for this usage bucket
-        name:
-          type: string
-          description: Sub account name when this bucket is for a sub account
-        reception_count:
-          type: integer
-          format: int64
-          minimum: 0
-          description: Number of received messages in the billing period
-        allocated_cost:
-          type: number
-          format: double
-          minimum: 0
-          description: Proportional allocated cost for this usage bucket
-      example:
-        account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
-        name: Acme Subsidiary
-        reception_count: 3000000
-        allocated_cost: 60.0
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     CreateAPIKeyRequest:
       type: object
       required:
@@ -1295,41 +1601,18 @@ components:
         ip_allow_list:
         - 203.0.113.0/24
         - 198.51.100.7
-    APIKeyScope:
+    SuspendSubAccountRequest:
       type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the scope
-        created_at:
-          type: string
-          format: date-time
-          description: When the scope was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the scope was last updated
-        api_key_id:
-          type: string
-          format: uuid
-          description: ID of the API key this scope belongs to
-        scope:
-          type: string
-          description: The scope string
-        domain_id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
       required:
-      - id
-      - created_at
-      - updated_at
-      - api_key_id
-      - scope
-      - domain_id
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reason shown on the sub account suspension record
+      example:
+        reason: Customer requested temporary pause
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -1350,370 +1633,49 @@ components:
           description: Error description
       example:
         message: Error message
-    CreateSubAccountRequest:
+    SubAccountUsageBreakdown:
       type: object
       required:
-      - name
-      - website
+      - reception_count
+      - allocated_cost
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type: string
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          default: 0
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 0
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    PaginatedSubAccountsResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubAccount'
-          description: Array of sub accounts
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    PaginatedAPIKeysResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKey'
-          description: Array of API keys
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    SuspendSubAccountRequest:
-      type: object
-      required:
-      - reason
-      properties:
-        reason:
-          type: string
-          minLength: 1
-          maxLength: 500
-          description: Reason shown on the sub account suspension record
-      example:
-        reason: Customer requested temporary pause
-    UpdateSubAccountRequest:
-      type: object
-      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
-      anyOf:
-      - required:
-        - name
-        properties:
-          name:
-            type: string
-      - required:
-        - website
-        properties:
-          website:
-            type: string
-      - required:
-        - monthly_credit
-        properties:
-          monthly_credit:
-            type: integer
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type:
-          - string
-          - 'null'
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 50000
-    SubAccount:
-      type: object
-      required:
-      - object
-      - id
-      - parent_account_id
-      - name
-      - website
-      - status
-      - monthly_credit
-      - created_at
-      - domain_count
-      - member_count
-      - last_activity_at
-      properties:
-        object:
-          type: string
-          enum:
-          - sub_account
-          description: Object type identifier
-        id:
+        account_id:
           type: string
           format: uuid
-          description: Unique identifier for the sub account
-        parent_account_id:
-          type: string
-          format: uuid
-          description: Parent account ID
-        created_at:
-          type: string
-          format: date-time
-          description: When the sub account was created
+          description: Account ID for this usage bucket
         name:
           type: string
-          description: Sub account name
-        website:
-          type: string
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        status:
-          type: string
-          enum:
-          - active
-          - suspended
-          - parent-suspended
-          - deleted
-          description: Current sub-account status
-        monthly_credit:
+          description: Sub account name when this bucket is for a sub account
+        reception_count:
           type: integer
           format: int64
           minimum: 0
-          description: Optional monthly cap; 0 means no cap
-        domain_count:
-          type: integer
-          format: int64
+          description: Number of received messages in the billing period
+        allocated_cost:
+          type: number
+          format: double
           minimum: 0
-          description: Number of domains owned by the sub account
-        member_count:
-          type: integer
-          format: int64
-          minimum: 0
-          description: Number of direct members on the sub account
-        last_activity_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: Last recorded sub-account email activity
+          description: Proportional allocated cost for this usage bucket
       example:
-        object: sub_account
-        id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
-        parent_account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+        account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
         name: Acme Subsidiary
-        website: acme.example.com
-        status: active
-        monthly_credit: 0
-        created_at: '2024-01-01T00:00:00Z'
-        domain_count: 2
-        member_count: 3
-        last_activity_at: '2024-01-15T12:00:00Z'
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    SubAccountUsageResponse:
-      type: object
-      required:
-      - billing_period
-      - currency
-      - allocation_method
-      - allocation_note
-      - parent
-      - sub_accounts
-      - removed_sub_accounts
-      - total
-      properties:
-        billing_period:
-          type: object
-          required:
-          - start
-          - end
-          properties:
-            start:
-              type: string
-              format: date-time
-              description: Billing period start
-            end:
-              type: string
-              format: date-time
-              description: Billing period end
-        currency:
-          type: string
-          description: Currency code used for cost allocation
-        allocation_method:
-          type: string
-          enum:
-          - proportional
-          description: Method used to allocate the pooled parent invoice cost
-        allocation_note:
-          type: string
-          description: Disclaimer explaining that allocated cost is not standalone sub-account pricing
-        parent:
-          allOf:
-          - $ref: '#/components/schemas/SubAccountUsageBreakdown'
-          - type: object
-            required:
-            - account_id
-        sub_accounts:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/SubAccountUsageBreakdown'
-            - type: object
-              required:
-              - account_id
-              - name
-          description: Per-sub-account usage and allocated cost
-        removed_sub_accounts:
-          $ref: '#/components/schemas/SubAccountUsageBreakdown'
-          description: Aggregated usage from sub accounts deleted during the period; still billed to the parent and not identified individually
-        total:
-          $ref: '#/components/schemas/SubAccountUsageBreakdown'
-      example:
-        billing_period:
-          start: '2024-01-01T00:00:00Z'
-          end: '2024-02-01T00:00:00Z'
-        currency: usd
-        allocation_method: proportional
-        allocation_note: allocated_cost is a proportional share of the parent's pooled invoice for the period, not what the sub would pay on its own plan.
-        parent:
-          account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
-          reception_count: 1000000
-          allocated_cost: 20.0
-        sub_accounts:
-        - account_id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
-          name: Acme Subsidiary
-          reception_count: 3000000
-          allocated_cost: 60.0
-        removed_sub_accounts:
-          reception_count: 0
-          allocated_cost: 0.0
-        total:
-          reception_count: 4000000
-          allocated_cost: 80.0
-  parameters:
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
-
-        An identical request with a completed stored outcome returns the original status and body. An in-progress
-
-        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
-
-        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
-
-        so successful encrypted replay responses for those operations expire after 5 minutes.
-
-        '
-      schema:
-        type: string
-        maxLength: 255
-      example: user-12345-create-domain-20240101
-  headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
+        reception_count: 3000000
+        allocated_cost: 60.0
   responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
     IdempotencyConflict:
       description: 'Request in progress. This response always includes
 
@@ -1735,20 +1697,58 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
 
-        request path, or request body. This response includes neither
+        When this header is absent, the response is not a stored replay. Ordinary fresh
 
-        `Idempotent-Replayed` nor `Retry-After`.
+        responses do not send `false`; that value is reserved for an in-progress 409.
 
         '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
   securitySchemes:
     BearerAuth:
       type: http

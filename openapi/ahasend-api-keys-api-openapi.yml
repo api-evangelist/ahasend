@@ -437,83 +437,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   schemas:
-    APIKey:
-      type: object
-      properties:
-        object:
-          type: string
-          enum:
-          - api_key
-          description: Object type identifier
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the API key
-        created_at:
-          type: string
-          format: date-time
-          description: When the API key was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the API key was last updated
-        last_used_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: When the API key was last used (updates every 5-10 minutes)
-        account_id:
-          type: string
-          format: uuid
-          description: Account ID this API key belongs to
-        label:
-          type: string
-          description: Human-readable label for the API key
-        public_key:
-          type: string
-          description: Public portion of the API key
-        scopes:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKeyScope'
-          description: Scopes granted to this API key
-        ip_allow_list:
-          type: array
-          items:
-            type: string
-          description: Source IPs allowed to authenticate with this API key, as canonical CIDR blocks (a bare address is stored as a `/32` for IPv4 or `/128` for IPv6). Always present; an empty array means the key may be used from any source IP. When non-empty, an authenticated request whose client IP is not covered by an entry is rejected with HTTP 403 on every v2 endpoint, regardless of the key's scopes.
-      required:
-      - object
-      - id
-      - created_at
-      - updated_at
-      - last_used_at
-      - account_id
-      - label
-      - public_key
-      - scopes
-      - ip_allow_list
-    PaginatedAPIKeysResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKey'
-          description: Array of API keys
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
     APIKeyScope:
       type: object
       properties:
@@ -618,6 +578,82 @@ components:
           description: Error description
       example:
         message: Error message
+    APIKey:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - api_key
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the API key
+        created_at:
+          type: string
+          format: date-time
+          description: When the API key was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the API key was last updated
+        last_used_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the API key was last used (updates every 5-10 minutes)
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this API key belongs to
+        label:
+          type: string
+          description: Human-readable label for the API key
+        public_key:
+          type: string
+          description: Public portion of the API key
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKeyScope'
+          description: Scopes granted to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Source IPs allowed to authenticate with this API key, as canonical CIDR blocks (a bare address is stored as a `/32` for IPv4 or `/128` for IPv6). Always present; an empty array means the key may be used from any source IP. When non-empty, an authenticated request whose client IP is not covered by an entry is rejected with HTTP 403 on every v2 endpoint, regardless of the key's scopes.
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - last_used_at
+      - account_id
+      - label
+      - public_key
+      - scopes
+      - ip_allow_list
+    PaginatedAPIKeysResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     PaginationInfo:
       type: object
       required:
@@ -635,6 +671,16 @@ components:
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     CreateAPIKeyRequest:
       type: object
       required:
@@ -665,48 +711,6 @@ components:
         ip_allow_list:
         - 203.0.113.0/24
         - 198.51.100.7
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -727,42 +731,38 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
 
-        request path, or request body. This response includes neither
+        When this header is absent, the response is not a stored replay. Ordinary fresh
 
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
+        responses do not send `false`; that value is reserved for an in-progress 409.
 
         '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   securitySchemes:
     BearerAuth:
       type: http
