@@ -1,0 +1,36 @@
+slug: ahasend
+provider: AhaSend
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 2
+edges:
+- tag: Webhooks
+  spec_file: ahasend-webhooks-api-openapi.yml
+  capability_id: BC-4270.80
+  capability_id_l1: BC-4270
+  capability_name: Webhook & Event Subscription Management
+  confidence: 0.8
+  evidence: POST /v2/accounts/{account_id}/webhooks createWebhook Create Webhook; schemas Webhook, CreateWebhookRequest,
+    UpdateWebhookRequest
+  reason: AhaSend exposes CRUD over outbound webhook subscriptions to its developer customers, which is
+    the lifecycle of outbound webhook/event subscriptions in the developer platform capability. Scoped
+    to subscription management rather than the email-sending capability itself.
+- tag: Subaccounts
+  spec_file: ahasend-subaccounts-api-openapi.yml
+  capability_id: BC-4230.10
+  capability_id_l1: BC-4230
+  capability_name: Tenant Provisioning & Lifecycle
+  confidence: 0.76
+  evidence: POST /v2/accounts/{account_id}/sub-accounts  createSubAccount; POST .../suspend  suspendSubAccount;
+    GET .../sub-accounts/usage  getSubAccountsUsage
+  reason: Create, update, suspend/unsuspend and delete sub-accounts with per-sub-account usage — classic
+    provisioning and lifecycle management of tenants in a multi-tenant SaaS fleet.
