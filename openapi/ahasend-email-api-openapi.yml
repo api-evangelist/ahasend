@@ -126,6 +126,18 @@ components:
           examples:
           - my_image.gif
           example: Example Name
+    AccessDeniedResponse:
+      type: object
+      example:
+        status: invalid credentials
+      properties:
+        status:
+          type: string
+          description: The reason your request failed.
+          examples:
+          - invalid credentials
+          - domain DNS config is not valid
+          example: example_value
     Content:
       type: object
       required:
@@ -168,25 +180,17 @@ components:
           example:
             X-My-Mail-ID: '12345'
             X-Comment-ID: '456789'
-    Email:
-      required:
-      - from
-      - recipients
-      - content
+    BadRequestResponse:
       type: object
+      example:
+        status: bad request
       properties:
-        from:
-          $ref: '#/components/schemas/Contact'
-        recipients:
-          type: array
-          description: Specifies the list of recipients to which message will be sent.
-          items:
-            $ref: '#/components/schemas/Contact'
-          example:
-          - email: user@example.com
-            name: Example Name
-        content:
-          $ref: '#/components/schemas/Content'
+        status:
+          type: string
+          examples:
+          - domain is not yours
+          - domain DNS config is not valid
+          example: example_value
     SuccessfulResponse:
       type: object
       properties:
@@ -212,17 +216,25 @@ components:
           items:
             type: string
             description: The reason the email failed to be sent to a recipient.
-    BadRequestResponse:
+    Email:
+      required:
+      - from
+      - recipients
+      - content
       type: object
-      example:
-        status: bad request
       properties:
-        status:
-          type: string
-          examples:
-          - domain is not yours
-          - domain DNS config is not valid
-          example: example_value
+        from:
+          $ref: '#/components/schemas/Contact'
+        recipients:
+          type: array
+          description: Specifies the list of recipients to which message will be sent.
+          items:
+            $ref: '#/components/schemas/Contact'
+          example:
+          - email: user@example.com
+            name: Example Name
+        content:
+          $ref: '#/components/schemas/Content'
     Contact:
       type: object
       required:
@@ -240,18 +252,6 @@ components:
           - John Smith
           - Jane Williams
           example: Example Name
-    AccessDeniedResponse:
-      type: object
-      example:
-        status: invalid credentials
-      properties:
-        status:
-          type: string
-          description: The reason your request failed.
-          examples:
-          - invalid credentials
-          - domain DNS config is not valid
-          example: example_value
   securitySchemes:
     api_key:
       type: apiKey

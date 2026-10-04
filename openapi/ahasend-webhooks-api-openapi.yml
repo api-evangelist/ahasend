@@ -516,7 +516,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  headers:
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
   responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
     IdempotencyConflict:
       description: 'Request in progress. This response always includes
 
@@ -538,21 +584,288 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+  schemas:
+    CreateWebhookRequest:
+      type: object
+      required:
+      - name
+      - url
+      - scope
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Webhook name
+        url:
+          type: string
+          format: uri
+          description: Webhook URL
+        enabled:
+          type: boolean
+          description: Whether the webhook is enabled
+          default: true
+        on_reception:
+          type: boolean
+          description: Trigger on message reception
+          default: false
+        on_delivered:
+          type: boolean
+          description: Trigger on message delivery
+          default: false
+        on_transient_error:
+          type: boolean
+          description: Trigger on transient errors
+          default: false
+        on_failed:
+          type: boolean
+          description: Trigger on permanent failures
+          default: false
+        on_bounced:
+          type: boolean
+          description: Trigger on bounces
+          default: false
+        on_suppressed:
+          type: boolean
+          description: Trigger on suppressions
+          default: false
+        on_opened:
+          type: boolean
+          description: Trigger on opens
+          default: false
+        on_clicked:
+          type: boolean
+          description: Trigger on clicks
+          default: false
+        on_suppression_created:
+          type: boolean
+          description: Trigger on suppression creation
+          default: false
+        on_dns_error:
+          type: boolean
+          description: Trigger on DNS errors
+          default: false
+        scope:
+          type: string
+          enum:
+          - global
+          - scoped
+          description: Webhook scope
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'For `scoped`, a non-empty array is required. For `global`, this may
 
-        request path, or request body. This response includes neither
+            be omitted, null, empty, or non-empty; supplied values are accepted
 
-        `Idempotent-Replayed` nor `Retry-After`.
+            but ignored.
+
+            '
+      allOf:
+      - if:
+          properties:
+            scope:
+              const: scoped
+          required:
+          - scope
+        then:
+          required:
+          - domains
+          properties:
+            domains:
+              type: array
+              minItems: 1
+              items:
+                type: string
+      example:
+        name: Delivery Webhook
+        url: https://example.com/webhook
+        scope: global
+        enabled: true
+        on_delivered: true
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
 
         '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-  schemas:
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    UpdateWebhookRequest:
+      type: object
+      description: 'Partial update. Omitted and null scalar fields leave their stored values
+
+        unchanged. Domain transition rules depend on the webhook''s existing
+
+        scope and are described on `domains`.
+
+        '
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Webhook name
+        url:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: Webhook URL
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the webhook is enabled
+        on_reception:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message reception
+        on_delivered:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message delivery
+        on_transient_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on transient errors
+        on_failed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on permanent failures
+        on_bounced:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on bounces
+        on_suppressed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppressions
+        on_opened:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on opens
+        on_clicked:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on clicks
+        on_suppression_created:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppression creation
+        on_dns_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on DNS errors
+        scope:
+          type:
+          - string
+          - 'null'
+          enum:
+          - global
+          - scoped
+          - null
+          description: Webhook scope. Omit or send null to keep the current scope.
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'Omit or send null to leave domain associations unchanged. An array
+
+            replaces associations when the resulting scope is `scoped`; `[]`
+
+            explicitly clears them. Changing a global webhook to `scoped`
+
+            requires a non-empty array in the same request and otherwise
+
+            returns HTTP 400. Changing to `global` clears all associations;
+
+            supplied domains are ignored when the resulting scope is global.
+
+            '
+    CreatedWebhook:
+      allOf:
+      - $ref: '#/components/schemas/Webhook'
+      - type: object
+        properties:
+          secret:
+            type: string
+            description: Webhook signing secret. Returned only when the webhook is created.
+        required:
+        - secret
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    PaginatedWebhooksResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
+          description: Array of webhooks
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
     Webhook:
       type: object
       properties:
@@ -670,319 +983,6 @@ components:
       - error_count
       - errors_since_last_success
       - last_request_at
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    CreatedWebhook:
-      allOf:
-      - $ref: '#/components/schemas/Webhook'
-      - type: object
-        properties:
-          secret:
-            type: string
-            description: Webhook signing secret. Returned only when the webhook is created.
-        required:
-        - secret
-    PaginatedWebhooksResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Webhook'
-          description: Array of webhooks
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    CreateWebhookRequest:
-      type: object
-      required:
-      - name
-      - url
-      - scope
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Webhook name
-        url:
-          type: string
-          format: uri
-          description: Webhook URL
-        enabled:
-          type: boolean
-          description: Whether the webhook is enabled
-          default: true
-        on_reception:
-          type: boolean
-          description: Trigger on message reception
-          default: false
-        on_delivered:
-          type: boolean
-          description: Trigger on message delivery
-          default: false
-        on_transient_error:
-          type: boolean
-          description: Trigger on transient errors
-          default: false
-        on_failed:
-          type: boolean
-          description: Trigger on permanent failures
-          default: false
-        on_bounced:
-          type: boolean
-          description: Trigger on bounces
-          default: false
-        on_suppressed:
-          type: boolean
-          description: Trigger on suppressions
-          default: false
-        on_opened:
-          type: boolean
-          description: Trigger on opens
-          default: false
-        on_clicked:
-          type: boolean
-          description: Trigger on clicks
-          default: false
-        on_suppression_created:
-          type: boolean
-          description: Trigger on suppression creation
-          default: false
-        on_dns_error:
-          type: boolean
-          description: Trigger on DNS errors
-          default: false
-        scope:
-          type: string
-          enum:
-          - global
-          - scoped
-          description: Webhook scope
-        domains:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: 'For `scoped`, a non-empty array is required. For `global`, this may
-
-            be omitted, null, empty, or non-empty; supplied values are accepted
-
-            but ignored.
-
-            '
-      allOf:
-      - if:
-          properties:
-            scope:
-              const: scoped
-          required:
-          - scope
-        then:
-          required:
-          - domains
-          properties:
-            domains:
-              type: array
-              minItems: 1
-              items:
-                type: string
-      example:
-        name: Delivery Webhook
-        url: https://example.com/webhook
-        scope: global
-        enabled: true
-        on_delivered: true
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    UpdateWebhookRequest:
-      type: object
-      description: 'Partial update. Omitted and null scalar fields leave their stored values
-
-        unchanged. Domain transition rules depend on the webhook''s existing
-
-        scope and are described on `domains`.
-
-        '
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-          description: Webhook name
-        url:
-          type:
-          - string
-          - 'null'
-          format: uri
-          description: Webhook URL
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Whether the webhook is enabled
-        on_reception:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on message reception
-        on_delivered:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on message delivery
-        on_transient_error:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on transient errors
-        on_failed:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on permanent failures
-        on_bounced:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on bounces
-        on_suppressed:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on suppressions
-        on_opened:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on opens
-        on_clicked:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on clicks
-        on_suppression_created:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on suppression creation
-        on_dns_error:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on DNS errors
-        scope:
-          type:
-          - string
-          - 'null'
-          enum:
-          - global
-          - scoped
-          - null
-          description: Webhook scope. Omit or send null to keep the current scope.
-        domains:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: 'Omit or send null to leave domain associations unchanged. An array
-
-            replaces associations when the resulting scope is `scoped`; `[]`
-
-            explicitly clears them. Changing a global webhook to `scoped`
-
-            requires a non-empty array in the same request and otherwise
-
-            returns HTTP 400. Changing to `global` clears all associations;
-
-            supplied domains are ignored when the resulting scope is global.
-
-            '
-  headers:
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

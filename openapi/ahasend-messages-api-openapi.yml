@@ -533,347 +533,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  headers:
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
   schemas:
-    CreateConversationMessageRequest:
-      type: object
-      required:
-      - from
-      - to
-      - subject
-      properties:
-        from:
-          $ref: '#/components/schemas/Address'
-        to:
-          type: array
-          items:
-            $ref: '#/components/schemas/Address'
-          minItems: 1
-          maxItems: 50
-          description: This parameter can set the `To` header to multiple addresses. The combined to, cc, and bcc recipient count must not exceed 50.
-        cc:
-          type: array
-          items:
-            $ref: '#/components/schemas/Address'
-          minItems: 1
-          maxItems: 50
-          description: This parameter can set the `CC` header to multiple addresses. Do not include `cc` in the headers array. The combined to, cc, and bcc recipient count must not exceed 50.
-        bcc:
-          type: array
-          items:
-            $ref: '#/components/schemas/Address'
-          minItems: 1
-          maxItems: 50
-          description: This parameter can set the `To` header to multiple addresses. The combined to, cc, and bcc recipient count must not exceed 50.
-        reply_to:
-          $ref: '#/components/schemas/Address'
-          description: If provided, the reply-to header in headers array must not be provided
-        subject:
-          type: string
-          description: Email subject line
-        text_content:
-          type: string
-          description: Plain text content. Required if html_content is empty
-        html_content:
-          type: string
-          description: HTML content. Required if text_content is empty
-        amp_content:
-          type: string
-          description: AMP HTML content
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
-        headers:
-          type: object
-          additionalProperties:
-            type: string
-          description: Custom email headers. `cc` and `reply-to` headers cannot be provided if `reply_to` or `cc` parameters are provided, message-id will be ignored and automatically generated
-        tags:
-          type: array
-          items:
-            type: string
-          description: Tags for categorizing messages
-        sandbox:
-          type: boolean
-          description: If true, the message will be sent to the sandbox environment
-          default: false
-        sandbox_result:
-          type: string
-          enum:
-          - deliver
-          - bounce
-          - defer
-          - fail
-          - suppress
-          description: The result of the sandbox send
-        tracking:
-          $ref: '#/components/schemas/Tracking'
-          description: Tracking settings for the message, overrides default account settings
-        retention:
-          $ref: '#/components/schemas/Retention'
-          description: Retention settings for the message, overrides default account settings
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Schedule for message delivery
-      example:
-        from:
-          email: noreply@example.com
-          name: Example Corp
-        to:
-        - email: user@example.com
-          name: John Doe
-        - email: someone@example.com
-          name: Jane Doe
-        cc:
-        - email: hr@example.com
-          name: Example Corp HR
-        bcc:
-        - email: bcc@example.com
-          name: BCC Recipient
-        subject: Welcome to Example Corp
-        html_content: <h1>Dear John and Jane, welcome to Example Corp!</h1>
-        text_content: Dear John and Jane, welcome to Example Corp!
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    MessageContentParsed:
-      type: object
-      properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageContentPart'
-          description: Array of message content parts (text, HTML, etc.)
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageAttachment'
-          description: Array of message attachments
-        headers:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
-          example:
-            Content-Type:
-            - text/html; charset=utf-8
-            X-Custom-Header:
-            - value1
-            - value2
-      required:
-      - parts
-      - attachments
-      - headers
-    CreateSingleMessageResponse:
-      type: object
-      required:
-      - object
-      - id
-      - recipient
-      - status
-      - error
-      properties:
-        object:
-          type: string
-          enum:
-          - message
-          description: Object type identifier
-        id:
-          type:
-          - string
-          - 'null'
-          description: Message ID (null if the message was not sent)
-          example: <uuid@example.com>
-        recipient:
-          allOf:
-          - $ref: '#/components/schemas/Recipient'
-          - type: object
-            required:
-            - name
-        status:
-          type: string
-          enum:
-          - queued
-          - scheduled
-          - error
-          description: Status of the message
-        error:
-          type:
-          - string
-          - 'null'
-          description: Error message if the message was not sent
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Provided if the request contained a schedule
-    Tracking:
-      type:
-      - object
-      - 'null'
-      properties:
-        open:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to track opens
-        click:
-          type:
-          - boolean
-          - 'null'
-          description: Whether to track clicks
-      example:
-        open: true
-        click: true
-    Address:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          description: Valid email address from a domain defined in your account with valid DNS records
-        name:
-          type: string
-          description: Display name for the sender
-      example:
-        email: noreply@example.com
-        name: Example Corp
-    PaginatedMessagesResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageSummary'
-          description: Array of message summaries (content and content_parsed fields omitted for performance)
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    Recipient:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          description: Recipient email address
-        name:
-          type: string
-          description: Display name for the recipient
-        substitutions:
-          type: object
-          additionalProperties: true
-          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content
-      example:
-        email: user@example.com
-        name: John Doe
-        substitutions:
-          first_name: John
-          order_id: '12345'
     DeliveryEvent:
       type: object
       properties:
@@ -930,17 +590,6 @@ components:
         data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
         content_type: image/png
         file_name: pixel.png
-    MessageSchedule:
-      type: object
-      properties:
-        first_attempt:
-          type: string
-          format: date-time
-          description: The time to make the first attempt for delivering the message. Must be RFC3339 format, in the future, and within 7 days of the request.
-        expires:
-          type: string
-          format: date-time
-          description: Expire and drop the message if not delivered by this time. Must be RFC3339 format, in the future, and within 8 days of the request.
     CreateMessageResponse:
       type: object
       required:
@@ -957,19 +606,184 @@ components:
           items:
             $ref: '#/components/schemas/CreateSingleMessageResponse'
           description: List of messages and their statuses
-    MessageContentPart:
+    Recipient:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Recipient email address
+        name:
+          type: string
+          description: Display name for the recipient
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content
+      example:
+        email: user@example.com
+        name: John Doe
+        substitutions:
+          first_name: John
+          order_id: '12345'
+    Message:
+      allOf:
+      - $ref: '#/components/schemas/MessageSummary'
+      - type: object
+        properties:
+          content:
+            type: string
+            description: Original raw email content in RFC822 format. Omitted when message content is unavailable.
+          content_parsed:
+            $ref: '#/components/schemas/MessageContentParsed'
+            description: Parsed message content. Omitted when message content is unavailable.
+    CreateMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          maxItems: 100
+          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: Email subject line
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+        amp_content:
+          type: string
+          description: AMP HTML content
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Global substitutions, recipient substitutions override global
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        recipients:
+        - email: user@example.com
+          name: John Doe
+        subject: Welcome to Example Corp
+        html_content: <h1>Welcome {{first_name}}!</h1>
+        text_content: Welcome {{first_name}}!
+        substitutions:
+          first_name: John
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    MessageSchedule:
       type: object
       properties:
-        content_type:
+        first_attempt:
           type: string
-          description: MIME content type (e.g., "text/plain", "text/html")
-          example: text/html
+          format: date-time
+          description: The time to make the first attempt for delivering the message. Must be RFC3339 format, in the future, and within 7 days of the request.
+        expires:
+          type: string
+          format: date-time
+          description: Expire and drop the message if not delivered by this time. Must be RFC3339 format, in the future, and within 8 days of the request.
+    MessageAttachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Original filename of the attachment
+          example: document.pdf
         content:
           type: string
-          description: The actual content for this part
+          description: Base64 encoded attachment content
+        content_type:
+          type: string
+          description: MIME content type of the attachment
+          example: application/pdf
+        content_id:
+          type: string
+          description: Content-ID for inline attachments
+          example: image001@example.com
       required:
-      - content_type
+      - filename
       - content
+      - content_type
+      - content_id
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -990,39 +804,47 @@ components:
           description: Error description
       example:
         message: Error message
-    Message:
-      allOf:
-      - $ref: '#/components/schemas/MessageSummary'
-      - type: object
-        properties:
-          content:
-            type: string
-            description: Original raw email content in RFC822 format. Omitted when message content is unavailable.
-          content_parsed:
-            $ref: '#/components/schemas/MessageContentParsed'
-            description: Parsed message content. Omitted when message content is unavailable.
-    Retention:
-      type:
+    CreateSingleMessageResponse:
+      type: object
+      required:
       - object
-      - 'null'
+      - id
+      - recipient
+      - status
+      - error
       properties:
-        metadata:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+        id:
           type:
-          - integer
+          - string
           - 'null'
-          description: Number of days to retain metadata
-          minimum: 1
-          maximum: 30
-        data:
+          description: Message ID (null if the message was not sent)
+          example: <uuid@example.com>
+        recipient:
+          allOf:
+          - $ref: '#/components/schemas/Recipient'
+          - type: object
+            required:
+            - name
+        status:
+          type: string
+          enum:
+          - queued
+          - scheduled
+          - error
+          description: Status of the message
+        error:
           type:
-          - integer
+          - string
           - 'null'
-          description: Number of days to retain data
-          minimum: 0
-          maximum: 30
-      example:
-        metadata: 1
-        data: 0
+          description: Error message if the message was not sent
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Provided if the request contained a schedule
     MessageSummary:
       type: object
       properties:
@@ -1147,22 +969,112 @@ components:
       - reference_message_id
       - domain_id
       - account_id
-    CreateMessageRequest:
+    MessageContentParsed:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContentPart'
+          description: Array of message content parts (text, HTML, etc.)
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+          description: Array of message attachments
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
+          example:
+            Content-Type:
+            - text/html; charset=utf-8
+            X-Custom-Header:
+            - value1
+            - value2
+      required:
+      - parts
+      - attachments
+      - headers
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Valid email address from a domain defined in your account with valid DNS records
+        name:
+          type: string
+          description: Display name for the sender
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    Tracking:
+      type:
+      - object
+      - 'null'
+      properties:
+        open:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to track opens
+        click:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to track clicks
+      example:
+        open: true
+        click: true
+    MessageContentPart:
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: MIME content type (e.g., "text/plain", "text/html")
+          example: text/html
+        content:
+          type: string
+          description: The actual content for this part
+      required:
+      - content_type
+      - content
+    CreateConversationMessageRequest:
       type: object
       required:
       - from
-      - recipients
+      - to
       - subject
       properties:
         from:
           $ref: '#/components/schemas/Address'
-        recipients:
+        to:
           type: array
           items:
-            $ref: '#/components/schemas/Recipient'
+            $ref: '#/components/schemas/Address'
           minItems: 1
-          maxItems: 100
-          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+          maxItems: 50
+          description: This parameter can set the `To` header to multiple addresses. The combined to, cc, and bcc recipient count must not exceed 50.
+        cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          maxItems: 50
+          description: This parameter can set the `CC` header to multiple addresses. Do not include `cc` in the headers array. The combined to, cc, and bcc recipient count must not exceed 50.
+        bcc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          maxItems: 50
+          description: This parameter can set the `To` header to multiple addresses. The combined to, cc, and bcc recipient count must not exceed 50.
         reply_to:
           $ref: '#/components/schemas/Address'
           description: If provided, the reply-to header in headers array must not be provided
@@ -1187,11 +1099,7 @@ components:
           type: object
           additionalProperties:
             type: string
-          description: Custom email headers. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
-        substitutions:
-          type: object
-          additionalProperties: true
-          description: Global substitutions, recipient substitutions override global
+          description: Custom email headers. `cc` and `reply-to` headers cannot be provided if `reply_to` or `cc` parameters are provided, message-id will be ignored and automatically generated
         tags:
           type: array
           items:
@@ -1223,37 +1131,129 @@ components:
         from:
           email: noreply@example.com
           name: Example Corp
-        recipients:
+        to:
         - email: user@example.com
           name: John Doe
+        - email: someone@example.com
+          name: Jane Doe
+        cc:
+        - email: hr@example.com
+          name: Example Corp HR
+        bcc:
+        - email: bcc@example.com
+          name: BCC Recipient
         subject: Welcome to Example Corp
-        html_content: <h1>Welcome {{first_name}}!</h1>
-        text_content: Welcome {{first_name}}!
-        substitutions:
-          first_name: John
-    MessageAttachment:
-      type: object
+        html_content: <h1>Dear John and Jane, welcome to Example Corp!</h1>
+        text_content: Dear John and Jane, welcome to Example Corp!
+    Retention:
+      type:
+      - object
+      - 'null'
       properties:
-        filename:
-          type: string
-          description: Original filename of the attachment
-          example: document.pdf
-        content:
-          type: string
-          description: Base64 encoded attachment content
-        content_type:
-          type: string
-          description: MIME content type of the attachment
-          example: application/pdf
-        content_id:
-          type: string
-          description: Content-ID for inline attachments
-          example: image001@example.com
+        metadata:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain metadata
+          minimum: 1
+          maximum: 30
+        data:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain data
+          minimum: 0
+          maximum: 30
+      example:
+        metadata: 1
+        data: 0
+    PaginatedMessagesResponse:
+      type: object
       required:
-      - filename
-      - content
-      - content_type
-      - content_id
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageSummary'
+          description: Array of message summaries (content and content_parsed fields omitted for performance)
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

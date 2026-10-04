@@ -430,26 +430,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
     Suppression:
       type: object
       properties:
@@ -488,33 +468,6 @@ components:
       - domain
       - reason
       - expires_at
-    CreateSuppressionRequest:
-      type: object
-      required:
-      - email
-      - expires_at
-      properties:
-        email:
-          type: string
-          format: email
-          description: Email address to suppress
-        domain:
-          type: string
-          format: hostname
-          description: Domain for which to suppress the email
-        reason:
-          type: string
-          maxLength: 255
-          description: Reason for suppression
-        expires_at:
-          type: string
-          format: date-time
-          description: When the suppression expires (RFC3339 format)
-      example:
-        email: user@example.com
-        domain: example.com
-        reason: User requested removal
-        expires_at: '2024-12-25T10:30:00Z'
     CreateSuppressionResponse:
       type: object
       required:
@@ -550,6 +503,36 @@ components:
           description: Array of suppressions
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     PaginationInfo:
       type: object
       required:
@@ -567,16 +550,33 @@ components:
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
-    SuccessResponse:
+    CreateSuppressionRequest:
       type: object
       required:
-      - message
+      - email
+      - expires_at
       properties:
-        message:
+        email:
           type: string
-          description: Success message
+          format: email
+          description: Email address to suppress
+        domain:
+          type: string
+          format: hostname
+          description: Domain for which to suppress the email
+        reason:
+          type: string
+          maxLength: 255
+          description: Reason for suppression
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires (RFC3339 format)
       example:
-        message: Operation completed successfully
+        email: user@example.com
+        domain: example.com
+        reason: User requested removal
+        expires_at: '2024-12-25T10:30:00Z'
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
@@ -593,6 +593,15 @@ components:
           example:
             message: idempotency key was already used with a different request payload
   headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
 
@@ -605,15 +614,6 @@ components:
         type: string
         enum:
         - 'true'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

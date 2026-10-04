@@ -85,16 +85,6 @@ paths:
                 message: internal server error
 components:
   schemas:
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -115,6 +105,16 @@ components:
           description: Error description
       example:
         message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
   securitySchemes:
     BearerAuth:
       type: http
