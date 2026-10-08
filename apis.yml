@@ -308,6 +308,8 @@ maintainers:
     email: kin@apievangelist.com
 specificationVersion: '0.23'
 common:
+  - type: FinOps
+    url: finops/ahasend-finops.yml
   - type: CapabilityMap
     url: capabilities/ahasend-capability-edges.yml
     name: AhaSend Business Capability Map
