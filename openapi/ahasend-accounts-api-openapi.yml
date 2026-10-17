@@ -454,6 +454,51 @@ components:
           example:
             message: idempotency key was already used with a different request payload
   schemas:
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    AddMemberRequest:
+      type: object
+      required:
+      - email
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to add
+        name:
+          type: string
+          description: Display name for the user
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: Role to assign to the user
+      example:
+        email: user@example.com
+        name: John Doe
+        role: Developer
     UpdateAccountRequest:
       type: object
       properties:
@@ -568,67 +613,6 @@ components:
       - message_metadata_retention
       - message_data_retention
       - owner_id
-    AccountMembersResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserAccount'
-          description: Array of account members
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    AddMemberRequest:
-      type: object
-      required:
-      - email
-      - role
-      properties:
-        email:
-          type: string
-          format: email
-          description: Email address of the user to add
-        name:
-          type: string
-          description: Display name for the user
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: Role to assign to the user
-      example:
-        email: user@example.com
-        name: John Doe
-        role: Developer
     UserAccount:
       type: object
       properties:
@@ -672,16 +656,23 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
+    AccountMembersResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+          description: Array of account members
   headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
 
@@ -694,6 +685,15 @@ components:
         type: string
         enum:
         - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

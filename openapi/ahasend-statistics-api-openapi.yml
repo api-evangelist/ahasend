@@ -394,35 +394,22 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    DeliveryTimeStatistics:
+    DeliveryTimeStatisticsResponse:
       type: object
+      required:
+      - object
+      - data
       properties:
-        from_timestamp:
+        object:
           type: string
-          format: date-time
-          description: Start time of the statistics bucket
-        to_timestamp:
-          type: string
-          format: date-time
-          description: End time of the statistics bucket
-        avg_delivery_time:
-          type: number
-          format: double
-          description: Average delivery time in seconds
-        delivered_count:
-          type: integer
-          description: Number of messages
-        delivery_times:
+          enum:
+          - list
+          description: Object type identifier
+        data:
           type: array
           items:
-            $ref: '#/components/schemas/DeliveryTime'
-            description: Delivery times per recipient domain
-      required:
-      - from_timestamp
-      - to_timestamp
-      - avg_delivery_time
-      - delivered_count
-      - delivery_times
+            $ref: '#/components/schemas/DeliveryTimeStatistics'
+          description: Array of delivery time statistics
     DeliverabilityStatistics:
       type: object
       properties:
@@ -469,6 +456,41 @@ components:
       - suppressed_count
       - opened_count
       - clicked_count
+    BounceStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
+    DeliveryTime:
+      type: object
+      properties:
+        recipient_domain:
+          type: string
+          format: fqdn
+          description: The recipient domain
+        delivery_time:
+          type: number
+          format: double
+          description: The average time from reception to delivery in seconds
+        count:
+          type: integer
+          format: int64
+          description: Number of delivered messages included in the average
+      required:
+      - recipient_domain
+      - delivery_time
+      - count
     DeliverabilityStatisticsResponse:
       type: object
       required:
@@ -505,6 +527,35 @@ components:
           description: Error description
       example:
         message: Error message
+    DeliveryTimeStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        avg_delivery_time:
+          type: number
+          format: double
+          description: Average delivery time in seconds
+        delivered_count:
+          type: integer
+          description: Number of messages
+        delivery_times:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTime'
+            description: Delivery times per recipient domain
+      required:
+      - from_timestamp
+      - to_timestamp
+      - avg_delivery_time
+      - delivered_count
+      - delivery_times
     BounceStatistics:
       type: object
       properties:
@@ -525,25 +576,6 @@ components:
       - from_timestamp
       - to_timestamp
       - bounces
-    DeliveryTime:
-      type: object
-      properties:
-        recipient_domain:
-          type: string
-          format: fqdn
-          description: The recipient domain
-        delivery_time:
-          type: number
-          format: double
-          description: The average time from reception to delivery in seconds
-        count:
-          type: integer
-          format: int64
-          description: Number of delivered messages included in the average
-      required:
-      - recipient_domain
-      - delivery_time
-      - count
     Bounce:
       type: object
       properties:
@@ -556,38 +588,6 @@ components:
       required:
       - classification
       - count
-    DeliveryTimeStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/DeliveryTimeStatistics'
-          description: Array of delivery time statistics
-    BounceStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BounceStatistics'
-          description: Array of bounce statistics
   securitySchemes:
     BearerAuth:
       type: http

@@ -90,42 +90,6 @@ paths:
         dispatcher: FALLBACK
 components:
   schemas:
-    Attachment:
-      type: object
-      required:
-      - data
-      - file_name
-      - content_type
-      properties:
-        data:
-          type: string
-          examples:
-          - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
-          description: The attachment data. If the base64 field is true, this data must be encoded using base64. Otherwise, it will be interpreted as UTF-8.
-          example: example_value
-        base64:
-          type: boolean
-          examples:
-          - true
-          - false
-          description: If set to true, data needs to be encoded using base64. Otherwise data will be interpreted as UTF-8.
-          example: true
-        content_type:
-          type: string
-          examples:
-          - image/gif
-          example: example_value
-        content_id:
-          type: string
-          examples:
-          - my-image
-          description: If specified, this attachment will be added as an inline attachment and a multipart/related MIME container will be generated in the message to hold it and the textual content.
-          example: '500123'
-        file_name:
-          type: string
-          examples:
-          - my_image.gif
-          example: Example Name
     AccessDeniedResponse:
       type: object
       example:
@@ -138,59 +102,23 @@ components:
           - invalid credentials
           - domain DNS config is not valid
           example: example_value
-    Content:
+    Contact:
       type: object
       required:
-      - subject
+      - email
       properties:
-        subject:
+        email:
           type: string
           examples:
-          - Sample subject
-          example: example_value
-        text_body:
-          type: string
-          description: Plaintext body of the email
-          examples:
-          - Sample email body
-          example: example_value
-        html_body:
-          type: string
-          description: HTML body of the email
-          examples:
-          - <p>Sample email body</p>
-          example: example_value
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          example:
-          - data: example_value
-            base64: true
-            content_type: example_value
-            content_id: '500123'
-            file_name: Example Name
-        reply_to:
-          $ref: '#/components/schemas/Contact'
-        headers:
-          type: object
-          description: Specify arbitary headers.
-          additionalProperties:
-            type: string
-          example:
-            X-My-Mail-ID: '12345'
-            X-Comment-ID: '456789'
-    BadRequestResponse:
-      type: object
-      example:
-        status: bad request
-      properties:
-        status:
+          - john@nasa.gov
+          - jane@nasa.gov
+          example: user@example.com
+        name:
           type: string
           examples:
-          - domain is not yours
-          - domain DNS config is not valid
-          example: example_value
+          - John Smith
+          - Jane Williams
+          example: Example Name
     SuccessfulResponse:
       type: object
       properties:
@@ -235,22 +163,94 @@ components:
             name: Example Name
         content:
           $ref: '#/components/schemas/Content'
-    Contact:
+    BadRequestResponse:
+      type: object
+      example:
+        status: bad request
+      properties:
+        status:
+          type: string
+          examples:
+          - domain is not yours
+          - domain DNS config is not valid
+          example: example_value
+    Content:
       type: object
       required:
-      - email
+      - subject
       properties:
-        email:
+        subject:
           type: string
           examples:
-          - john@nasa.gov
-          - jane@nasa.gov
-          example: user@example.com
-        name:
+          - Sample subject
+          example: example_value
+        text_body:
+          type: string
+          description: Plaintext body of the email
+          examples:
+          - Sample email body
+          example: example_value
+        html_body:
+          type: string
+          description: HTML body of the email
+          examples:
+          - <p>Sample email body</p>
+          example: example_value
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          example:
+          - data: example_value
+            base64: true
+            content_type: example_value
+            content_id: '500123'
+            file_name: Example Name
+        reply_to:
+          $ref: '#/components/schemas/Contact'
+        headers:
+          type: object
+          description: Specify arbitary headers.
+          additionalProperties:
+            type: string
+          example:
+            X-My-Mail-ID: '12345'
+            X-Comment-ID: '456789'
+    Attachment:
+      type: object
+      required:
+      - data
+      - file_name
+      - content_type
+      properties:
+        data:
           type: string
           examples:
-          - John Smith
-          - Jane Williams
+          - R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+          description: The attachment data. If the base64 field is true, this data must be encoded using base64. Otherwise, it will be interpreted as UTF-8.
+          example: example_value
+        base64:
+          type: boolean
+          examples:
+          - true
+          - false
+          description: If set to true, data needs to be encoded using base64. Otherwise data will be interpreted as UTF-8.
+          example: true
+        content_type:
+          type: string
+          examples:
+          - image/gif
+          example: example_value
+        content_id:
+          type: string
+          examples:
+          - my-image
+          description: If specified, this attachment will be added as an inline attachment and a multipart/related MIME container will be generated in the message to hold it and the textual content.
+          example: '500123'
+        file_name:
+          type: string
+          examples:
+          - my_image.gif
           example: Example Name
   securitySchemes:
     api_key:
