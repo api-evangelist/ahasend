@@ -1,0 +1,12 @@
+{
+ "url": "https://ahasend.com/docs/openapi.yaml",
+ "final": "https://ahasend.com/docs/openapi.yaml",
+ "status": 200,
+ "content_type": "text/yaml",
+ "bytes": 623274,
+ "sha256": "6870fcd045b2f4c9fcea86842129a7408c0397e30acbb406d8cb10ab7ef31116",
+ "fetched_at": "2026-10-19",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "re-archived: the provider's current document replaced a stale archive (roadmap#793); the old files are in openapi/_superseded/2026-10-19-stale"
+}

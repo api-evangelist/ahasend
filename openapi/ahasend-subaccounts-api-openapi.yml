@@ -1,7 +1,156 @@
 openapi: 3.2.0
 info:
   title: AhaSend API v2 Sub Accounts API
-  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -55,7 +204,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // List sub accounts (limit results to 50 per page)\n  response, httpResp, err := client.SubAccountsAPI.ListSubAccounts(ctx, accountID, &common.PaginationParams{Limit: ahasend.Int32(50)})\n  if err != nil {\n    log.Fatalf(\"Error listing sub accounts: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub accounts listed! Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"Found %d sub accounts\\n\", len(response.Data))\n    for _, sub := range response.Data {\n      fmt.Printf(\"- ID: %s, Name: %s, Status: %s\\n\", sub.ID, sub.Name, sub.Status)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.SubAccountsAPI.ListSubAccounts(ctx, accountID, &common.PaginationParams{\n    Limit: ahasend.Int32(50),\n  })\n  if err != nil {\n    log.Fatalf(\"Error listing sub accounts: %v\", err)\n  }\n  for _, sub := range response.Data {\n    fmt.Printf(\"%s %s %s\\n\", sub.ID, sub.Name, sub.Status)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -126,10 +275,10 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Create a sub account with an idempotency key for safe retries\n  response, httpResp, err := client.SubAccountsAPI.CreateSubAccount(ctx, accountID, requests.CreateSubAccountRequest{\n    Name:          \"Acme Subsidiary\",\n    Website:       \"acme.example.com\",\n    MonthlyCredit: ahasend.Int64(0),\n  }, api.WithIdempotencyKey(\"subacct-20240101-acme\"))\n  if err != nil {\n    log.Fatalf(\"Error creating sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Sub account created! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.SubAccountsAPI.CreateSubAccount(ctx, accountID, requests.CreateSubAccountRequest{\n    Name:          \"Acme Subsidiary\",\n    Website:       \"acme.example.com\",\n    MonthlyCredit: ahasend.Int64(0),\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating sub account: %v\", err)\n  }\n  fmt.Printf(\"Created sub account %s\\n\", response.ID)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
-        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccount = await client.subAccounts.create(\n  { name: \"Example subsidiary\", website: \"subsidiary.example.com\" },\n  { idempotencyKey: \"sdk-sample-create-sub-account\" },\n);\nconsole.log(\"Sub-account created.\", { id: subAccount.id, status: subAccount.status });\n"
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst subAccount = await client.subAccounts.create({\n  name: \"Example subsidiary\",\n  website: \"subsidiary.example.com\",\n});\nconsole.log(\"Sub-account created.\", { id: subAccount.id, status: subAccount.status });\n"
       requestBody:
         required: true
         content:
@@ -201,7 +350,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.GetSubAccountsUsage(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting sub-accounts usage: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved sub-accounts usage! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Currency: %s\\n\", response.Currency)\n      fmt.Printf(\"Allocation method: %s\\n\", response.AllocationMethod)\n      fmt.Printf(\"Total reception count: %d\\n\", response.Total.ReceptionCount)\n      fmt.Printf(\"Total allocated cost: %.2f\\n\", response.Total.AllocatedCost)\n\n      fmt.Printf(\"Sub-accounts: %d\\n\", len(response.SubAccounts))\n      for i, sub := range response.SubAccounts {\n        fmt.Printf(\"  [%d] reception count: %d, allocated cost: %.2f\\n\", i, sub.ReceptionCount, sub.AllocatedCost)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.SubAccountsAPI.GetSubAccountsUsage(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting sub-accounts usage: %v\", err)\n  }\n  fmt.Printf(\"Allocation method: %s\\n\", response.AllocationMethod)\n  fmt.Printf(\"Total: %d messages, %.2f %s\\n\", response.Total.ReceptionCount, response.Total.AllocatedCost, response.Currency)\n  for _, sub := range response.SubAccounts {\n    name := \"(unnamed)\"\n    if sub.Name != nil {\n      name = *sub.Name\n    } else if sub.AccountID != nil {\n      name = sub.AccountID.String()\n    }\n    fmt.Printf(\"  %s: %d messages, %.2f %s\\n\", name, sub.ReceptionCount, sub.AllocatedCost, response.Currency)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst usage = await client.subAccounts.usage();\nconsole.log(\"Sub-account usage loaded.\", {\n  currency: usage.currency,\n  subAccountCount: usage.sub_accounts.length,\n});\n"
@@ -270,7 +419,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Get a single sub account by ID\n  response, httpResp, err := client.SubAccountsAPI.GetSubAccount(\n    ctx,\n    accountID,\n    subAccountID,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved sub account. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      fmt.Printf(\"Website: %s\\n\", response.Website)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n      fmt.Printf(\"Domain count: %d\\n\", response.DomainCount)\n      fmt.Printf(\"Member count: %d\\n\", response.MemberCount)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.GetSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n    log.Fatalf(\"Error getting sub account: %v\", err)\n  }\n  fmt.Printf(\"%s %s (%s)\\n\", response.Name, response.Website, response.Status)\n  fmt.Printf(\"Domains: %d, members: %d\\n\", response.DomainCount, response.MemberCount)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -349,7 +498,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.UpdateSubAccount(ctx, accountID, subAccountID, requests.UpdateSubAccountRequest{Name: ahasend.String(\"Acme Subsidiary\"), MonthlyCredit: ahasend.Int64(50000)})\n  if err != nil {\n    log.Fatalf(\"Error updating sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub account updated! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      fmt.Printf(\"MonthlyCredit: %d\\n\", response.MonthlyCredit)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.UpdateSubAccount(ctx, accountID, subAccountID, requests.UpdateSubAccountRequest{\n    Name:          ahasend.String(\"Acme Subsidiary\"),\n    MonthlyCredit: ahasend.Int64(50000),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating sub account: %v\", err)\n  }\n  fmt.Printf(\"%s monthly credit: %d\\n\", response.Name, response.MonthlyCredit)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId = \"00000000-0000-4000-8000-000000000004\";\nconst subAccount = await client.subAccounts.update(subAccountId, {\n  name: \"Renamed subsidiary\",\n});\nconsole.log(\"Sub-account updated.\", { id: subAccount.id, status: subAccount.status });\n"
@@ -423,7 +572,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Soft-delete the sub account\n  response, httpResp, err := client.SubAccountsAPI.DeleteSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n    log.Fatalf(\"Error deleting sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub account deleted! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil && response.Message != \"\" {\n      fmt.Printf(\"Response: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.DeleteSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n    log.Fatalf(\"Error deleting sub account: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -479,8 +628,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/suspend:
     post:
-      summary: Suspend Sub Account
-      description: Suspends a sub account under the parent account
+      summary: Pause Sub Account
+      description: Pauses sending on a sub account under the parent account. The status of the sub account becomes `suspended`.
       operationId: suspendSubAccount
       tags:
       - Subaccounts
@@ -505,7 +654,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.SuspendSubAccount(ctx, accountID, subAccountID, requests.SuspendSubAccountRequest{\n    Reason: \"Customer requested temporary pause\",\n  })\n  if err != nil {\n    log.Fatalf(\"Error suspending sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub account suspended. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Status: %s\\n\", response.Status)\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.SuspendSubAccount(ctx, accountID, subAccountID, requests.SuspendSubAccountRequest{\n    Reason: \"Customer requested temporary pause\",\n  })\n  if err != nil {\n    log.Fatalf(\"Error suspending sub account: %v\", err)\n  }\n  fmt.Printf(\"%s is %s\\n\", response.ID, response.Status)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId = \"00000000-0000-4000-8000-000000000004\";\nconst subAccount = await client.subAccounts.suspend(subAccountId, {\n  reason: \"Requested by account administrator\",\n});\nconsole.log(\"Sub-account suspended.\", { id: subAccount.id, status: subAccount.status });\n"
@@ -517,7 +666,7 @@ paths:
               $ref: '#/components/schemas/SuspendSubAccountRequest'
       responses:
         '200':
-          description: Sub account suspended successfully
+          description: Sub account paused successfully
           content:
             application/json:
               schema:
@@ -554,8 +703,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/unsuspend:
     post:
-      summary: Unsuspend Sub Account
-      description: Unsuspends a sub account under the parent account
+      summary: Resume Sub Account
+      description: Resumes sending on a paused sub account under the parent account
       operationId: unsuspendSubAccount
       tags:
       - Subaccounts
@@ -580,7 +729,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Unsuspend the sub account\n  response, httpResp, err := client.SubAccountsAPI.UnsuspendSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n    log.Fatalf(\"Error unsuspending sub account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub account unsuspended! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Sub Account ID: %s\\n\", response.ID)\n      fmt.Printf(\"Status: %s\\n\", response.Status)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.UnsuspendSubAccount(ctx, accountID, subAccountID)\n  if err != nil {\n    log.Fatalf(\"Error unsuspending sub account: %v\", err)\n  }\n  fmt.Printf(\"%s is %s\\n\", response.ID, response.Status)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -597,11 +746,88 @@ paths:
           '
       responses:
         '200':
-          description: Sub account unsuspended successfully
+          description: Sub account resumed successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden, or AhaSend paused the sub account. Only AhaSend support
+
+            can resume that pause.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sub account not found under the parent account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/domains/{domain}/unpause:
+    post:
+      summary: Unpause Sub Account Domain
+      description: 'Lifts the pause on a domain of a sub account under the parent account, so that the domain can send again.
+
+        The call is idempotent: if sending from the domain is not paused, it changes nothing and returns the domain.
+
+        A change of the pause can take some minutes to apply to new email.'
+      operationId: unpauseSubAccountDomain
+      tags:
+      - Subaccounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Parent account ID
+        schema:
+          type: string
+          format: uuid
+      - name: sub_account_id
+        in: path
+        required: true
+        description: Sub account ID
+        schema:
+          type: string
+          format: uuid
+      - name: domain
+        in: path
+        required: true
+        description: Domain name
+        schema:
+          type: string
+          format: hostname
+      security:
+      - BearerAuth:
+        - sub-accounts:suspend
+      responses:
+        '200':
+          description: The domain, with sending not paused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
         '400':
           description: Bad request
           content:
@@ -621,7 +847,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Sub account not found under the parent account
+          description: Sub account not found under the parent account, or domain not found in the sub account
           content:
             application/json:
               schema:
@@ -632,6 +858,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  response, _, err := client.SubAccountsAPI.UnpauseSubAccountDomain(ctx, accountID, subAccountID, \"example.com\")\n  if err != nil {\n    log.Fatalf(\"Error unpausing sub account domain: %v\", err)\n  }\n  fmt.Printf(\"%s paused: %t\\n\", response.Domain, response.Paused)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const subAccountId = "00000000-0000-4000-8000-000000000004";
+
+          const domain = await client.subAccounts.unpauseDomain(subAccountId, "mail.example.com");
+
+          console.log("Sub-account domain unpaused.", { name: domain.domain, paused: domain.paused });
+
+          '
   /v2/accounts/{account_id}/sub-accounts/{sub_account_id}/api-keys:
     get:
       summary: List Sub-Account API Keys
@@ -678,7 +922,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // List a sub-account's API keys (paginated, up to 50 per page).\n  // Note: secret_key is omitted from list responses; only create returns it once.\n  response, httpResp, err := client.SubAccountsAPI.ListSubAccountAPIKeys(\n    ctx,\n    accountID,\n    subAccountID,\n    &common.PaginationParams{Limit: ahasend.Int32(50)},\n  )\n  if err != nil {\n    log.Fatalf(\"Error listing sub-account API keys: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Listed sub-account API keys. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d API keys\\n\", len(response.Data))\n      for _, key := range response.Data {\n        fmt.Printf(\"API key %s: %s\\n\", key.ID, key.Label)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  // List responses never carry secret keys; only create returns one.\n  response, _, err := client.SubAccountsAPI.ListSubAccountAPIKeys(ctx, accountID, subAccountID, &common.PaginationParams{\n    Limit: ahasend.Int32(50),\n  })\n  if err != nil {\n    log.Fatalf(\"Error listing sub-account API keys: %v\", err)\n  }\n  for _, key := range response.Data {\n    fmt.Printf(\"%s %s\\n\", key.ID, key.Label)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -769,13 +1013,13 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Bootstrap an API key for the sub-account (idempotency key makes retries safe)\n  response, httpResp, err := client.SubAccountsAPI.CreateSubAccountAPIKey(\n    ctx,\n    accountID,\n    subAccountID,\n    requests.CreateAPIKeyRequest{\n      Label:  \"Bootstrap key\",\n      Scopes: []string{\"messages:send:all\", \"domains:read\"},\n      // Optional: restrict the sub-account key to specific source IPs.\n      IPAllowList: []string{\"203.0.113.0/24\"},\n    },\n    api.WithIdempotencyKey(\"child-bootstrap-key-20240101-acme\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating sub-account API key: %v\", err)\n  }\n\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Sub-account API key created. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Label: %s\\n\", response.Label)\n    fmt.Printf(\"Public key: %s\\n\", response.PublicKey)\n    // SecretKey is the one-time secret, returned ONLY on create.\n    if response.SecretKey != nil {\n      // Store this value immediately — it cannot be retrieved again later.\n      fmt.Printf(\"Secret key (store this now, shown only once): %s\\n\", *response.SecretKey)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n\n  // Bootstrap an API key for the sub account.\n  //\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.SubAccountsAPI.CreateSubAccountAPIKey(ctx, accountID, subAccountID, requests.CreateAPIKeyRequest{\n    Label:  \"Bootstrap key\",\n    Scopes: []string{\"messages:send:all\", \"domains:read\"},\n    // Optional: restrict the key to specific source IPs.\n    IPAllowList: []string{\"203.0.113.0/24\"},\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating sub-account API key: %v\", err)\n  }\n  // response.SecretKey is returned only on create (and on an idempotent\n  // replay of it): put it in your secret store now, and never log it.\n  fmt.Printf(\"Created API key %s (%s)\\n\", response.ID, response.Label)\n}\n"
       - lang: shell
         label: Bootstrap child API key
         source: "PARENT_ACCOUNT_ID=\"9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1\"\nPARENT_SECRET=\"aha-sk-parent-64-character-key\"\n\ncurl -sS -X POST \"https://api.ahasend.com/v2/accounts/${PARENT_ACCOUNT_ID}/sub-accounts\" \\\n  -H \"Authorization: Bearer ${PARENT_SECRET}\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Idempotency-Key: subacct-20240101-acme\" \\\n  -d '{\"name\":\"Acme Subsidiary\",\"website\":\"acme.example.com\"}' \\\n  > sub-account.json\n\nCHILD_ACCOUNT_ID=\"$(jq -r '.id' sub-account.json)\"\n\ncurl -sS -X POST \"https://api.ahasend.com/v2/accounts/${PARENT_ACCOUNT_ID}/sub-accounts/${CHILD_ACCOUNT_ID}/api-keys\" \\\n  -H \"Authorization: Bearer ${PARENT_SECRET}\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Idempotency-Key: child-bootstrap-key-20240101-acme\" \\\n  -d '{\"label\":\"Bootstrap key\",\"scopes\":[\"messages:send:all\",\"domains:read\"]}' \\\n  > child-api-key.json\n\nCHILD_SECRET=\"$(jq -r '.secret_key' child-api-key.json)\"\nprintf 'Store this one-time child secret securely: %s\\n' \"${CHILD_SECRET}\"\n\ncurl -sS \"https://api.ahasend.com/v2/accounts/${CHILD_ACCOUNT_ID}/domains\" \\\n  -H \"Authorization: Bearer ${CHILD_SECRET}\"\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
-        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId = \"00000000-0000-4000-8000-000000000004\";\nconst apiKey = await client.subAccounts.apiKeys.create(\n  subAccountId,\n  { label: \"Bootstrap key\", scopes: [\"messages:send:all\"] },\n  { idempotencyKey: \"sdk-sample-create-sub-account-api-key\" },\n);\nconsole.log(\"Sub-account API key created.\", { id: apiKey.id, label: apiKey.label });\n"
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId = \"00000000-0000-4000-8000-000000000004\";\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst apiKey = await client.subAccounts.apiKeys.create(subAccountId, {\n  label: \"Bootstrap key\",\n  scopes: [\"messages:send:all\"],\n});\nconsole.log(\"Sub-account API key created.\", { id: apiKey.id, label: apiKey.label });\n"
       requestBody:
         required: true
         content:
@@ -899,7 +1143,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n  keyID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Get a single sub-account API key\n  response, httpResp, err := client.SubAccountsAPI.GetSubAccountAPIKey(\n    ctx,\n    accountID,\n    subAccountID,\n    keyID,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting sub-account API key: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved sub-account API key. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Label: %s\\n\", response.Label)\n      fmt.Printf(\"PublicKey: %s\\n\", response.PublicKey)\n      fmt.Printf(\"Scopes: %d\\n\", len(response.Scopes))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n  keyID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.SubAccountsAPI.GetSubAccountAPIKey(ctx, accountID, subAccountID, keyID)\n  if err != nil {\n    log.Fatalf(\"Error getting sub-account API key: %v\", err)\n  }\n  fmt.Printf(\"%s %s (%d scopes)\\n\", response.ID, response.Label, len(response.Scopes))\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -987,7 +1231,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n  keyID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // IPAllowList replaces the allowed source IPs; use &[]string{} to\n  // clear it (any IP), or omit it to leave the current list unchanged.\n  response, httpResp, err := client.SubAccountsAPI.UpdateSubAccountAPIKey(ctx, accountID, subAccountID, keyID, requests.UpdateAPIKeyRequest{Label: ahasend.String(\"Updated bootstrap key\"), Scopes: &[]string{\"messages:send:all\", \"domains:read\"}, IPAllowList: &[]string{\"203.0.113.0/24\"}})\n  if err != nil {\n    log.Fatalf(\"Error updating sub-account API key: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub-account API key updated. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Label: %s\\n\", response.Label)\n    fmt.Printf(\"Scopes: %d\\n\", len(response.Scopes))\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n  keyID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.SubAccountsAPI.UpdateSubAccountAPIKey(ctx, accountID, subAccountID, keyID, requests.UpdateAPIKeyRequest{\n    Label:  ahasend.String(\"Updated bootstrap key\"),\n    Scopes: &[]string{\"messages:send:all\", \"domains:read\"},\n    // Replaces the allowed source IPs. &[]string{} clears the list (any IP);\n    // leaving the field nil keeps the current list.\n    IPAllowList: &[]string{\"203.0.113.0/24\"},\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating sub-account API key: %v\", err)\n  }\n  fmt.Printf(\"Updated API key %s\\n\", response.ID)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst subAccountId = \"00000000-0000-4000-8000-000000000004\";\nconst keyId = \"00000000-0000-4000-8000-000000000005\";\nconst apiKey = await client.subAccounts.apiKeys.update(subAccountId, keyId, {\n  label: \"Renamed bootstrap key\",\n});\nconsole.log(\"Sub-account API key updated.\", { id: apiKey.id, label: apiKey.label });\n"
@@ -1073,7 +1317,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  subAccountID := uuid.New()\n  keyID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.SubAccountsAPI.DeleteSubAccountAPIKey(ctx, accountID, subAccountID, keyID)\n  if err != nil {\n    log.Fatalf(\"Error deleting sub-account API key: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Sub-account API key deleted. Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Message: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  subAccountID := uuid.MustParse(\"7d3c9f5e-2a41-4b8e-9c6d-0f1e2a3b4c5d\")\n  keyID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.SubAccountsAPI.DeleteSubAccountAPIKey(ctx, accountID, subAccountID, keyID)\n  if err != nil {\n    log.Fatalf(\"Error deleting sub-account API key: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -1130,44 +1374,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
   schemas:
-    PaginatedSubAccountsResponse:
+    CreateAPIKeyRequest:
+      type: object
+      required:
+      - label
+      - scopes
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key; must not be empty
+        scopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type: array
+          items:
+            type: string
+          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g. `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
+      example:
+        label: Production API Key
+        scopes:
+        - messages:send:all
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+        - 198.51.100.7
+    APIKeyScope:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the scope
+        created_at:
+          type: string
+          format: date-time
+          description: When the scope was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the scope was last updated
+        api_key_id:
+          type: string
+          format: uuid
+          description: ID of the API key this scope belongs to
+        scope:
+          type: string
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
+      required:
+      - id
+      - created_at
+      - updated_at
+      - api_key_id
+      - scope
+      - domain_id
+    PaginatedAPIKeysResponse:
       type: object
       required:
       - object
@@ -1182,20 +1455,186 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/SubAccount'
-          description: Array of sub accounts
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    SuccessResponse:
+    UpdateSubAccountRequest:
       type: object
-      required:
-      - message
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - name
+        properties:
+          name:
+            type: string
+      - required:
+        - website
+        properties:
+          website:
+            type: string
+      - required:
+        - monthly_credit
+        properties:
+          monthly_credit:
+            type: integer
       properties:
-        message:
-          type: string
-          description: Success message
+        name:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Account website. A domain such as `acme.com`, or an http(s) URL such as `https://acme.com`, which is reduced to its host before it is stored
+        monthly_credit:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          description: Optional monthly cap; 0 means no cap
       example:
-        message: Operation completed successfully
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 50000
+    Domain:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - domain
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the domain
+        created_at:
+          type: string
+          format: date-time
+          description: When the domain was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the domain was last updated
+        domain:
+          type: string
+          description: The domain name
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this domain belongs to
+        dns_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/DNSRecord'
+          description: DNS records required for domain verification
+        last_dns_check_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When DNS records were last checked
+        dns_valid:
+          type: boolean
+          description: Whether all required DNS records are properly configured
+        tracking_subdomain:
+          type:
+          - string
+          - 'null'
+          description: Custom tracking subdomain. Null means the account or product default is used. Applies to both manual-DNS and managed-DNS domains.
+        return_path_subdomain:
+          type:
+          - string
+          - 'null'
+          description: Custom return-path subdomain. Null means the account or product default is used. Applies to both manual-DNS and managed-DNS domains.
+        subscription_subdomain:
+          type:
+          - string
+          - 'null'
+          description: Custom subscription management subdomain. Null means the account or product default is used. Applies to both manual-DNS and managed-DNS domains.
+        media_subdomain:
+          type:
+          - string
+          - 'null'
+          description: Custom media subdomain. Null means the account or product default is used. Applies to both manual-DNS and managed-DNS domains.
+        dkim_rotation_interval_days:
+          type:
+          - integer
+          - 'null'
+          description: Custom DKIM rotation interval in days. Null means the account default is used. Only supported for managed DNS domains.
+        dkim_selector:
+          type:
+          - string
+          - 'null'
+          description: 'Per-domain DKIM selector override. Null means no per-domain override is set.
+
+
+            This reports the configured per-domain override only, not the effective selector used for DKIM signing. The effective selector is resolved separately and can differ — for example, a selector locked after DNS verification takes precedence over this override.
+
+            '
+        rotation_ready:
+          type: boolean
+          description: Whether the standby DKIM slot is ready for rotation.
+        dsn_recipient:
+          type:
+          - string
+          - 'null'
+          description: Optional recipient address for delivery status notifications.
+        sending_type:
+          type: string
+          enum:
+          - transactional
+          - marketing
+          description: The type of email that you send from the domain. The sending type affects your deliverability. Marketing email from a transactional domain can get your account paused.
+        paused:
+          type: boolean
+          description: Whether sending from the domain is paused. While the domain is paused, new email from it is refused, and you cannot delete or rename it. Your other domains continue to send.
+        paused_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When sending from the domain was paused. Null when the domain is not paused.
+        pause_reason:
+          type:
+          - string
+          - 'null'
+          description: 'The reason of the pause. Null when the domain is not paused.
+
+
+            - `bounce_rate`: too many recent emails from the domain bounced.
+
+            '
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - domain
+      - account_id
+      - dns_records
+      - last_dns_check_at
+      - dns_valid
+      - tracking_subdomain
+      - return_path_subdomain
+      - subscription_subdomain
+      - media_subdomain
+      - dkim_rotation_interval_days
+      - dkim_selector
+      - rotation_ready
+      - dsn_recipient
+      - sending_type
+      - paused
+      - paused_at
+      - pause_reason
     PaginationInfo:
       type: object
       required:
@@ -1213,6 +1652,135 @@ components:
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
+    SuspendSubAccountRequest:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reason for the pause. When this call starts the pause, the dashboard of the sub account shows it as a note.
+      example:
+        reason: Customer requested temporary pause
+    SubAccount:
+      type: object
+      required:
+      - object
+      - id
+      - parent_account_id
+      - name
+      - website
+      - status
+      - monthly_credit
+      - created_at
+      - domain_count
+      - member_count
+      - last_activity_at
+      properties:
+        object:
+          type: string
+          enum:
+          - sub_account
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the sub account
+        parent_account_id:
+          type: string
+          format: uuid
+          description: Parent account ID
+        created_at:
+          type: string
+          format: date-time
+          description: When the sub account was created
+        name:
+          type: string
+          description: Sub account name
+        website:
+          type: string
+          maxLength: 255
+          description: Account website, stored as a bare domain such as `acme.com`
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          - parent-suspended
+          - deleted
+          description: Current sub-account status
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional monthly cap; 0 means no cap
+        domain_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of domains owned by the sub account
+        member_count:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of direct members on the sub account
+        last_activity_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Last recorded sub-account email activity
+      example:
+        object: sub_account
+        id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
+        parent_account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
+        name: Acme Subsidiary
+        website: acme.example.com
+        status: active
+        monthly_credit: 0
+        created_at: '2024-01-01T00:00:00Z'
+        domain_count: 2
+        member_count: 3
+        last_activity_at: '2024-01-15T12:00:00Z'
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    DNSRecord:
+      type: object
+      properties:
+        type:
+          type: string
+          description: DNS record type (e.g., CNAME, TXT, MX)
+        label:
+          type: string
+          description: Human-readable DNS record label
+        host:
+          type: string
+          description: DNS record host/name
+        content:
+          type: string
+          description: DNS record content/value
+        required:
+          type: boolean
+          description: Whether this DNS record is required for domain verification
+        propagated:
+          type: boolean
+          description: Whether this DNS record has been propagated and verified
+      required:
+      - type
+      - host
+      - content
+      - required
+      - propagated
     APIKey:
       type: object
       properties:
@@ -1270,56 +1838,6 @@ components:
       - public_key
       - scopes
       - ip_allow_list
-    CreateAPIKeyRequest:
-      type: object
-      required:
-      - label
-      - scopes
-      properties:
-        label:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Human-readable label for the API key; must not be empty
-        scopes:
-          type: array
-          items:
-            type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-        ip_allow_list:
-          type: array
-          items:
-            type: string
-          description: Optional list of source IPs allowed to authenticate with this key. Each entry is a CIDR block (e.g. `203.0.113.0/24`) or a bare IPv4/IPv6 address (stored as a `/32` or `/128`). Entries are canonicalized (host bits are masked) and de-duplicated. The allow-all prefixes `0.0.0.0/0` and `::/0` are rejected, and at most 100 entries are allowed after de-duplication. Omit the field or pass an empty array to leave the key usable from any IP.
-      example:
-        label: Production API Key
-        scopes:
-        - messages:send:all
-        - domains:read
-        ip_allow_list:
-        - 203.0.113.0/24
-        - 198.51.100.7
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
     SubAccountUsageBreakdown:
       type: object
       required:
@@ -1348,7 +1866,7 @@ components:
         name: Acme Subsidiary
         reception_count: 3000000
         allocated_cost: 60.0
-    PaginatedAPIKeysResponse:
+    PaginatedSubAccountsResponse:
       type: object
       required:
       - object
@@ -1363,22 +1881,105 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/APIKey'
-          description: Array of API keys
+            $ref: '#/components/schemas/SubAccount'
+          description: Array of sub accounts
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    SuspendSubAccountRequest:
+    UpdateAPIKeyRequest:
+      type: object
+      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
+      anyOf:
+      - required:
+        - label
+        properties:
+          label:
+            type: string
+      - required:
+        - scopes
+        properties:
+          scopes:
+            type: array
+      - required:
+        - ip_allow_list
+        properties:
+          ip_allow_list:
+            type: array
+      properties:
+        label:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: Human-readable label for the API key. Omit to keep the existing label.
+        scopes:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          minItems: 1
+          description: Array of scope strings to grant to this API key
+        ip_allow_list:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty array to replace it.
+      example:
+        label: Updated API Key
+        scopes:
+        - messages:send:{example.com}
+        - domains:read
+        ip_allow_list:
+        - 203.0.113.0/24
+    CreateSubAccountRequest:
       type: object
       required:
-      - reason
+      - name
+      - website
       properties:
-        reason:
+        name:
           type: string
           minLength: 1
-          maxLength: 500
-          description: Reason shown on the sub account suspension record
+          maxLength: 255
+          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
+        website:
+          type: string
+          maxLength: 255
+          description: Account website. A domain such as `acme.com`, or an http(s) URL such as `https://acme.com`, which is reduced to its host before it is stored
+        monthly_credit:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000000
+          default: 0
+          description: Optional monthly cap; 0 means no cap
       example:
-        reason: Customer requested temporary pause
+        name: Acme Subsidiary
+        website: acme.example.com
+        monthly_credit: 0
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
     SubAccountUsageResponse:
       type: object
       required:
@@ -1459,254 +2060,43 @@ components:
         total:
           reception_count: 4000000
           allocated_cost: 80.0
-    SubAccount:
-      type: object
-      required:
-      - object
-      - id
-      - parent_account_id
-      - name
-      - website
-      - status
-      - monthly_credit
-      - created_at
-      - domain_count
-      - member_count
-      - last_activity_at
-      properties:
-        object:
-          type: string
-          enum:
-          - sub_account
-          description: Object type identifier
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the sub account
-        parent_account_id:
-          type: string
-          format: uuid
-          description: Parent account ID
-        created_at:
-          type: string
-          format: date-time
-          description: When the sub account was created
-        name:
-          type: string
-          description: Sub account name
-        website:
-          type: string
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        status:
-          type: string
-          enum:
-          - active
-          - suspended
-          - parent-suspended
-          - deleted
-          description: Current sub-account status
-        monthly_credit:
-          type: integer
-          format: int64
-          minimum: 0
-          description: Optional monthly cap; 0 means no cap
-        domain_count:
-          type: integer
-          format: int64
-          minimum: 0
-          description: Number of domains owned by the sub account
-        member_count:
-          type: integer
-          format: int64
-          minimum: 0
-          description: Number of direct members on the sub account
-        last_activity_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: Last recorded sub-account email activity
-      example:
-        object: sub_account
-        id: 2f3c5d2a-9ef8-4c91-a5f4-79990c8c1d3a
-        parent_account_id: 9d0cf9d0-4f5e-4674-bcf1-8ec39968b6e1
-        name: Acme Subsidiary
-        website: acme.example.com
-        status: active
-        monthly_credit: 0
-        created_at: '2024-01-01T00:00:00Z'
-        domain_count: 2
-        member_count: 3
-        last_activity_at: '2024-01-15T12:00:00Z'
-    APIKeyScope:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the scope
-        created_at:
-          type: string
-          format: date-time
-          description: When the scope was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the scope was last updated
-        api_key_id:
-          type: string
-          format: uuid
-          description: ID of the API key this scope belongs to
-        scope:
-          type: string
-          description: The scope string
-        domain_id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
-      required:
-      - id
-      - created_at
-      - updated_at
-      - api_key_id
-      - scope
-      - domain_id
-    UpdateSubAccountRequest:
-      type: object
-      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
-      anyOf:
-      - required:
-        - name
-        properties:
-          name:
-            type: string
-      - required:
-        - website
-        properties:
-          website:
-            type: string
-      - required:
-        - monthly_credit
-        properties:
-          monthly_credit:
-            type: integer
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type:
-          - string
-          - 'null'
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 50000
-    CreateSubAccountRequest:
-      type: object
-      required:
-      - name
-      - website
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Human-readable name for the sub account; leading and trailing whitespace is trimmed and the result must not be blank
-        website:
-          type: string
-          format: fqdn
-          maxLength: 255
-          description: Account website domain
-        monthly_credit:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 1000000000
-          default: 0
-          description: Optional monthly cap; 0 means no cap
-      example:
-        name: Acme Subsidiary
-        website: acme.example.com
-        monthly_credit: 0
-    UpdateAPIKeyRequest:
-      type: object
-      description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
-      anyOf:
-      - required:
-        - label
-        properties:
-          label:
-            type: string
-      - required:
-        - scopes
-        properties:
-          scopes:
-            type: array
-      - required:
-        - ip_allow_list
-        properties:
-          ip_allow_list:
-            type: array
-      properties:
-        label:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: Human-readable label for the API key. Omit to keep the existing label.
-        scopes:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          minItems: 1
-          description: Array of scope strings to grant to this API key
-        ip_allow_list:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: Replacement list of allowed source IPs (CIDR blocks or bare IPv4/IPv6 addresses; canonicalized and de-duplicated, at most 100 entries, allow-all prefixes `0.0.0.0/0` and `::/0` rejected). Omit the field or send null to leave the existing list unchanged; send an empty array to clear it (key usable from any IP); send a non-empty array to replace it.
-      example:
-        label: Updated API Key
-        scopes:
-        - messages:send:{example.com}
-        - domains:read
-        ip_allow_list:
-        - 203.0.113.0/24
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
 
-        lease may be retried with the same key and unchanged request.
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
 
         '
-      schema:
-        type: integer
-        minimum: 1
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  headers:
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
 
@@ -1729,6 +2119,15 @@ components:
         type: string
         enum:
         - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

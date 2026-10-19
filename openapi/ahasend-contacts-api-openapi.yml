@@ -1,0 +1,1347 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Contacts API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Contacts
+  description: Read, create, update, batch upsert, and delete account-global contacts
+paths:
+  /v2/accounts/{account_id}/contacts:
+    post:
+      summary: Create Contact
+      description: 'Creates one account-global contact with no list membership. Email is
+
+        trimmed and lowercased. Writable attributes must match the account''s
+
+        dashboard-managed definitions; validation, membership, and activity
+
+        fields are response-only. The contact cannot be campaign-targeted until
+
+        it is added to a list with the Lists endpoints. This operation does not
+
+        read or change suppression records.
+
+
+        The optional `Idempotency-Key` follows the ordinary 24-hour v2 replay contract.
+
+        Successful 201, controller-produced deterministic 400, and duplicate
+
+        contact 409 outcomes are stored for 24 hours. An identical request
+
+        replays the same status and semantically equivalent JSON body with
+
+        `Idempotent-Replayed: true`. Authentication, authorization, rate-limit,
+
+        payload-mismatch, and server-error responses are not stored. Reusing
+
+        the key with a different method, resolved path, or semantic JSON payload
+
+        returns 422.'
+      operationId: createContact
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - contacts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.ContactsAPI.CreateContact(ctx, accountID, requests.CreateContactRequest{\n    Email:      \"person@example.com\",\n    FirstName:  ahasend.String(\"Pat\"),\n    Attributes: map[string]any{\"customer\": true},\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating contact: %v\", err)\n  }\n  fmt.Printf(\"Created contact %s\\n\", response.ID)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst contact = await client.contacts.create({\n  email: \"person@example.com\",\n  first_name: \"Pat\",\n  attributes: { customer: true },\n});\nconsole.log(\"Contact created.\", { id: contact.id, status: contact.status });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactRequest'
+      responses:
+        '201':
+          description: Contact created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Invalid request body, email, or attribute value
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'Either the normalized email already exists on the account or the
+
+            idempotency-key execution is in progress. The in-progress case is
+
+            identified only by `Idempotent-Replayed: false` plus a positive
+
+            integer `Retry-After`. A fresh duplicate-contact response has
+
+            neither header; a stored replay of that response has
+
+            `Idempotent-Replayed: true`.
+
+            '
+          headers:
+            Idempotent-Replayed:
+              description: '`false` with a positive `Retry-After` means an execution is in
+
+                progress. `true` means a stored duplicate-contact 409 was
+
+                replayed. Absent means a fresh duplicate-contact conflict.
+
+                '
+              schema:
+                type: string
+                enum:
+                - 'true'
+                - 'false'
+            Retry-After:
+              $ref: '#/components/headers/IdempotencyRetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Contacts
+      description: 'Returns account-global contacts in newest-first `(created_at, id)` order.
+
+        `after` and `before` are mutually exclusive. Attribute values are
+
+        recursive legacy JSON; they are intentionally broader than canonical
+
+        values accepted by contact writes.'
+      operationId: getContacts
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        description: Maximum number of contacts to return
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Cursor for the next page; cannot be combined with `before`
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Cursor for the previous page; cannot be combined with `after`
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: Normalized exact email filter
+        schema:
+          type: string
+          format: email
+      - name: status
+        in: query
+        description: Contact status filter
+        schema:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - blocked
+      - name: subscribed
+        in: query
+        description: Filter by global subscription state
+        schema:
+          type: boolean
+      - name: from_time
+        in: query
+        description: Include contacts created at or after this RFC3339 time
+        schema:
+          type: string
+          format: date-time
+      - name: to_time
+        in: query
+        description: Include contacts created at or before this RFC3339 time
+        schema:
+          type: string
+          format: date-time
+      security:
+      - BearerAuth:
+        - contacts:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.ContactsAPI.GetContacts(ctx, accountID, requests.GetContactsParams{\n    Limit:      ahasend.Int32(100),\n    Status:     ahasend.String(\"enabled\"),\n    Subscribed: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error listing contacts: %v\", err)\n  }\n  for _, contact := range response.Data {\n    fmt.Printf(\"%s %s\\n\", contact.ID, contact.Email)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.contacts.list({ status: "enabled", subscribed: true, limit: 20 });
+
+          console.log("Contacts listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: Paginated contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContactsResponse'
+        '400':
+          description: Invalid filter or cursor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/contacts/batch:
+    post:
+      summary: Batch upsert contacts
+      description: 'Synchronously creates or updates one through 1,000 account-global
+
+        contacts. Duplicate normalized emails all fail without application;
+
+        deterministic record failures do not block valid records. Successful
+
+        effects and the optional idempotency replay response commit atomically
+
+        and use the ordinary 24-hour replay window. Malformed, empty, and
+
+        over-cap request 400s are also deterministic and replayable. Reusing a
+
+        key with a different method, resolved path, or semantic JSON payload
+
+        returns 422. An identical keyed request replays the same status and a
+
+        semantically equivalent JSON response.
+
+
+        Measured pacing guidance: batch size is a cap, not a throughput target.
+
+        Measure end-to-end latency with representative data, submit the next
+
+        synchronous batch only after the previous response, and reduce batch
+
+        size or pace requests when latency grows. Honor 429 responses before
+
+        continuing; the API makes no fixed throughput guarantee.'
+      operationId: batchUpsertContacts
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - contacts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.ContactsAPI.BatchUpsertContacts(ctx, accountID, requests.BatchUpsertContactsRequest{\n    Data: []requests.BatchUpsertContactInput{\n      {Email: \"one@example.com\"},\n      {Email: \"two@example.com\", Unsubscribed: ahasend.Bool(true)},\n    },\n  })\n  if err != nil {\n    log.Fatalf(\"Error upserting contacts: %v\", err)\n  }\n  // Each item succeeds or fails on its own.\n  fmt.Printf(\"created=%d updated=%d failed=%d\\n\", response.Created, response.Updated, response.Failed)\n  for _, result := range response.Data {\n    if result.Reason != \"\" {\n      fmt.Printf(\"%s: %s (%s)\\n\", result.Email, result.Outcome, result.Reason)\n    }\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst result = await client.contacts.batchUpsert({\n  data: [\n    { email: \"new@example.com\", attributes: { customer: true } },\n    { email: \"existing@example.com\", attributes: { obsolete: null } },\n  ],\n});\nconsole.log(\"Contact batch completed.\", { created: result.created, updated: result.updated });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpsertContactsRequest'
+      responses:
+        '200':
+          description: Ordered per-contact outcomes
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUpsertContactsResponse'
+        '400':
+          description: 'Malformed, empty, or over-cap request. An identical keyed retry
+
+            replays the stored response with `Idempotent-Replayed: true`.
+
+            '
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: An idempotency-key execution is already in progress
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotencyInProgress'
+            Retry-After:
+              $ref: '#/components/headers/IdempotencyRetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/contacts/{id_or_email}:
+    get:
+      summary: Get Contact
+      description: 'Returns one account-scoped contact. UUID-shaped values resolve by ID;
+
+        all other values resolve by trimmed, lowercased email. Email identifiers
+
+        must be percent-encoded exactly once as URL path segments; pass a raw
+
+        email to SDKs, including addresses such as `user+tag@example.com`.'
+      operationId: getContact
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: id_or_email
+        in: path
+        required: true
+        description: 'Contact UUID or email address. Percent-encode an email exactly once
+
+          as a path segment; SDK callers pass the raw email value.
+
+          '
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - contacts:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Address a contact by its ID or its email address; the SDK escapes the path.\n  response, _, err := client.ContactsAPI.GetContact(ctx, accountID, \"user+tag@example.com\")\n  if err != nil {\n    log.Fatalf(\"Error getting contact: %v\", err)\n  }\n  fmt.Printf(\"%s %s unsubscribed=%t\\n\", response.ID, response.Email, response.Unsubscribed)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const idOrEmail = "User+Tag@Example.COM";
+
+          const contact = await client.contacts.get(idOrEmail);
+
+          console.log("Contact found.", { id: contact.id, status: contact.status });
+
+          '
+      responses:
+        '200':
+          description: Contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Contact
+      description: 'Partially updates one account-scoped contact. UUID-shaped path values
+
+        resolve by ID; all other values resolve by trimmed, lowercased email.
+
+        Email identifiers must be percent-encoded exactly once as URL path
+
+        segments. A null attribute member deletes that key; the other writable
+
+        values remain canonical and dashboard-definition driven. Subscription
+
+        changes are independent of suppression records.'
+      operationId: updateContact
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: id_or_email
+        in: path
+        required: true
+        description: 'Contact UUID or email address. Percent-encode an email exactly once
+
+          as a path segment; SDK callers pass the raw email value.
+
+          '
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+      security:
+      - BearerAuth:
+        - contacts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Only the fields you set change. A nil attribute value deletes that key.\n  response, _, err := client.ContactsAPI.UpdateContact(ctx, accountID, \"user+tag@example.com\", requests.UpdateContactRequest{\n    FirstName:  ahasend.String(\"Jordan\"),\n    Attributes: map[string]any{\"obsolete_key\": nil},\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating contact: %v\", err)\n  }\n  fmt.Printf(\"Updated contact %s\\n\", response.ID)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst idOrEmail = \"User+Tag@Example.COM\";\nconst contact = await client.contacts.update(idOrEmail, {\n  unsubscribed: true,\n  attributes: { obsolete: null },\n});\nconsole.log(\"Contact updated.\", { id: contact.id, unsubscribed: contact.unsubscribed });\n"
+      responses:
+        '200':
+          description: Updated contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Invalid request body, replacement email, or attribute
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Replacement email conflicts with another contact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Contact
+      description: 'Permanently deletes one account-scoped contact. UUID-shaped path values
+
+        resolve by ID; all other values resolve by trimmed, lowercased email;
+
+        email identifiers must be percent-encoded exactly once as URL path
+
+        segments.
+
+
+        This is destructive history removal. Running and paused workflow
+
+        instances and their active jobs are cancelled, while the cancelled
+
+        workflow rows and events remain for audit. The contact and its
+
+        unsubscribe record, list memberships, campaign-recipient records, opens,
+
+        and clicks are permanently removed by cascades. Complaint, permanent,
+
+        and protected suppressions remain byte-for-byte unchanged. Prefer unsubscribe over
+
+        delete when the intent is only to prevent marketing delivery.'
+      operationId: deleteContact
+      tags:
+      - Contacts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: id_or_email
+        in: path
+        required: true
+        description: 'Contact UUID or email address. Percent-encode an email exactly once
+
+          as a path segment; SDK callers pass the raw email value.
+
+          '
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - contacts:delete
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.ContactsAPI.DeleteContact(ctx, accountID, \"user+tag@example.com\")\n  if err != nil {\n    log.Fatalf(\"Error deleting contact: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const idOrEmail = "User+Tag@Example.COM";
+
+          const result = await client.contacts.delete(idOrEmail);
+
+          console.log("Contact deleted.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Contact deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `contacts:delete` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    BatchUpsertContactsResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - created
+      - updated
+      - failed
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+        created:
+          type: integer
+          minimum: 0
+        updated:
+          type: integer
+          minimum: 0
+        failed:
+          type: integer
+          minimum: 0
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchContactResult'
+    CreateContactRequest:
+      type: object
+      additionalProperties: false
+      description: 'Creates an account-global contact without list membership. Writable
+
+        attribute keys and types are derived from definitions managed in the
+
+        dashboard. Validation metadata, membership, and activity are not
+
+        writable.
+
+        '
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Contact email; trimmed and lowercased before persistence
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - enabled
+          - disabled
+          - blocked
+          - null
+          description: Defaults to `enabled` when omitted or null
+        status_reason:
+          type:
+          - string
+          - 'null'
+        unsubscribed:
+          type:
+          - boolean
+          - 'null'
+          description: Only `true` creates an initial UTC unsubscription timestamp
+        attributes:
+          type:
+          - object
+          - 'null'
+          description: 'Values are validated against dashboard-managed account attribute
+
+            definitions. Attribute members cannot be null.
+
+            '
+          additionalProperties:
+            $ref: '#/components/schemas/CanonicalContactAttributeValue'
+      example:
+        email: person@example.com
+        first_name: Pat
+        last_name: Example
+        status: enabled
+        status_reason: null
+        unsubscribed: false
+        attributes:
+          customer: true
+          score: 12.5
+          birthday: '2024-02-29'
+          joined_at: '2026-09-09T10:04:56Z'
+    Contact:
+      type: object
+      additionalProperties: false
+      description: 'Public contact projection. Attribute reads are legacy-safe: values can
+
+        contain null, booleans, numbers, strings, arrays, or nested objects even
+
+        though new writes accept only canonical dashboard-defined values.
+
+        '
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - email
+      - first_name
+      - last_name
+      - status
+      - status_reason
+      - unsubscribed
+      - unsubscribed_at
+      - attributes
+      - validation_status
+      - last_validated_at
+      properties:
+        object:
+          type: string
+          enum:
+          - contact
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the contact
+        created_at:
+          type: string
+          format: date-time
+          description: When the contact was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the contact was last updated
+        email:
+          type: string
+          format: email
+          description: Normalized contact email address
+        first_name:
+          type: string
+        last_name:
+          type: string
+        status:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - blocked
+        status_reason:
+          type: string
+        unsubscribed:
+          type: boolean
+        unsubscribed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        attributes:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/JSONValue'
+        validation_status:
+          type: string
+          enum:
+          - unvalidated
+          - valid
+          - invalid
+          - risky
+          - unknown
+        last_validated_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    UpdateContactRequest:
+      type: object
+      additionalProperties: false
+      description: 'A partial contact update. Omitted or null scalar fields and a null
+
+        attributes object leave stored values unchanged. A present attributes
+
+        object is merged; a null member removes that attribute key.
+
+        '
+      properties:
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - enabled
+          - disabled
+          - blocked
+          - null
+        status_reason:
+          type:
+          - string
+          - 'null'
+        unsubscribed:
+          type:
+          - boolean
+          - 'null'
+        attributes:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
+            - type: 'null'
+    PaginatedContactsResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        pagination:
+          $ref: '#/components/schemas/ContactPagination'
+    ContactPagination:
+      type: object
+      additionalProperties: false
+      required:
+      - has_more
+      - next_cursor
+      - previous_cursor
+      properties:
+        has_more:
+          type: boolean
+          description: Whether another page exists in the requested direction
+        next_cursor:
+          type:
+          - string
+          - 'null'
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type:
+          - string
+          - 'null'
+          description: Pass as `before` to fetch the previous page
+    JSONValue:
+      description: Any recursively nested JSON value stored in a contact attribute
+      oneOf:
+      - type: 'null'
+      - type: boolean
+      - type: number
+      - type: string
+      - type: array
+        items:
+          $ref: '#/components/schemas/JSONValue'
+      - type: object
+        additionalProperties:
+          $ref: '#/components/schemas/JSONValue'
+    BatchUpsertContactsRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: '#/components/schemas/BatchUpsertContactInput'
+    BatchContactResult:
+      type: object
+      additionalProperties: false
+      required:
+      - position
+      - email
+      - outcome
+      properties:
+        position:
+          type: integer
+          minimum: 0
+        email:
+          type: string
+          description: Normalized input email, or empty when the input email was not a string
+        outcome:
+          type: string
+          enum:
+          - created
+          - updated
+          - failed
+        contact:
+          $ref: '#/components/schemas/Contact'
+        reason:
+          type: string
+          description: Caller-safe reason present only for failed records
+    CanonicalContactAttributeValue:
+      description: 'A non-null contact attribute value. The account''s declared attribute
+
+        definition selects the accepted member: `string` accepts a JSON string,
+
+        `number` a finite JSON number, `boolean` a JSON boolean, `date` a strict
+
+        ISO `YYYY-MM-DD` string, and `timestamp` an RFC3339 string. The server
+
+        rejects values whose JSON type or format does not match that definition.
+
+        '
+      anyOf:
+      - type: string
+        description: Value for a declared string attribute
+      - type: number
+        description: Finite value for a declared number attribute
+      - type: boolean
+        description: Value for a declared boolean attribute
+      - type: string
+        format: date
+        description: Strict `YYYY-MM-DD` value for a declared date attribute
+      - type: string
+        format: date-time
+        description: RFC3339 value for a declared timestamp attribute
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    BatchUpsertContactInput:
+      type: object
+      additionalProperties: false
+      description: 'One create-or-update input. On update, omitted or null scalar fields
+
+        leave stored values unchanged. On create, omitted or null fields use
+
+        the same defaults as `CreateContactRequest`. A present attributes
+
+        object is merged and null attribute members remove existing keys.
+
+        '
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Contact email; trimmed and lowercased before duplicate classification
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - enabled
+          - disabled
+          - blocked
+          - null
+        status_reason:
+          type:
+          - string
+          - 'null'
+        unsubscribed:
+          type:
+          - boolean
+          - 'null'
+        attributes:
+          type:
+          - object
+          - 'null'
+          description: A present object is merged; null members remove existing keys.
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
+            - type: 'null'
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

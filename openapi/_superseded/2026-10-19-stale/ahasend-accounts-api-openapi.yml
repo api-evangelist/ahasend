@@ -1,0 +1,728 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Accounts API
+  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Accounts
+  description: Manage account settings and members
+paths:
+  /v2/accounts/{account_id}:
+    get:
+      summary: Get Account
+      description: Returns account information
+      operationId: getAccount
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - accounts:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.AccountsAPI.GetAccount(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account retrieved. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Name: %s\\n\", response.Name)\n    fmt.Printf(\"Owner ID: %s\\n\", response.OwnerID)\n    if response.Website != nil {\n      fmt.Printf(\"Website: %s\\n\", *response.Website)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const account = await client.accounts.get();
+
+          console.log("Account found.", { id: account.id, name: account.name });
+
+          '
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Account
+      description: 'Updates account settings
+
+
+        **Validation Requirements:**
+
+        - `name` must be maximum 255 characters
+
+        - `website` must be a valid URL
+
+        - `message_metadata_retention` must be between 1 and 30 days
+
+        - `message_data_retention` must be between 0 and 30 days'
+      operationId: updateAccount
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - accounts:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Update the account name and open/click tracking settings\n  response, httpResp, err := client.AccountsAPI.UpdateAccount(ctx, accountID, requests.UpdateAccountRequest{\n    Name:        ahasend.String(\"Acme Corp\"),\n    TrackOpens:  ahasend.Bool(true),\n    TrackClicks: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account updated! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      if response.TrackOpens != nil {\n        fmt.Printf(\"Track Opens: %t\\n\", *response.TrackOpens)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const account = await client.accounts.update({ name: "Example, Inc." });
+
+          console.log("Account updated.", { id: account.id, name: account.name });
+
+          '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountRequest'
+      responses:
+        '200':
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/members:
+    get:
+      summary: Get Account Members
+      description: Returns a list of account members
+      operationId: getAccountMembers
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - accounts:members:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // List the members of the account\n  response, httpResp, err := client.AccountsAPI.GetAccountMembers(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error listing account members: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved account members! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d account members\\n\", len(response.Data))\n      for _, member := range response.Data {\n        fmt.Printf(\"- User: %s, Role: %s\\n\", member.UserID, member.Role)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const members = await client.accounts.listMembers();
+
+          console.log("Account members listed.", { count: members.data.length });
+
+          '
+      responses:
+        '200':
+          description: List of account members
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountMembersResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Add Account Member
+      description: 'Adds a new member to the account
+
+
+        **Validation Requirements:**
+
+        - `email` must be a valid email address
+
+        - `role` must be one of: Administrator, Developer, Analyst, Billing Manager'
+      operationId: addAccountMember
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - accounts:members:add
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.AccountsAPI.AddAccountMember(ctx, accountID, requests.AddMemberRequest{\n    Email: \"teammate@example.com\",\n    Name:  ahasend.String(\"Jordan Lee\"),\n    Role:  \"Developer\",\n  }, api.WithIdempotencyKey(\"add-member-20240101-jordan\"))\n  if err != nil {\n    log.Fatalf(\"Error adding account member: %v\", err)\n  }\n\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Member added successfully! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"User ID: %s\\n\", response.UserID)\n      fmt.Printf(\"Role: %s\\n\", response.Role)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst member = await client.accounts.addMember(\n  { email: \"developer@example.com\", role: \"Developer\" },\n  { idempotencyKey: \"sdk-sample-add-account-member\" },\n);\nconsole.log(\"Account member added.\", { userId: member.user_id, role: member.role });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+      responses:
+        '201':
+          description: Member added successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'Either the user is already a member of the account or the idempotency-key
+
+            execution is in progress. The in-progress case is identified only
+
+            by `Idempotent-Replayed: false` plus a positive integer
+
+            `Retry-After`. A new duplicate-member response has neither
+
+            header; a stored replay of that response has
+
+            `Idempotent-Replayed: true`. The message is not a stable
+
+            discriminator.
+
+            '
+          headers:
+            Idempotent-Replayed:
+              description: '`false` with a positive `Retry-After` means an execution is in
+
+                progress. `true` means a stored duplicate-member 409 was
+
+                replayed. Absent means a fresh duplicate-member conflict.
+
+                '
+              schema:
+                type: string
+                enum:
+                - 'true'
+                - 'false'
+            Retry-After:
+              $ref: '#/components/headers/IdempotencyRetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/members/{user_id}:
+    delete:
+      summary: Remove Account Member
+      description: 'Removes a member from the account
+
+
+        **Restrictions:**
+
+        - You cannot delete yourself
+
+        - You cannot delete the account owner'
+      operationId: removeAccountMember
+      tags:
+      - Accounts
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - accounts:members:remove
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  userID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Remove the member from the account by user ID\n  response, httpResp, err := client.AccountsAPI.RemoveAccountMember(ctx, accountID, userID)\n  if err != nil {\n    log.Fatalf(\"Error removing account member: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account member removed! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil && response.Message != \"\" {\n      fmt.Printf(\"Response: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const userId = "00000000-0000-4000-8000-000000000003";
+
+          const result = await client.accounts.removeMember(userId);
+
+          console.log("Account member removed.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Member removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  schemas:
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    AddMemberRequest:
+      type: object
+      required:
+      - email
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to add
+        name:
+          type: string
+          description: Display name for the user
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: Role to assign to the user
+      example:
+        email: user@example.com
+        name: John Doe
+        role: Developer
+    UpdateAccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Account name
+        website:
+          type: string
+          format: uri
+          description: Account website URL
+        about:
+          type: string
+          description: Account description (used for account verification)
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+        message_metadata_retention:
+          type: integer
+          minimum: 1
+          maximum: 30
+          description: Default message metadata retention in days
+        message_data_retention:
+          type: integer
+          minimum: 0
+          maximum: 30
+          description: Default message data retention in days
+      example:
+        name: Updated Company Name
+        website: https://example.com
+        track_opens: true
+    Account:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - account
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the account
+        parent_account_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Parent account ID when this account is a sub account
+        created_at:
+          type: string
+          format: date-time
+          description: When the account was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the account was last updated
+        name:
+          type: string
+          description: Account name
+        website:
+          type: string
+          format: uri
+          description: Account website URL
+        about:
+          type: string
+          description: Account description
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+        message_metadata_retention:
+          type: integer
+          description: Default message metadata retention in days
+        message_data_retention:
+          type: integer
+          description: Default message data retention in days
+        owner_id:
+          type: string
+          format: uuid
+          description: Account owner user ID
+      required:
+      - object
+      - id
+      - parent_account_id
+      - created_at
+      - updated_at
+      - name
+      - website
+      - about
+      - track_opens
+      - track_clicks
+      - reject_bad_recipients
+      - reject_mistyped_recipients
+      - message_metadata_retention
+      - message_data_retention
+      - owner_id
+    UserAccount:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          description: When the relationship was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the relationship was last updated
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: User role in the account
+      required:
+      - created_at
+      - updated_at
+      - user_id
+      - account_id
+      - role
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    AccountMembersResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+          description: Array of account members
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

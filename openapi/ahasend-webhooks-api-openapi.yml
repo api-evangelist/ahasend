@@ -1,7 +1,156 @@
 openapi: 3.2.0
 info:
   title: AhaSend API v2 Webhooks API
-  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -131,7 +280,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.GetWebhooks(\n    ctx,\n    accountID,\n    api.GetWebhooksParams{\n      Limit: ahasend.Int32(100),\n    },\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting webhooks: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d webhooks\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  params := api.GetWebhooksParams{Enabled: ahasend.Bool(true)}\n  params.Limit = ahasend.Int32(100)\n\n  response, _, err := client.WebhooksAPI.GetWebhooks(ctx, accountID, params)\n  if err != nil {\n    log.Fatalf(\"Error getting webhooks: %v\", err)\n  }\n  for _, webhook := range response.Data {\n    fmt.Printf(\"%s %s -> %s\\n\", webhook.ID, webhook.Name, webhook.URL)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -206,10 +355,10 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.CreateWebhook(\n    ctx,\n    accountID,\n    requests.CreateWebhookRequest{\n      Name:   \"Failures\",\n      URL:    \"https://mystartup.com/webhook\",\n      Scope:  \"global\",\n      Enabled: true,\n      OnBounced: true,\n      OnTransientError: true,\n      OnFailed: true,\n    },\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.WebhooksAPI.CreateWebhook(ctx, accountID, requests.CreateWebhookRequest{\n    Name:             \"Failures\",\n    URL:              \"https://example.com/webhook\",\n    Scope:            \"global\",\n    Enabled:          ahasend.Bool(true),\n    OnBounced:        true,\n    OnTransientError: true,\n    OnFailed:         true,\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating webhook: %v\", err)\n  }\n  // Use the secret to verify the signature of each delivery.\n  fmt.Printf(\"Created webhook %s, secret: %s\\n\", response.ID, response.Secret)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
-        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst webhook = await client.webhooks.create(\n  {\n    name: \"Delivery events\",\n    url: \"https://example.com/webhooks/ahasend\",\n    scope: \"global\",\n    on_delivered: true,\n  },\n  { idempotencyKey: \"sdk-sample-create-webhook\" },\n);\nconsole.log(\"Webhook created.\", { id: webhook.id, name: webhook.name });\n"
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst webhook = await client.webhooks.create({\n  name: \"Delivery events\",\n  url: \"https://example.com/webhooks/ahasend\",\n  scope: \"global\",\n  on_delivered: true,\n});\nconsole.log(\"Webhook created.\", { id: webhook.id, name: webhook.name });\n"
       requestBody:
         required: true
         content:
@@ -286,7 +435,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.GetWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  webhookID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.WebhooksAPI.GetWebhook(ctx, accountID, webhookID)\n  if err != nil {\n    log.Fatalf(\"Error getting webhook: %v\", err)\n  }\n  fmt.Printf(\"%s -> %s (enabled: %t)\\n\", response.Name, response.URL, response.Enabled)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -385,7 +534,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.UpdateWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n    requests.UpdateWebhookRequest{\n      Name:      ahasend.String(\"Failures\"),\n      URL:       ahasend.String(\"https://mystartup.com/webhook\"),\n      Enabled:   ahasend.Bool(true),\n      OnBounced: ahasend.Bool(true),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Updated webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  webhookID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.WebhooksAPI.UpdateWebhook(ctx, accountID, webhookID, requests.UpdateWebhookRequest{\n    Name:      ahasend.String(\"Failures\"),\n    URL:       ahasend.String(\"https://example.com/webhook\"),\n    Enabled:   ahasend.Bool(true),\n    OnBounced: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating webhook: %v\", err)\n  }\n  fmt.Printf(\"Updated webhook %s\\n\", response.ID)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst webhookId = \"00000000-0000-4000-8000-000000000007\";\nconst webhook = await client.webhooks.update(webhookId, {\n  name: \"Transactional delivery events\",\n});\nconsole.log(\"Webhook updated.\", { id: webhook.id, name: webhook.name });\n"
@@ -463,7 +612,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.WebhooksAPI.DeleteWebhook(\n    ctx,\n    accountID,\n    uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting webhook: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted webhook: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  webhookID := uuid.MustParse(\"c5a32c40-b351-439f-8230-779daed3e42c\")\n\n  response, _, err := client.WebhooksAPI.DeleteWebhook(ctx, accountID, webhookID)\n  if err != nil {\n    log.Fatalf(\"Error deleting webhook: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -516,324 +665,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
   schemas:
-    CreateWebhookRequest:
-      type: object
-      required:
-      - name
-      - url
-      - scope
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Webhook name
-        url:
-          type: string
-          format: uri
-          description: Webhook URL
-        enabled:
-          type: boolean
-          description: Whether the webhook is enabled
-          default: true
-        on_reception:
-          type: boolean
-          description: Trigger on message reception
-          default: false
-        on_delivered:
-          type: boolean
-          description: Trigger on message delivery
-          default: false
-        on_transient_error:
-          type: boolean
-          description: Trigger on transient errors
-          default: false
-        on_failed:
-          type: boolean
-          description: Trigger on permanent failures
-          default: false
-        on_bounced:
-          type: boolean
-          description: Trigger on bounces
-          default: false
-        on_suppressed:
-          type: boolean
-          description: Trigger on suppressions
-          default: false
-        on_opened:
-          type: boolean
-          description: Trigger on opens
-          default: false
-        on_clicked:
-          type: boolean
-          description: Trigger on clicks
-          default: false
-        on_suppression_created:
-          type: boolean
-          description: Trigger on suppression creation
-          default: false
-        on_dns_error:
-          type: boolean
-          description: Trigger on DNS errors
-          default: false
-        scope:
-          type: string
-          enum:
-          - global
-          - scoped
-          description: Webhook scope
-        domains:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: 'For `scoped`, a non-empty array is required. For `global`, this may
-
-            be omitted, null, empty, or non-empty; supplied values are accepted
-
-            but ignored.
-
-            '
-      allOf:
-      - if:
-          properties:
-            scope:
-              const: scoped
-          required:
-          - scope
-        then:
-          required:
-          - domains
-          properties:
-            domains:
-              type: array
-              minItems: 1
-              items:
-                type: string
-      example:
-        name: Delivery Webhook
-        url: https://example.com/webhook
-        scope: global
-        enabled: true
-        on_delivered: true
-    UpdateWebhookRequest:
-      type: object
-      description: 'Partial update. Omitted and null scalar fields leave their stored values
-
-        unchanged. Domain transition rules depend on the webhook''s existing
-
-        scope and are described on `domains`.
-
-        '
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          maxLength: 255
-          description: Webhook name
-        url:
-          type:
-          - string
-          - 'null'
-          format: uri
-          description: Webhook URL
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Whether the webhook is enabled
-        on_reception:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on message reception
-        on_delivered:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on message delivery
-        on_transient_error:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on transient errors
-        on_failed:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on permanent failures
-        on_bounced:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on bounces
-        on_suppressed:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on suppressions
-        on_opened:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on opens
-        on_clicked:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on clicks
-        on_suppression_created:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on suppression creation
-        on_dns_error:
-          type:
-          - boolean
-          - 'null'
-          description: Trigger on DNS errors
-        scope:
-          type:
-          - string
-          - 'null'
-          enum:
-          - global
-          - scoped
-          - null
-          description: Webhook scope. Omit or send null to keep the current scope.
-        domains:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: 'Omit or send null to leave domain associations unchanged. An array
-
-            replaces associations when the resulting scope is `scoped`; `[]`
-
-            explicitly clears them. Changing a global webhook to `scoped`
-
-            requires a non-empty array in the same request and otherwise
-
-            returns HTTP 400. Changing to `global` clears all associations;
-
-            supplied domains are ignored when the resulting scope is global.
-
-            '
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    CreatedWebhook:
-      allOf:
-      - $ref: '#/components/schemas/Webhook'
-      - type: object
-        properties:
-          secret:
-            type: string
-            description: Webhook signing secret. Returned only when the webhook is created.
-        required:
-        - secret
-    PaginatedWebhooksResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Webhook'
-          description: Array of webhooks
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
     Webhook:
       type: object
       properties:
@@ -951,6 +783,323 @@ components:
       - error_count
       - errors_since_last_success
       - last_request_at
+    CreatedWebhook:
+      allOf:
+      - $ref: '#/components/schemas/Webhook'
+      - type: object
+        properties:
+          secret:
+            type: string
+            description: Webhook signing secret. Returned only when the webhook is created.
+        required:
+        - secret
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    PaginatedWebhooksResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
+          description: Array of webhooks
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    UpdateWebhookRequest:
+      type: object
+      description: 'Partial update. Omitted and null scalar fields leave their stored values
+
+        unchanged. Domain transition rules depend on the webhook''s existing
+
+        scope and are described on `domains`.
+
+        '
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Webhook name
+        url:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: Webhook URL
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the webhook is enabled
+        on_reception:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message reception
+        on_delivered:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on message delivery
+        on_transient_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on transient errors
+        on_failed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on permanent failures
+        on_bounced:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on bounces
+        on_suppressed:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppressions
+        on_opened:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on opens
+        on_clicked:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on clicks
+        on_suppression_created:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on suppression creation
+        on_dns_error:
+          type:
+          - boolean
+          - 'null'
+          description: Trigger on DNS errors
+        scope:
+          type:
+          - string
+          - 'null'
+          enum:
+          - global
+          - scoped
+          - null
+          description: Webhook scope. Omit or send null to keep the current scope.
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'Omit or send null to leave domain associations unchanged. An array
+
+            replaces associations when the resulting scope is `scoped`; `[]`
+
+            explicitly clears them. Changing a global webhook to `scoped`
+
+            requires a non-empty array in the same request and otherwise
+
+            returns HTTP 400. Changing to `global` clears all associations;
+
+            supplied domains are ignored when the resulting scope is global.
+
+            '
+    CreateWebhookRequest:
+      type: object
+      required:
+      - name
+      - url
+      - scope
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Webhook name
+        url:
+          type: string
+          format: uri
+          description: Webhook URL
+        enabled:
+          type: boolean
+          description: Whether the webhook is enabled
+          default: true
+        on_reception:
+          type: boolean
+          description: Trigger on message reception
+          default: false
+        on_delivered:
+          type: boolean
+          description: Trigger on message delivery
+          default: false
+        on_transient_error:
+          type: boolean
+          description: Trigger on transient errors
+          default: false
+        on_failed:
+          type: boolean
+          description: Trigger on permanent failures
+          default: false
+        on_bounced:
+          type: boolean
+          description: Trigger on bounces
+          default: false
+        on_suppressed:
+          type: boolean
+          description: Trigger on suppressions
+          default: false
+        on_opened:
+          type: boolean
+          description: Trigger on opens
+          default: false
+        on_clicked:
+          type: boolean
+          description: Trigger on clicks
+          default: false
+        on_suppression_created:
+          type: boolean
+          description: Trigger on suppression creation
+          default: false
+        on_dns_error:
+          type: boolean
+          description: Trigger on DNS errors
+          default: false
+        scope:
+          type: string
+          enum:
+          - global
+          - scoped
+          description: Webhook scope
+        domains:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'For `scoped`, a non-empty array is required. For `global`, this may
+
+            be omitted, null, empty, or non-empty; supplied values are accepted
+
+            but ignored.
+
+            '
+      allOf:
+      - if:
+          properties:
+            scope:
+              const: scoped
+          required:
+          - scope
+        then:
+          required:
+          - domains
+          properties:
+            domains:
+              type: array
+              minItems: 1
+              items:
+                type: string
+      example:
+        name: Delivery Webhook
+        url: https://example.com/webhook
+        scope: global
+        enabled: true
+        on_delivered: true
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   headers:
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.

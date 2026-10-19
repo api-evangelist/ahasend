@@ -1,0 +1,941 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Campaign Templates API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Campaign Templates
+  description: Create, change, read and delete the account's campaign templates, the designs a campaign copies when it is made from one
+paths:
+  /v2/accounts/{account_id}/campaign-templates:
+    get:
+      summary: List Campaign Templates
+      description: 'Returns a cursor-paginated list of the account''s campaign templates,
+
+        newest first. Transactional templates are a different resource and
+
+        never appear here. Each campaign template is listed without its
+
+        `content`; Get Campaign Template returns it.'
+      operationId: listCampaignTemplates
+      tags:
+      - Campaign Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value from `next_cursor` in the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value from `previous_cursor` in the response.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - templates:read
+      responses:
+        '200':
+          description: Paginated campaign templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCampaignTemplatesResponse'
+        '400':
+          description: Invalid limit or cursor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Campaign templates are listed without their content; Get Campaign\n  // Template returns it.\n  response, _, err := client.CampaignTemplatesAPI.ListCampaignTemplates(ctx, accountID, requests.ListCampaignTemplatesParams{\n    Limit: ahasend.Int32(100),\n  })\n  if err != nil {\n    log.Fatalf(\"Error listing campaign templates: %v\", err)\n  }\n  for _, template := range response.Data {\n    fmt.Printf(\"%s %s (%s)\\n\", template.ID, template.Name, template.Editor)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.campaignTemplates.list({ limit: 20 });
+
+          console.log("Campaign templates listed.", { count: page.data.length });
+
+          '
+    post:
+      summary: Create Campaign Template
+      description: 'Creates a campaign template. A campaign template has no draft: what
+
+        the request sets is what a campaign made from the template copies.
+
+
+        `content.mjml` makes an `advanced` campaign template and
+
+        `content.html` an `html` one. A campaign template with neither must
+
+        name its `editor`; without `content` it is created with an empty
+
+        design, which the dashboard''s editor opens. The editor never changes
+
+        after create.
+
+
+        MJML is compiled in strict mode, and HTML must use full `https://`
+
+        URLs for its images and stylesheets: the API cannot upload files.'
+      operationId: createCampaignTemplate
+      tags:
+      - Campaign Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignTemplateRequest'
+      responses:
+        '201':
+          description: Campaign template created
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignTemplate'
+        '400':
+          description: 'Invalid request: the body or a field. The message names the field and the problem.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // HTML content makes an html campaign template; MJML would make an\n  // advanced one. The text is made from the HTML when it is left out.\n  response, _, err := client.CampaignTemplatesAPI.CreateCampaignTemplate(ctx, accountID, requests.CreateCampaignTemplateRequest{\n    Name: \"Monthly newsletter\",\n    Content: &requests.TemplateContentInput{\n      HTML: ahasend.String(`<p>Hi {{ first_name }},</p><p>Here is our news.</p><p><a href=\"{{ unsubscribe_url }}\">Unsubscribe</a></p>`),\n    },\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating campaign template: %v\", err)\n  }\n  fmt.Printf(\"Created %s campaign template %s\\n\", response.Editor, response.ID)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst template = await client.campaignTemplates.create({\n  name: \"Monthly newsletter\",\n  content: {\n    html: '<p>Hello {{ first_name }}.</p><p><a href=\"{{ unsubscribe_url }}\">Unsubscribe</a></p>',\n  },\n});\nconsole.log(\"Campaign template created.\", { id: template.id, editor: template.editor });\n"
+  /v2/accounts/{account_id}/campaign-templates/{template_id}:
+    get:
+      summary: Get Campaign Template
+      description: 'Returns one of the account''s campaign templates with its content. A
+
+        transactional template''s ID is not addressable here and answers 404.'
+      operationId: getCampaignTemplate
+      tags:
+      - Campaign Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Campaign template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:read
+      responses:
+        '200':
+          description: Campaign template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignTemplate'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  response, _, err := client.CampaignTemplatesAPI.GetCampaignTemplate(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error getting campaign template: %v\", err)\n  }\n  // A campaign can be made from the template only once it has HTML.\n  hasHTML := response.Content != nil && response.Content.HTML != \"\"\n  fmt.Printf(\"%s (%s), has HTML: %t\\n\", response.Name, response.Editor, hasHTML)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000013";
+
+          const template = await client.campaignTemplates.get(templateId);
+
+          console.log("Campaign template found.", { id: template.id, name: template.name });
+
+          '
+    put:
+      summary: Update Campaign Template
+      description: 'Changes a campaign template''s name, its content, or both. A field the
+
+        request leaves out is neither changed nor checked. The change applies
+
+        at once; campaigns already made from the template keep their own
+
+        copies. A name or content equal to the stored one changes nothing, so
+
+        the same request can be repeated safely. The editor never changes.
+
+
+        The design of a `simple` campaign template can be changed only in the
+
+        dashboard: send only `content.text` for one. A design saved later in
+
+        the dashboard, also from an editor opened before this request,
+
+        replaces the design this request wrote.'
+      operationId: updateCampaignTemplate
+      tags:
+      - Campaign Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Campaign template ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignTemplateRequest'
+      responses:
+        '200':
+          description: Campaign template updated
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignTemplate'
+        '400':
+          description: Invalid template_id, an invalid body or field, or a request with no changes. The message names the field and the problem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // Only the fields you set change, at once. Campaigns already made from\n  // the template keep their own copies.\n  response, _, err := client.CampaignTemplatesAPI.UpdateCampaignTemplate(ctx, accountID, templateID, requests.UpdateCampaignTemplateRequest{\n    Name: ahasend.String(\"Monthly newsletter, 2026\"),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating campaign template: %v\", err)\n  }\n  fmt.Printf(\"Updated campaign template %s\\n\", response.Name)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst templateId = \"00000000-0000-4000-8000-000000000013\";\n// Campaigns already made from the template keep their own copies.\nconst template = await client.campaignTemplates.update(templateId, {\n  name: \"Monthly newsletter (2026)\",\n});\nconsole.log(\"Campaign template updated.\", { id: template.id, name: template.name });\n"
+    delete:
+      summary: Delete Campaign Template
+      description: 'Deletes a campaign template, as the dashboard does. Campaigns made
+
+        from it keep their own copies, and a second delete answers 404.'
+      operationId: deleteCampaignTemplate
+      tags:
+      - Campaign Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Campaign template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:delete
+      responses:
+        '200':
+          description: Campaign template deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:delete` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // Campaigns made from the template keep their own copies.\n  response, _, err := client.CampaignTemplatesAPI.DeleteCampaignTemplate(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error deleting campaign template: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000013";
+
+          const result = await client.campaignTemplates.delete(templateId);
+
+          console.log("Campaign template deleted.", { message: result.message });
+
+          '
+components:
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  schemas:
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
+    CampaignTemplate:
+      type: object
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - name
+      - editor
+      description: A design a campaign copies when it is made from it. A campaign template has no draft, no versions, no subject and no sender; the campaign owns its subject and sender.
+      properties:
+        object:
+          type: string
+          enum:
+          - campaign_template
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Campaign template ID
+        created_at:
+          type: string
+          format: date-time
+          description: When the campaign template was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the campaign template last changed
+        name:
+          type: string
+          description: Campaign template name, as it appears in the dashboard
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+        content:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateContent'
+          - type: 'null'
+          description: The content. Null when the campaign template has neither HTML nor text, as for one created without content. A campaign can be made from the campaign template only once it has HTML. List Campaign Templates leaves this field out; every other operation that returns a CampaignTemplate sets it.
+    PaginatedCampaignTemplatesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignTemplate'
+          description: Array of campaign templates, each without its `content`
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    TemplateContentInput:
+      type: object
+      additionalProperties: false
+      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
+      properties:
+        mjml:
+          type: string
+          minLength: 1
+          description: 'The MJML source. Only for `advanced` templates. It is compiled in
+
+            strict mode, and every problem strict validation finds is refused
+
+            with its line. Images must use full `https://` URLs: the API cannot
+
+            upload files.
+
+            '
+        html:
+          type: string
+          minLength: 1
+          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
+
+            template can be changed only in the dashboard. Images and
+
+            stylesheets must use full `https://` URLs: the API cannot upload
+
+            files.
+
+            '
+        text:
+          type:
+          - string
+          - 'null'
+          description: The plain text version. Null makes it from the HTML.
+        text_is_custom:
+          type: boolean
+          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
+    CreateCampaignTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      description: A new campaign template.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Campaign template name. Spaces around it are dropped.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+          description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself.
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    TemplateContent:
+      type: object
+      required:
+      - text_is_custom
+      description: 'A template''s content. A key that does not apply to the template''s
+
+        editor is left out, and so are `mjml`, `html` and `text` when they are
+
+        empty.
+
+        '
+      properties:
+        mjml:
+          type: string
+          description: The MJML source. Only for `advanced` templates.
+        html:
+          type: string
+          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
+        text:
+          type: string
+          description: The plain text version of the email.
+        text_is_custom:
+          type: boolean
+          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
+    UpdateCampaignTemplateRequest:
+      type: object
+      additionalProperties: false
+      description: Changes to a campaign template. A field left out is not changed or checked. The editor never changes.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Campaign template name. Spaces around it are dropped.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+          description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself. For a `simple` campaign template, send only `text`.
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

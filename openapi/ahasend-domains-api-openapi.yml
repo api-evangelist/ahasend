@@ -1,7 +1,156 @@
 openapi: 3.2.0
 info:
   title: AhaSend API v2 Domains API
-  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -39,6 +188,14 @@ paths:
           type:
           - boolean
           - 'null'
+      - name: sending_type
+        in: query
+        description: Filter results by sending type
+        schema:
+          type: string
+          enum:
+          - transactional
+          - marketing
       - name: limit
         in: query
         description: Maximum number of items to return (1-100)
@@ -63,7 +220,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.GetDomains(\n    ctx,\n    accountID,\n    nil,\n    nil,\n    nil,\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting domains: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d domains\\n\", len(response.Data))\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Pass a *bool instead of nil to filter by DNS validity.\n  response, _, err := client.DomainsAPI.GetDomains(ctx, accountID, nil, nil)\n  if err != nil {\n    log.Fatalf(\"Error getting domains: %v\", err)\n  }\n  for _, domain := range response.Data {\n    fmt.Printf(\"%s dns_valid=%t\\n\", domain.Domain, domain.DNSValid)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -128,10 +285,21 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.CreateDomain(\n    ctx,\n    accountID,\n    requests.CreateDomainRequest{\n      Domain: \"example.com\",\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error creating domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Created domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.DomainsAPI.CreateDomain(ctx, accountID, requests.CreateDomainRequest{\n    Domain: \"example.com\",\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating domain: %v\", err)\n  }\n  // Publish these records at your DNS provider.\n  for _, record := range response.DNSRecords {\n    fmt.Printf(\"%s %s %s\\n\", record.Type, record.Host, record.Content)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
-        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst domain = await client.domains.create(\n  { domain: \"example.com\" },\n  { idempotencyKey: \"sdk-sample-create-domain\" },\n);\nconsole.log(\"Domain created.\", { id: domain.id, domain: domain.domain });\n"
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          // The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.
+
+          const domain = await client.domains.create({ domain: "example.com" });
+
+          console.log("Domain created.", { id: domain.id, domain: domain.domain });
+
+          '
       requestBody:
         required: true
         content:
@@ -238,7 +406,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.GetDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error getting domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.DomainsAPI.GetDomain(ctx, accountID, \"example.com\")\n  if err != nil {\n    log.Fatalf(\"Error getting domain: %v\", err)\n  }\n  fmt.Printf(\"%s dns_valid=%t\\n\", response.Domain, response.DNSValid)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -317,7 +485,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  ahasend \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Update domain settings\n  response, httpResp, err := client.DomainsAPI.UpdateDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n    requests.UpdateDomainRequest{\n      TrackingSubdomain:        ahasend.String(\"click\"),\n      ReturnPathSubdomain:      ahasend.String(\"mail\"),\n      DKIMRotationIntervalDays: ahasend.Int(45),\n    },\n  )\n  if err != nil {\n    log.Fatalf(\"Error updating domain: %v\", err)\n  }\n\n  fmt.Printf(\"Status: %d\\n\", httpResp.StatusCode)\n  if response != nil {\n    fmt.Printf(\"Updated domain: %s\\n\", response.Domain)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.DomainsAPI.UpdateDomain(ctx, accountID, \"example.com\", requests.UpdateDomainRequest{\n    TrackingSubdomain: ahasend.String(\"click\"),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating domain: %v\", err)\n  }\n  fmt.Printf(\"Updated domain %s\\n\", response.Domain)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -404,7 +572,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Call the ping endpoint\n  response, httpResp, err := client.DomainsAPI.DeleteDomain(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting domain: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Deleted domain: %#v\\n\", response)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.DomainsAPI.DeleteDomain(ctx, accountID, \"example.com\")\n  if err != nil {\n    log.Fatalf(\"Error deleting domain: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -439,11 +607,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: 'Forbidden. For example, the API key cannot delete the domain, or sending from the domain is paused. You cannot delete a domain while sending from it is paused.
+
+            '
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                domain_paused:
+                  summary: Sending from the domain is paused
+                  value:
+                    message: Sending is paused on the domain 'example.com'. You cannot remove or rename it while sending is paused. Contact support.
         '404':
           description: Domain not found
           content:
@@ -484,7 +659,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Trigger a DNS validation check\n  response, httpResp, err := client.DomainsAPI.CheckDomainDNS(\n    ctx,\n    accountID,\n    \"example.com\",\n  )\n  if err != nil {\n    log.Fatalf(\"Error checking domain DNS: %v\", err)\n  }\n\n  fmt.Printf(\"Status: %d\\n\", httpResp.StatusCode)\n  if response != nil {\n    fmt.Printf(\"DNS valid: %t\\n\", response.DNSValid)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Trigger a DNS validation check\n  response, _, err := client.DomainsAPI.CheckDomainDNS(ctx, accountID, \"example.com\")\n  if err != nil {\n    log.Fatalf(\"Error checking domain DNS: %v\", err)\n  }\n  fmt.Printf(\"DNS valid: %t\\n\", response.DNSValid)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -537,21 +712,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
   schemas:
     PaginatedDomainsResponse:
       type: object
@@ -572,98 +732,6 @@ components:
           description: Array of domains
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    CreateDomainRequest:
-      type: object
-      required:
-      - domain
-      properties:
-        domain:
-          type: string
-          format: hostname
-          description: Fully qualified domain name
-        dkim_private_key:
-          type: string
-          description: 'DKIM Private Key for the domain. Only RSA keys with a minimum key size of 1024 bits are supported.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-
-            <Note>Key size of at least 1024 bits is supported; 2048 bit keys are strongly recommended for improved security.</Note>
-
-            '
-        tracking_subdomain:
-          type: string
-          description: Optional custom tracking subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        return_path_subdomain:
-          type: string
-          description: Optional custom return-path subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        subscription_subdomain:
-          type: string
-          description: Optional custom subscription management subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        media_subdomain:
-          type: string
-          description: Optional custom media subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
-        dkim_rotation_interval_days:
-          type: integer
-          description: Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.
-        dkim_selector:
-          type:
-          - string
-          - 'null'
-          description: 'Optional custom DKIM selector for the domain. Omit, send null, or send an empty or whitespace-only string to use the default selector (no per-domain override); the value is trimmed before it is interpreted, so whitespace-only input is treated as empty.
-
-
-            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-            '
-      example:
-        domain: example.com
-        tracking_subdomain: click
-        return_path_subdomain: mail
-        subscription_subdomain: preferences
-        media_subdomain: media
-        dkim_rotation_interval_days: 45
     DNSRecord:
       type: object
       properties:
@@ -691,53 +759,6 @@ components:
       - content
       - required
       - propagated
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    UpdateDomainRequest:
-      type: object
-      properties:
-        tracking_subdomain:
-          type: string
-          description: Optional custom tracking subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        return_path_subdomain:
-          type: string
-          description: Optional custom return-path subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        subscription_subdomain:
-          type: string
-          description: Optional custom subscription management subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        media_subdomain:
-          type: string
-          description: Optional custom media subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
-        dkim_rotation_interval_days:
-          type: integer
-          description: Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.
-        dkim_selector:
-          type:
-          - string
-          - 'null'
-          description: 'Optional custom DKIM selector for the domain. Omit or send null to leave the current value unchanged; send an empty or whitespace-only string to clear the override and revert to the default selector. The value is trimmed before it is interpreted, so whitespace-only input clears the override just like an empty string.
-
-
-            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen. It cannot be changed once the selector locks after DNS verification or while a DKIM key rotation is in progress.
-
-
-            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
-
-            '
-      example:
-        tracking_subdomain: click
-        return_path_subdomain: mail
-        subscription_subdomain: preferences
-        media_subdomain: media
-        dkim_rotation_interval_days: 45
     Domain:
       type: object
       properties:
@@ -822,6 +843,31 @@ components:
           - string
           - 'null'
           description: Optional recipient address for delivery status notifications.
+        sending_type:
+          type: string
+          enum:
+          - transactional
+          - marketing
+          description: The type of email that you send from the domain. The sending type affects your deliverability. Marketing email from a transactional domain can get your account paused.
+        paused:
+          type: boolean
+          description: Whether sending from the domain is paused. While the domain is paused, new email from it is refused, and you cannot delete or rename it. Your other domains continue to send.
+        paused_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When sending from the domain was paused. Null when the domain is not paused.
+        pause_reason:
+          type:
+          - string
+          - 'null'
+          description: 'The reason of the pause. Null when the domain is not paused.
+
+
+            - `bounce_rate`: too many recent emails from the domain bounced.
+
+            '
       required:
       - object
       - id
@@ -840,6 +886,161 @@ components:
       - dkim_selector
       - rotation_ready
       - dsn_recipient
+      - sending_type
+      - paused
+      - paused_at
+      - pause_reason
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    CreateDomainRequest:
+      type: object
+      required:
+      - domain
+      properties:
+        domain:
+          type: string
+          format: hostname
+          description: Fully qualified domain name
+        dkim_private_key:
+          type: string
+          description: 'DKIM Private Key for the domain. Only RSA keys with a minimum key size of 1024 bits are supported.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+
+            <Note>Key size of at least 1024 bits is supported; 2048 bit keys are strongly recommended for improved security.</Note>
+
+            '
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to use the default on create. Applies to both manual-DNS and managed-DNS domains.
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Only supported for managed DNS domains on eligible plans.
+        dkim_selector:
+          type:
+          - string
+          - 'null'
+          description: 'Optional custom DKIM selector for the domain. Omit, send null, or send an empty or whitespace-only string to use the default selector (no per-domain override); the value is trimmed before it is interpreted, so whitespace-only input is treated as empty.
+
+
+            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+            '
+        sending_type:
+          type: string
+          enum:
+          - transactional
+          - marketing
+          description: The type of email that you send from the domain. Omit to create a transactional domain. Null and empty values are refused.
+      example:
+        domain: example.com
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    UpdateDomainRequest:
+      type: object
+      properties:
+        tracking_subdomain:
+          type: string
+          description: Optional custom tracking subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        return_path_subdomain:
+          type: string
+          description: Optional custom return-path subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        subscription_subdomain:
+          type: string
+          description: Optional custom subscription management subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        media_subdomain:
+          type: string
+          description: Optional custom media subdomain. Omit to leave the current value unchanged. Applies to both manual-DNS and managed-DNS domains.
+        dkim_rotation_interval_days:
+          type: integer
+          description: Optional custom DKIM rotation interval in days. Omit to leave the current value unchanged. Only supported for managed DNS domains on eligible plans.
+        dkim_selector:
+          type:
+          - string
+          - 'null'
+          description: 'Optional custom DKIM selector for the domain. Omit or send null to leave the current value unchanged; send an empty or whitespace-only string to clear the override and revert to the default selector. The value is trimmed before it is interpreted, so whitespace-only input clears the override just like an empty string.
+
+
+            When provided, it is normalized to lowercase and must be a single DNS label: 1-62 characters using lowercase letters, numbers, and hyphens only, without a leading or trailing hyphen. It cannot be changed once the selector locks after DNS verification or while a DKIM key rotation is in progress.
+
+
+            **Note:** This parameter is only supported on [Platform Partner](https://ahasend.com/partners) accounts.
+
+            '
+        sending_type:
+          type: string
+          enum:
+          - transactional
+          - marketing
+          description: The type of email that you send from the domain. Omit to leave the current value unchanged. Null and empty values are refused. A change applies to new messages in a maximum of five minutes.
+      example:
+        tracking_subdomain: click
+        return_path_subdomain: mail
+        subscription_subdomain: preferences
+        media_subdomain: media
+        dkim_rotation_interval_days: 45
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
   headers:
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
@@ -882,6 +1083,21 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

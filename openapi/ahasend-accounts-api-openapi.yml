@@ -1,7 +1,156 @@
 openapi: 3.2.0
 info:
   title: AhaSend API v2 Accounts API
-  description: The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics.
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
   version: 2.0.0
   contact:
     email: support@ahasend.com
@@ -38,7 +187,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.AccountsAPI.GetAccount(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account retrieved. Status: %d\\n\", httpResp.StatusCode)\n    fmt.Printf(\"ID: %s\\n\", response.ID)\n    fmt.Printf(\"Name: %s\\n\", response.Name)\n    fmt.Printf(\"Owner ID: %s\\n\", response.OwnerID)\n    if response.Website != nil {\n      fmt.Printf(\"Website: %s\\n\", *response.Website)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.AccountsAPI.GetAccount(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error getting account: %v\", err)\n  }\n  fmt.Printf(\"%s %s\\n\", response.ID, response.Name)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -97,7 +246,7 @@ paths:
 
         - `name` must be maximum 255 characters
 
-        - `website` must be a valid URL
+        - `website` must be a domain such as `acme.com`, or an http(s) URL such as `https://acme.com`; it is stored as the host, so `https://acme.com/team` is read back as `acme.com`. Maximum 255 characters
 
         - `message_metadata_retention` must be between 1 and 30 days
 
@@ -119,7 +268,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Update the account name and open/click tracking settings\n  response, httpResp, err := client.AccountsAPI.UpdateAccount(ctx, accountID, requests.UpdateAccountRequest{\n    Name:        ahasend.String(\"Acme Corp\"),\n    TrackOpens:  ahasend.Bool(true),\n    TrackClicks: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating account: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account updated! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"ID: %s\\n\", response.ID)\n      fmt.Printf(\"Name: %s\\n\", response.Name)\n      if response.TrackOpens != nil {\n        fmt.Printf(\"Track Opens: %t\\n\", *response.TrackOpens)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Update the account name and open/click tracking settings\n  response, _, err := client.AccountsAPI.UpdateAccount(ctx, accountID, requests.UpdateAccountRequest{\n    Name:        ahasend.String(\"Acme Corp\"),\n    TrackOpens:  ahasend.Bool(true),\n    TrackClicks: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating account: %v\", err)\n  }\n  fmt.Printf(\"Updated account %s\\n\", response.Name)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -196,7 +345,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // List the members of the account\n  response, httpResp, err := client.AccountsAPI.GetAccountMembers(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error listing account members: %v\", err)\n  }\n\n  // Check response\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Retrieved account members! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"Found %d account members\\n\", len(response.Data))\n      for _, member := range response.Data {\n        fmt.Printf(\"- User: %s, Role: %s\\n\", member.UserID, member.Role)\n      }\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.AccountsAPI.GetAccountMembers(ctx, accountID)\n  if err != nil {\n    log.Fatalf(\"Error listing account members: %v\", err)\n  }\n  for _, member := range response.Data {\n    fmt.Printf(\"%s %s\\n\", member.UserID, member.Role)\n  }\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -268,10 +417,10 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  response, httpResp, err := client.AccountsAPI.AddAccountMember(ctx, accountID, requests.AddMemberRequest{\n    Email: \"teammate@example.com\",\n    Name:  ahasend.String(\"Jordan Lee\"),\n    Role:  \"Developer\",\n  }, api.WithIdempotencyKey(\"add-member-20240101-jordan\"))\n  if err != nil {\n    log.Fatalf(\"Error adding account member: %v\", err)\n  }\n\n  if httpResp.StatusCode == 201 {\n    fmt.Printf(\"✅ Member added successfully! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil {\n      fmt.Printf(\"User ID: %s\\n\", response.UserID)\n      fmt.Printf(\"Role: %s\\n\", response.Role)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.AccountsAPI.AddAccountMember(ctx, accountID, requests.AddMemberRequest{\n    Email: \"teammate@example.com\",\n    Name:  ahasend.String(\"Jordan Lee\"),\n    Role:  \"Developer\",\n  })\n  if err != nil {\n    log.Fatalf(\"Error adding account member: %v\", err)\n  }\n  fmt.Printf(\"Added user %s as %s\\n\", response.UserID, response.Role)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
-        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst member = await client.accounts.addMember(\n  { email: \"developer@example.com\", role: \"Developer\" },\n  { idempotencyKey: \"sdk-sample-add-account-member\" },\n);\nconsole.log(\"Account member added.\", { userId: member.user_id, role: member.role });\n"
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst member = await client.accounts.addMember({\n  email: \"developer@example.com\",\n  role: \"Developer\",\n});\nconsole.log(\"Account member added.\", { userId: member.user_id, role: member.role });\n"
       requestBody:
         required: true
         content:
@@ -385,7 +534,7 @@ paths:
       x-code-samples:
       - lang: go
         label: AhaSend Go SDK
-        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  // Create API client with authentication\n  client := api.NewAPIClient(\n    api.WithAPIKey(\"aha-sk-your-64-character-key\"),\n  )\n\n  accountID := uuid.New()\n  userID := uuid.New()\n\n  // Create context for the API call\n  ctx := context.Background()\n\n  // Remove the member from the account by user ID\n  response, httpResp, err := client.AccountsAPI.RemoveAccountMember(ctx, accountID, userID)\n  if err != nil {\n    log.Fatalf(\"Error removing account member: %v\", err)\n  }\n\n  if httpResp.StatusCode == 200 {\n    fmt.Printf(\"✅ Account member removed! Status: %d\\n\", httpResp.StatusCode)\n    if response != nil && response.Message != \"\" {\n      fmt.Printf(\"Response: %s\\n\", response.Message)\n    }\n  } else {\n    fmt.Printf(\"❌ Unexpected status code: %d\\n\", httpResp.StatusCode)\n  }\n}\n"
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  userID := uuid.MustParse(\"5b9a1c1e-8f7d-4a55-9d0e-2c1f3b7a6e42\")\n\n  response, _, err := client.AccountsAPI.RemoveAccountMember(ctx, accountID, userID)\n  if err != nil {\n    log.Fatalf(\"Error removing account member: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
       - lang: javascript
         label: Node.js 22+ (AhaSend SDK)
         source: 'import { AhaSendClient } from "@ahasend/sdk";
@@ -438,22 +587,180 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
   schemas:
+    AccountMembersResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccount'
+          description: Array of account members
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    Account:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - account
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the account
+        parent_account_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Parent account ID when this account is a sub account
+        created_at:
+          type: string
+          format: date-time
+          description: When the account was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the account was last updated
+        name:
+          type: string
+          description: Account name
+        website:
+          type: string
+          maxLength: 255
+          description: Account website, stored as a bare domain such as `acme.com`
+        about:
+          type: string
+          description: Account description
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+        message_metadata_retention:
+          type: integer
+          description: Default message metadata retention in days
+        message_data_retention:
+          type: integer
+          description: Default message data retention in days
+        owner_id:
+          type: string
+          format: uuid
+          description: Account owner user ID
+      required:
+      - object
+      - id
+      - parent_account_id
+      - created_at
+      - updated_at
+      - name
+      - website
+      - about
+      - track_opens
+      - track_clicks
+      - reject_bad_recipients
+      - reject_mistyped_recipients
+      - message_metadata_retention
+      - message_data_retention
+      - owner_id
+    UpdateAccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Account name
+        website:
+          type: string
+          maxLength: 255
+          description: Account website. A domain such as `acme.com`, or an http(s) URL such as `https://acme.com`, which is reduced to its host before it is stored
+        about:
+          type: string
+          description: Account description (used for account verification)
+        track_opens:
+          type: boolean
+          description: Default open tracking setting
+        track_clicks:
+          type: boolean
+          description: Default click tracking setting
+        reject_bad_recipients:
+          type: boolean
+          description: Whether to reject bad recipients
+        reject_mistyped_recipients:
+          type: boolean
+          description: Whether to reject mistyped recipients
+        message_metadata_retention:
+          type: integer
+          minimum: 1
+          maximum: 30
+          description: Default message metadata retention in days
+        message_data_retention:
+          type: integer
+          minimum: 0
+          maximum: 30
+          description: Default message data retention in days
+      example:
+        name: Updated Company Name
+        website: https://example.com
+        track_opens: true
+    UserAccount:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          description: When the relationship was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the relationship was last updated
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID
+        role:
+          type: string
+          enum:
+          - Administrator
+          - Developer
+          - Analyst
+          - Billing Manager
+          description: User role in the account
+      required:
+      - created_at
+      - updated_at
+      - user_id
+      - account_id
+      - role
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -499,179 +806,6 @@ components:
         email: user@example.com
         name: John Doe
         role: Developer
-    UpdateAccountRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          description: Account name
-        website:
-          type: string
-          format: uri
-          description: Account website URL
-        about:
-          type: string
-          description: Account description (used for account verification)
-        track_opens:
-          type: boolean
-          description: Default open tracking setting
-        track_clicks:
-          type: boolean
-          description: Default click tracking setting
-        reject_bad_recipients:
-          type: boolean
-          description: Whether to reject bad recipients
-        reject_mistyped_recipients:
-          type: boolean
-          description: Whether to reject mistyped recipients
-        message_metadata_retention:
-          type: integer
-          minimum: 1
-          maximum: 30
-          description: Default message metadata retention in days
-        message_data_retention:
-          type: integer
-          minimum: 0
-          maximum: 30
-          description: Default message data retention in days
-      example:
-        name: Updated Company Name
-        website: https://example.com
-        track_opens: true
-    Account:
-      type: object
-      properties:
-        object:
-          type: string
-          enum:
-          - account
-          description: Object type identifier
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the account
-        parent_account_id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Parent account ID when this account is a sub account
-        created_at:
-          type: string
-          format: date-time
-          description: When the account was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the account was last updated
-        name:
-          type: string
-          description: Account name
-        website:
-          type: string
-          format: uri
-          description: Account website URL
-        about:
-          type: string
-          description: Account description
-        track_opens:
-          type: boolean
-          description: Default open tracking setting
-        track_clicks:
-          type: boolean
-          description: Default click tracking setting
-        reject_bad_recipients:
-          type: boolean
-          description: Whether to reject bad recipients
-        reject_mistyped_recipients:
-          type: boolean
-          description: Whether to reject mistyped recipients
-        message_metadata_retention:
-          type: integer
-          description: Default message metadata retention in days
-        message_data_retention:
-          type: integer
-          description: Default message data retention in days
-        owner_id:
-          type: string
-          format: uuid
-          description: Account owner user ID
-      required:
-      - object
-      - id
-      - parent_account_id
-      - created_at
-      - updated_at
-      - name
-      - website
-      - about
-      - track_opens
-      - track_clicks
-      - reject_bad_recipients
-      - reject_mistyped_recipients
-      - message_metadata_retention
-      - message_data_retention
-      - owner_id
-    UserAccount:
-      type: object
-      properties:
-        created_at:
-          type: string
-          format: date-time
-          description: When the relationship was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the relationship was last updated
-        user_id:
-          type: string
-          format: uuid
-          description: User ID
-        account_id:
-          type: string
-          format: uuid
-          description: Account ID
-        role:
-          type: string
-          enum:
-          - Administrator
-          - Developer
-          - Analyst
-          - Billing Manager
-          description: User role in the account
-      required:
-      - created_at
-      - updated_at
-      - user_id
-      - account_id
-      - role
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    AccountMembersResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserAccount'
-          description: Array of account members
   headers:
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
@@ -714,6 +848,21 @@ components:
         type: string
         maxLength: 255
       example: user-12345-create-domain-20240101
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

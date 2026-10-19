@@ -1,0 +1,1953 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Templates API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Templates
+  description: Create, change, publish and delete the account's transactional templates, and read them with their drafts, their published versions and the variables a send must supply
+paths:
+  /v2/accounts/{account_id}/templates:
+    get:
+      summary: List Templates
+      description: 'Returns a cursor-paginated list of the account''s transactional
+
+        templates, newest first. Campaign designs are a different resource and
+
+        never appear here. Each template is listed without its `content`; Get
+
+        Template returns it.
+
+
+        A template with no design yet is listed like any other; whether it can
+
+        be sent is the send''s answer, not this one.'
+      operationId: listTemplates
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value from `next_cursor` in the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value from `previous_cursor` in the response.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - templates:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.TemplatesAPI.GetTemplates(ctx, accountID, requests.GetTemplatesParams{\n    Limit: ahasend.Int32(100),\n  })\n  if err != nil {\n    log.Fatalf(\"Error listing templates: %v\", err)\n  }\n  for _, template := range response.Data {\n    fmt.Printf(\"%s %s\\n\", template.ID, template.Name)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.templates.list({ limit: 20 });
+
+          console.log("Templates listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: Paginated templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTemplatesResponse'
+        '400':
+          description: Invalid limit or cursor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Template
+      description: 'Creates a transactional template. Its fields go to its draft, as a
+
+        dashboard save does, so sends keep failing until it is published: pass
+
+        `publish: true` to publish it in the same request, or call Publish
+
+        Template.
+
+
+        `content.mjml` makes an `advanced` template and `content.html` an `html`
+
+        template. A template with neither must name its `editor`. The editor never
+
+        changes after create.
+
+
+        MJML is compiled in strict mode, and HTML must use full `https://` URLs
+
+        for its images and stylesheets: the API cannot upload files.
+
+
+        A create with `publish: true` and nothing to publish is refused and
+
+        creates nothing.'
+      operationId: createTemplate
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created. The Template object is the published copy; `has_draft` says whether the request left a draft.
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: 'Invalid request: the body, a field, or a publish with nothing to publish. The message names the field and the problem.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // HTML content makes an html template; MJML would make an advanced one.\n  // The text is made from the HTML when it is left out. Publish makes the\n  // template ready to send at once; without it, the fields stay in a draft.\n  response, _, err := client.TemplatesAPI.CreateTemplate(ctx, accountID, requests.CreateTemplateRequest{\n    Name:    \"Password reset\",\n    Subject: ahasend.String(\"Reset your password, {{ first_name }}\"),\n    From: &common.SenderAddress{\n      Email: \"hello@yourdomain.com\",\n      Name:  ahasend.String(\"Example\"),\n    },\n    Content: &requests.TemplateContentInput{\n      HTML: ahasend.String(`<p>Hi {{ first_name }},</p><p><a href=\"{{ reset_url }}\">Reset your password</a></p>`),\n    },\n    Publish: true,\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating template: %v\", err)\n  }\n  fmt.Printf(\"Created %s template %s\\n\", response.Editor, response.ID)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst template = await client.templates.create({\n  name: \"Welcome email\",\n  subject: \"Welcome, {{ first_name }}\",\n  content: { html: \"<p>Hello {{ first_name }}, welcome aboard.</p>\" },\n  publish: true,\n});\nconsole.log(\"Template created.\", { id: template.id, editor: template.editor });\n"
+  /v2/accounts/{account_id}/templates/{template_id}:
+    get:
+      summary: Get Template
+      description: 'Returns one of the account''s transactional templates: its published
+
+        copy, which is what a send uses, with its content and the variable list
+
+        a send has to satisfy. `has_draft` says whether changes are waiting to
+
+        be published; Get Template Draft returns them. A campaign design''s ID
+
+        is not addressable here and answers 404.'
+      operationId: getTemplate
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  response, _, err := client.TemplatesAPI.GetTemplate(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error getting template: %v\", err)\n  }\n  // A send from this template must supply every required variable.\n  for _, variable := range response.Variables {\n    fmt.Printf(\"%s required=%t\\n\", variable.Name, variable.Required)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const template = await client.templates.get(templateId);
+
+          console.log("Template found.", { id: template.id, name: template.name });
+
+          '
+      responses:
+        '200':
+          description: Template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Template
+      description: 'Changes a transactional template. Every field but `name` goes to the
+
+        template''s draft, the same draft the dashboard edits, and sends use the
+
+        published copy until the draft is published: pass `publish: true`, or call
+
+        Publish Template. A publish publishes the whole draft, including changes
+
+        made in the dashboard. A draft that ends up equal to the published copy is
+
+        not kept, and a request that changes nothing changes nothing, so the same
+
+        request can be repeated safely.
+
+
+        `name` is not drafted: it changes when the request succeeds, as its last
+
+        step. A field the request leaves out is neither changed nor checked,
+
+        apart from a custom text kept beside a new design (see
+
+        `TemplateContentInput`).
+
+
+        When the template changes in the dashboard or through another request
+
+        while this one writes it, the request applies its fields again over the
+
+        new draft. It answers 503 when that keeps happening; retry it.'
+      operationId: updateTemplate
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated. The Template object is the published copy; `has_draft` says whether a draft is left.
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid template_id, an invalid body or field, a request with no changes, or a publish with nothing to publish or a draft that cannot be rendered. The message names the field and the problem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateBeingChanged'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // Only the fields you set change. They go to the template's draft, the\n  // same draft the dashboard edits; Publish publishes the whole draft. An\n  // empty ReplyTo clears the reply-to address.\n  response, _, err := client.TemplatesAPI.UpdateTemplate(ctx, accountID, templateID, requests.UpdateTemplateRequest{\n    Subject: ahasend.String(\"Your password reset link\"),\n    ReplyTo: &common.SenderAddress{},\n    Publish: true,\n  })\n  if err != nil {\n    log.Fatalf(\"Error updating template: %v\", err)\n  }\n  fmt.Printf(\"Updated template %s, has draft: %t\\n\", response.Name, response.HasDraft)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst templateId = \"00000000-0000-4000-8000-000000000009\";\n// Fields go to the template's draft; publish: true also publishes it.\nconst template = await client.templates.update(templateId, {\n  subject: \"Welcome to the team, {{ first_name }}\",\n  preheader: null,\n  publish: true,\n});\nconsole.log(\"Template updated.\", { id: template.id, hasDraft: template.has_draft });\n"
+    delete:
+      summary: Delete Template
+      description: 'Deletes a transactional template, as the dashboard does. Sends of it fail
+
+        from then on, and a second delete answers 404.'
+      operationId: deleteTemplate
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:delete
+      responses:
+        '200':
+          description: Template deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:delete` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  response, _, err := client.TemplatesAPI.DeleteTemplate(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error deleting template: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const result = await client.templates.delete(templateId);
+
+          console.log("Template deleted.", { message: result.message });
+
+          '
+  /v2/accounts/{account_id}/templates/{template_id}/draft:
+    get:
+      summary: Get Template Draft
+      description: 'Returns a template''s draft: the changes saved in the dashboard or
+
+        through the API that are not published yet. Sends use the published
+
+        copy, which Get Template returns, until the draft is published.
+
+
+        A template with no draft answers 404 `template has no draft`; its
+
+        `has_draft` is false.'
+      operationId: getTemplateDraft
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:read
+      responses:
+        '200':
+          description: Template draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateDraft'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found (`template not found`), or the template has no draft (`template has no draft`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // A template with no draft returns 404; its HasDraft is false.\n  response, _, err := client.TemplatesAPI.GetTemplateDraft(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error getting template draft: %v\", err)\n  }\n  fmt.Printf(\"Draft subject: %s, changed at %s\\n\", response.Subject, response.UpdatedAt)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const draft = await client.templates.getDraft(templateId);
+
+          console.log("Template draft found.", { templateId: draft.template_id, subject: draft.subject });
+
+          '
+    delete:
+      summary: Discard Template Draft
+      description: 'Discards a template''s draft, the changes saved in the dashboard or through
+
+        the API that are not published yet. A template with no draft is answered
+
+        as it is, so the request can be repeated safely.'
+      operationId: discardTemplateDraft
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:write
+      responses:
+        '200':
+          description: The template, with `has_draft` false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateBeingChanged'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  response, _, err := client.TemplatesAPI.DiscardTemplateDraft(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error discarding template draft: %v\", err)\n  }\n  fmt.Printf(\"Template %s has draft: %t\\n\", response.Name, response.HasDraft)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const template = await client.templates.discardDraft(templateId);
+
+          console.log("Template draft discarded.", { id: template.id, hasDraft: template.has_draft });
+
+          '
+  /v2/accounts/{account_id}/templates/{template_id}/publish:
+    post:
+      summary: Publish Template
+      description: 'Publishes a template''s draft, so sends use it, and keeps it as a new
+
+        version. The whole draft is published, including changes made in the
+
+        dashboard. A template with no draft has nothing to publish and is answered
+
+        as it is when its published copy has a body, so the request can be
+
+        repeated safely.
+
+
+        The operation takes no request body; one sent is ignored.'
+      operationId: publishTemplate
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      responses:
+        '200':
+          description: Template published
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid template_id, a template with nothing to publish (`template has no content to publish`), or a draft whose design holds a `{{`, `{%` or `{#` that cannot be rendered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateBeingChanged'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // The whole draft is published, including changes made in the dashboard.\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries.\n  response, _, err := client.TemplatesAPI.PublishTemplate(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error publishing template: %v\", err)\n  }\n  fmt.Printf(\"Published template %s\\n\", response.Name)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          // The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const template = await client.templates.publish(templateId);
+
+          console.log("Template published.", { id: template.id, hasDraft: template.has_draft });
+
+          '
+  /v2/accounts/{account_id}/templates/{template_id}/versions:
+    get:
+      summary: List Template Versions
+      description: 'Returns a template''s published versions, newest first, without their
+
+        content. Every publish of a draft makes a version. A template keeps its
+
+        50 most recent versions, so the list is not paginated. Get Template
+
+        Version returns one version with its content.'
+      operationId: listTemplateVersions
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:read
+      responses:
+        '200':
+          description: Template versions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVersionsResponse'
+        '400':
+          description: Invalid template_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // Versions come newest first, at most 50, with no pagination.\n  response, _, err := client.TemplatesAPI.GetTemplateVersions(ctx, accountID, templateID)\n  if err != nil {\n    log.Fatalf(\"Error listing template versions: %v\", err)\n  }\n  for _, version := range response.Data {\n    publisher := \"unknown\"\n    if version.PublishedBy != nil {\n      publisher = version.PublishedBy.Type + \" \" + version.PublishedBy.ID.String()\n    }\n    fmt.Printf(\"v%d %s published by %s\\n\", version.Version, version.PublishedAt, publisher)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const versions = await client.templates.listVersions(templateId);
+
+          console.log("Template versions listed.", { count: versions.data.length });
+
+          '
+  /v2/accounts/{account_id}/templates/{template_id}/versions/{version_id}:
+    get:
+      summary: Get Template Version
+      description: Returns one published version of a template with its content.
+      operationId: getTemplateVersion
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      - name: version_id
+        in: path
+        required: true
+        description: Version ID
+        schema:
+          type: string
+          format: uuid
+      security:
+      - BearerAuth:
+        - templates:read
+      responses:
+        '200':
+          description: Template version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateVersionDetail'
+        '400':
+          description: Invalid template_id or version_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:read` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found (`template not found`), or version not found (`template version not found`), also for a version of another template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n  versionID := uuid.MustParse(\"22222222-2222-4222-8222-222222222222\")\n\n  response, _, err := client.TemplatesAPI.GetTemplateVersion(ctx, accountID, templateID, versionID)\n  if err != nil {\n    log.Fatalf(\"Error getting template version: %v\", err)\n  }\n  fmt.Printf(\"v%d subject: %s\\n\", response.Version, response.Subject)\n  if response.Content != nil {\n    fmt.Println(response.Content.Text)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const versionId = "00000000-0000-4000-8000-000000000012";
+
+          const version = await client.templates.getVersion(templateId, versionId);
+
+          console.log("Template version found.", { id: version.id, version: version.version });
+
+          '
+  /v2/accounts/{account_id}/templates/{template_id}/versions/{version_id}/restore:
+    post:
+      summary: Restore Template Version
+      description: 'Restores a published version into the template''s draft. With
+
+        `publish: true` the draft is then published, as Publish Template does;
+
+        a version the publish checks refuse is refused before the restore, and
+
+        the draft is left as it was.'
+      operationId: restoreTemplateVersion
+      tags:
+      - Templates
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: template_id
+        in: path
+        required: true
+        description: Template ID
+        schema:
+          type: string
+          format: uuid
+      - name: version_id
+        in: path
+        required: true
+        description: Version ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - templates:write
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreTemplateVersionRequest'
+      responses:
+        '200':
+          description: Version restored. The Template object is the published copy; `has_draft` says whether a draft is left.
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid template_id or version_id, an invalid body, or a publish the publish checks refuse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing `templates:write` scope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found (`template not found`), or version not found (`template version not found`), also for a version of another template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateBeingChanged'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n  versionID := uuid.MustParse(\"22222222-2222-4222-8222-222222222222\")\n\n  // The version goes into the draft; Publish then publishes it, so sends use\n  // it again.\n  response, _, err := client.TemplatesAPI.RestoreTemplateVersion(ctx, accountID, templateID, versionID, requests.RestoreTemplateVersionRequest{\n    Publish: true,\n  })\n  if err != nil {\n    log.Fatalf(\"Error restoring template version: %v\", err)\n  }\n  fmt.Printf(\"Restored template %s, has draft: %t\\n\", response.Name, response.HasDraft)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          // The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.
+
+          const templateId = "00000000-0000-4000-8000-000000000009";
+
+          const versionId = "00000000-0000-4000-8000-000000000012";
+
+          const template = await client.templates.restoreVersion(templateId, versionId, { publish: true });
+
+          console.log("Template version restored.", { id: template.id, hasDraft: template.has_draft });
+
+          '
+components:
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    TemplateBeingChanged:
+      description: 'The template changed in the dashboard or through another request
+
+        while this one was writing it, more often than the request retries
+
+        by itself. Retry after `Retry-After` seconds; on an operation that
+
+        takes an `Idempotency-Key`, retry with the same key.
+
+        '
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: template is being changed by another request, try again
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  schemas:
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    RestoreTemplateVersionRequest:
+      type: object
+      additionalProperties: false
+      description: Optional. An empty body restores without publishing.
+      properties:
+        publish:
+          type: boolean
+          default: false
+          description: Publish the draft once the version is restored into it.
+    TemplateAddressInput:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      description: An address in a template write, in the shape a Template answers it.
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address.
+        name:
+          type: string
+          description: The display name.
+    TemplateContentInput:
+      type: object
+      additionalProperties: false
+      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
+      properties:
+        mjml:
+          type: string
+          minLength: 1
+          description: 'The MJML source. Only for `advanced` templates. It is compiled in
+
+            strict mode, and every problem strict validation finds is refused
+
+            with its line. Images must use full `https://` URLs: the API cannot
+
+            upload files.
+
+            '
+        html:
+          type: string
+          minLength: 1
+          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
+
+            template can be changed only in the dashboard. Images and
+
+            stylesheets must use full `https://` URLs: the API cannot upload
+
+            files.
+
+            '
+        text:
+          type:
+          - string
+          - 'null'
+          description: The plain text version. Null makes it from the HTML.
+        text_is_custom:
+          type: boolean
+          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
+    PaginatedTemplatesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Template'
+          description: Array of templates, each without its `content`
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    TemplateVersion:
+      type: object
+      required:
+      - object
+      - id
+      - version
+      - published_at
+      - published_by
+      description: One published version of a template, without its content.
+      properties:
+        object:
+          type: string
+          enum:
+          - template_version
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Version ID
+        version:
+          type: integer
+          description: The version number, counted from 1 for each template
+        published_at:
+          type: string
+          format: date-time
+          description: When the version was published
+        published_by:
+          oneOf:
+          - $ref: '#/components/schemas/TemplatePublisher'
+          - type: 'null'
+          description: Who published the version. Null when this is not known, as for versions made before versions recorded it, or when the user or API key was deleted for good.
+    TemplateDraft:
+      type: object
+      required:
+      - object
+      - template_id
+      - updated_at
+      - subject
+      - preheader
+      - variables
+      - from
+      - reply_to
+      - content
+      description: 'A template''s draft: the changes saved in the dashboard or through the
+
+        API that are not published yet. Sends use the published copy until the
+
+        draft is published.
+
+        '
+      properties:
+        object:
+          type: string
+          enum:
+          - template_draft
+          description: Object type identifier
+        template_id:
+          type: string
+          format: uuid
+          description: The template the draft belongs to
+        updated_at:
+          type: string
+          format: date-time
+          description: When the draft last changed
+        subject:
+          type: string
+          description: The draft's subject
+        preheader:
+          type: string
+          description: The draft's preview text
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+          description: Every variable the draft uses, as a send would require them once the draft is published
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The draft's default sender. Null when it has none.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The draft's default reply-to address. Null when it has none. Its `name` is always empty.
+        content:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateContent'
+          - type: 'null'
+          description: The draft's content. Null when the draft has no body.
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
+    UpdateTemplateRequest:
+      type: object
+      additionalProperties: false
+      description: 'Changes to a template. A field left out is not changed or checked,
+
+        apart from a custom text kept beside a new design.
+
+        Every field but `name` goes to the draft, as a dashboard save does,
+
+        and a draft equal to the published copy is not kept. The draft is
+
+        shared with the dashboard: `publish: true`, like Publish Template,
+
+        publishes the whole draft, including changes made in the dashboard.
+
+        `name` changes at once, as the last step. The editor never changes.
+
+        '
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Template name. Spaces around it are dropped.
+        subject:
+          type:
+          - string
+          - 'null'
+          maxLength: 998
+          description: The subject. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
+        preheader:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The preview text. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default sender. It replaces the address and the name together, so a missing `name` clears the name; the reply-to is kept. Null clears the sender and the reply-to. `email` must be on a domain of this account with valid DNS records that is not paused.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default reply-to address. Null clears it. It needs a sender, and its `name` must be empty.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+        publish:
+          type: boolean
+          default: false
+          description: 'Publish the draft once it is written. With only `publish: true`, the request publishes the draft.'
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
+        name:
+          type: string
+          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    TemplateVariable:
+      type: object
+      required:
+      - name
+      - required
+      - kind
+      properties:
+        name:
+          type: string
+          description: Variable name as the design writes it, for example `first_name`
+        required:
+          type: boolean
+          description: 'Whether each recipient of a send has to supply a value for this
+
+            variable. A variable the design wraps in a fallback is not required.
+
+
+            `email` and `unsubscribe_url` are never required: the send
+
+            supplies them for each recipient and replaces a value the
+
+            recipient gives. `email` is the recipient''s address.
+
+            `unsubscribe_url` is a link made for the recipient, and the
+
+            message then carries `List-Unsubscribe` and
+
+            `List-Unsubscribe-Post` headers for it; a `List-Unsubscribe` or
+
+            `List-Unsubscribe-Post` in the request''s `headers` is dropped.
+
+            '
+        kind:
+          type: string
+          enum:
+          - value
+          - condition
+          - list
+          description: "What kind of value to send for this variable.\n\n- `value`: text or a number that appears in the email, such as a\n  first name.\n- `condition`: used only to decide whether a part of the email is\n  shown, for example \"show this section if `vip` is set\". It never\n  appears in the email. To make it set, send a value that is not\n  empty, such as `true` or `\"yes\"`. To make it not set, leave it\n  out or send `\"\"`, `false`, `0`, `null`, `[]` or `{}`. The strings\n  `\"false\"` and `\"0\"` are not empty, so they make it set. A rule\n  can also compare it, for example \"show this section if `plan`\n  equals `gold`\"; then send a value that meets the rule to show\n  the section.\n- `list`: an array. A section of the email is repeated once for\n  each element, for example one row per product in an order.\n  `item_fields` names the fields each element should have.\n"
+        item_fields:
+          type: array
+          items:
+            type: string
+          description: "Only for a `list` variable. The fields the repeated section uses\nfrom each element. Send each element as an object with these\nfields. A field an element does not have is taken from the\nvariable of the same name in `substitutions`, if there is one.\n\nFor example, if `items` has `item_fields` `[\"name\", \"price\"]`,\nsend:\n\n```json\n{\n  \"items\": [\n    {\"name\": \"Linen shirt\", \"price\": \"€49\"},\n    {\"name\": \"Canvas tote\", \"price\": \"€19\"}\n  ]\n}\n```\n\nA section that shows each element as it is, such as a list of\ntags, uses the field `value`. If `item_fields` is `[\"value\"]`, you\ncan send plain values, such as `[\"new\", \"sale\"]`. Empty when the\nsection uses nothing from its elements: send one element, of any\nkind, for each time the section repeats.\n"
+    TemplatePublisher:
+      type: object
+      required:
+      - type
+      - id
+      description: Who published a version.
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - api_key
+          description: '`user` for a version published in the dashboard, `api_key` for one published through the API'
+        id:
+          type: string
+          format: uuid
+          description: The user's ID, as Get Account Members shows it, also for a user removed from the account since; or the API key's ID.
+    TemplateVersionsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVersion'
+          description: The template's versions, newest first. A template keeps its 50 most recent versions, so the list is not paginated.
+    Template:
+      type: object
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - name
+      - subject
+      - preheader
+      - variables
+      - from
+      - reply_to
+      - editor
+      - has_draft
+      properties:
+        object:
+          type: string
+          enum:
+          - template
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Pass as `template_id` to [Create Template Message](https://ahasend.com/docs/api-reference/messages/create-template-message) to send this template
+        created_at:
+          type: string
+          format: date-time
+          description: When the template was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the template's name or published content last changed
+        name:
+          type: string
+          description: Template name, as it appears in the dashboard
+        subject:
+          type: string
+          description: The published subject, set on the template page. Empty until one is published, and overridden by a send that names its own `subject`.
+        preheader:
+          type: string
+          description: The published preview text, injected into the delivered HTML when it is set
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+          description: 'Every variable the design uses. A send of this template takes the
+
+            values only from each recipient''s `substitutions`. Every recipient
+
+            must give a value for each required variable; if one does not, the
+
+            request is rejected and no message is sent. Each variable''s `kind`
+
+            says what shape of value to send.
+
+            '
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The default sender, used by a send that names no `from`. Null when the template has none, and then every send must name one.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The default reply-to address, used by a send that sets no reply-to, also one that names its own `from`. Null when the template has none. It has the shape of a send request's `reply_to`; its `name` is always empty.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+        has_draft:
+          type: boolean
+          description: Whether the template has a draft, changes saved in the dashboard or through the API that are not published yet. Get Template Draft returns it.
+        content:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateContent'
+          - type: 'null'
+          description: The published content. Null when the published copy has no body, as for a template that was never published. List Templates leaves this field out; every other operation that returns a Template sets it.
+    TemplateContent:
+      type: object
+      required:
+      - text_is_custom
+      description: 'A template''s content. A key that does not apply to the template''s
+
+        editor is left out, and so are `mjml`, `html` and `text` when they are
+
+        empty.
+
+        '
+      properties:
+        mjml:
+          type: string
+          description: The MJML source. Only for `advanced` templates.
+        html:
+          type: string
+          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
+        text:
+          type: string
+          description: The plain text version of the email.
+        text_is_custom:
+          type: boolean
+          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
+    CreateTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      description: 'A new transactional template. Its fields go to its draft, as a
+
+        dashboard save does; `publish: true` publishes the draft in the same
+
+        request, so sends use it.
+
+        '
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Template name. Spaces around it are dropped.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
+        subject:
+          type:
+          - string
+          - 'null'
+          maxLength: 998
+          description: The subject. Line breaks become spaces and spaces around it are dropped.
+        preheader:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The preview text. Line breaks become spaces and spaces around it are dropped.
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default sender. `email` must be on a domain of this account with valid DNS records that is not paused.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default reply-to address. It needs a `from`, and its `name` must be empty.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+        publish:
+          type: boolean
+          default: false
+          description: Publish the draft once it is written.
+    TemplateVersionDetail:
+      allOf:
+      - $ref: '#/components/schemas/TemplateVersion'
+      - type: object
+        required:
+        - subject
+        - preheader
+        - variables
+        - from
+        - reply_to
+        - content
+        properties:
+          subject:
+            type: string
+            description: The version's subject
+          preheader:
+            type: string
+            description: The version's preview text
+          variables:
+            type: array
+            items:
+              $ref: '#/components/schemas/TemplateVariable'
+            description: 'Every variable the version uses, as saved when the version was
+
+              published. A version published before kinds were recorded shows
+
+              every variable as `value`, with no `item_fields`; save and
+
+              publish the template again to get a version that records them.
+
+              '
+          from:
+            oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+            description: The version's default sender. Null when it has none.
+          reply_to:
+            oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+            description: The version's default reply-to address. Null when it has none. Its `name` is always empty.
+          content:
+            oneOf:
+            - $ref: '#/components/schemas/TemplateContent'
+            - type: 'null'
+            description: The version's content. Null when the version has no body.
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

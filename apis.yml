@@ -229,9 +229,105 @@ apis:
     url: https://ahasend.com/docs/quickstart
   - type: Authentication
     url: https://ahasend.com/docs/api-reference/authentication
+- aid: ahasend:ahasend-campaign-templates-api
+  name: AhaSend Campaign Templates API
+  description: >-
+    Create, change, read and delete the account's campaign templates, the designs a campaign copies when
+    it is made from one
+  humanURL: https://ahasend.com/docs
+  baseURL: https://api.ahasend.com
+  tags:
+  - Campaign Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-campaign-templates-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference/sub-accounts/overview
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/api-reference/authentication
+- aid: ahasend:ahasend-campaigns-api
+  name: AhaSend Campaigns API
+  description: >-
+    Create, change, read, duplicate, delete, test and send the account's marketing campaigns, and read
+    their stats and recipients
+  humanURL: https://ahasend.com/docs
+  baseURL: https://api.ahasend.com
+  tags:
+  - Campaigns
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-campaigns-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference/sub-accounts/overview
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/api-reference/authentication
+- aid: ahasend:ahasend-contacts-api
+  name: AhaSend Contacts API
+  description: Read, create, update, batch upsert, and delete account-global contacts
+  humanURL: https://ahasend.com/docs
+  baseURL: https://api.ahasend.com
+  tags:
+  - Contacts
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-contacts-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference/sub-accounts/overview
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/api-reference/authentication
+- aid: ahasend:ahasend-lists-api
+  name: AhaSend Lists API
+  description: Manage contact lists and the contacts on them
+  humanURL: https://ahasend.com/docs
+  baseURL: https://api.ahasend.com
+  tags:
+  - Lists
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-lists-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference/sub-accounts/overview
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/api-reference/authentication
+- aid: ahasend:ahasend-templates-api
+  name: AhaSend Templates API
+  description: >-
+    Create, change, publish and delete the account's transactional templates, and read them with their
+    drafts, their published versions and the variables a send must supply
+  humanURL: https://ahasend.com/docs
+  baseURL: https://api.ahasend.com
+  tags:
+  - Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/ahasend-templates-api-openapi.yml
+  - type: Documentation
+    url: https://ahasend.com/docs
+  - type: APIReference
+    url: https://ahasend.com/docs/api-reference/sub-accounts/overview
+  - type: GettingStarted
+    url: https://ahasend.com/docs/quickstart
+  - type: Authentication
+    url: https://ahasend.com/docs/api-reference/authentication
 - aid: ahasend:ahasend-subaccounts-api
   name: AhaSend Subaccounts API
-  description: The Subaccounts API from AhaSend — 7 operation(s) for subaccounts.
+  description: The Subaccounts API from AhaSend — 8 operation(s) for subaccounts.
   humanURL: https://ahasend.com/docs
   baseURL: https://api.ahasend.com
   tags:
