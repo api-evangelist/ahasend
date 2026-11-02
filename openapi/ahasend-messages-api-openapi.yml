@@ -1,0 +1,1742 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Messages API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Messages
+  description: Send and manage transactional messages
+paths:
+  /v2/accounts/{account_id}/messages:
+    get:
+      summary: Get Messages
+      description: 'Returns a list of message summaries for the account. Can be filtered by various parameters.
+
+
+        `messages:read:all` can read across the account. Domain-scoped keys see
+
+        only messages for domains authorized by their matching read roles.'
+      operationId: getMessages
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: status
+        in: query
+        description: 'Filter by comma-separated list of message statuses. Allowed values are:
+
+          `Received`, `Delivered`, `Opened`, `Clicked`, `Deferred`, `Bounced`, `Failed`, `Suppressed`,
+
+          `Sandbox Delivered`, `Sandbox Deferred`, `Sandbox Failed`, `Sandbox Bounced`,
+
+          and `Sandbox Suppressed`.
+
+
+          Delivery and engagement statuses are cumulative: `Delivered` also matches messages
+
+          currently marked `Opened` or `Clicked`, and `Opened` also matches messages currently
+
+          marked `Clicked`.
+
+          '
+        schema:
+          type: string
+        example: Bounced,Failed
+      - name: sender
+        in: query
+        description: Sender email address (must be from domain in API key scopes)
+        schema:
+          type: string
+          format: email
+      - name: recipient
+        in: query
+        description: Recipient email address
+        schema:
+          type: string
+          format: email
+      - name: subject
+        in: query
+        description: Filter by subject text
+        schema:
+          type: string
+      - name: message_id_header
+        in: query
+        description: Filter by message ID header (same ID returned by CreateMessage API)
+        schema:
+          type: string
+      - name: tags
+        in: query
+        description: Filter by comma-separated list of tags (max 20)
+        schema:
+          type: string
+        example: billing,urgent
+      - name: from_time
+        in: query
+        description: Filter messages created after this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2023-12-25T10:30:00Z'
+      - name: to_time
+        in: query
+        description: Filter messages created before this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+        example: '2023-12-26T10:30:00Z'
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - messages:read:all
+      - BearerAuth:
+        - messages:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.MessagesAPI.GetMessages(ctx, accountID, requests.GetMessagesParams{\n    Status: ahasend.String(\"Bounced,Failed\"),\n    Sender: ahasend.String(\"info@example.com\"),\n    Tags:   []string{\"billing\", \"urgent\"},\n  })\n  if err != nil {\n    log.Fatalf(\"Error getting messages: %v\", err)\n  }\n  for _, message := range response.Data {\n    fmt.Printf(\"%s %s %s\\n\", message.MessageID, message.Recipient, message.Status)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.messages.list({ limit: 20 });
+
+          console.log("Messages listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMessagesResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Message
+      description: 'Creates and sends a message to one or more recipients. This API cannot be used if you want to send a conversational/P2P message and set CC or BCC. Use Create Conversation Message instead.
+
+
+        **Validation Requirements:**
+
+        - Either `text_content` or `html_content` is required
+
+        - `from.email` must be from a domain you own with valid DNS records
+
+        - `retention.metadata` must be between 1 and 30 days
+
+        - `retention.data` must be between 0 and 30 days
+
+        - If `reply_to` is provided, do not include `reply-to` in headers
+
+        - `message-id` header will be ignored and automatically generated
+
+        - Schedule times must be in RFC3339 format
+
+        - `schedule.first_attempt` must be in the future and within 7 days of the request
+
+        - `schedule.expires` must be in the future and within 8 days of the request
+
+
+        **Headers and subject:**
+
+        - Header names must be visible ASCII with no space and no colon. An empty name, or one holding a space, a colon or a line break, is rejected.
+
+        - A substitution value that a header uses must not contain a line break. Such a request is rejected, and the error names the recipient.
+
+        - A `{{ name }}` in a subject that carries an emoji or an accented character is replaced before the message is built, for each recipient whose message carries substitutions. Such a subject is rejected when it holds template syntax other than `{{ name }}`, when a substitution value holds `{{`, `{%` or `{#`, or when the subject and the values combine into template syntax. See `subject`.
+
+
+        Authorization uses the domain in `from.email`: either
+
+        `messages:send:all` or the matching domain-specific send role is
+
+        sufficient.'
+      operationId: createMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - messages:send:all
+      - BearerAuth:
+        - messages:send:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with every POST and reuses it on its\n  // own retries. Deriving the key from your own ID instead also makes a rerun\n  // of the same job (after a crash, say) return the first send, not a second.\n  orderID := \"1234\"\n\n  response, _, err := client.MessagesAPI.CreateMessage(ctx, accountID, requests.CreateMessageRequest{\n    From: common.SenderAddress{\n      Email: \"info@example.com\",\n      Name:  ahasend.String(\"Example Corp.\"),\n    },\n    Recipients: []common.Recipient{\n      {\n        Email: \"john@example.com\",\n        Name:  ahasend.String(\"John Smith\"),\n      },\n    },\n    Subject:     \"Hello\",\n    TextContent: ahasend.String(\"Hello world!\"),\n    Sandbox:     ahasend.Bool(true),\n  }, api.WithIdempotencyKey(\"order-\"+orderID+\"-receipt\"))\n  if err != nil {\n    log.Fatalf(\"Error sending message: %v\", err)\n  }\n  // Each recipient gets its own message, or an error saying why it was not sent.\n  for _, message := range response.Data {\n    if message.ID != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.ID)\n    } else if message.Error != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.Error)\n    }\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst result = await client.messages.send({\n  from: { email: \"sender@example.com\", name: \"Example\" },\n  recipients: [{ email: \"recipient@example.net\" }],\n  subject: \"Hello from AhaSend\",\n  html_content: \"<p>Hello!</p>\",\n  sandbox: true,\n});\nconsole.log(\"Sandbox message accepted.\", { count: result.data.length });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '202':
+          description: Message created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+        '400':
+          description: 'Bad request. Every message is checked before it is sent. A message is refused, and nothing of the request is sent, when its content cannot be rendered with a recipient''s values, calls `random`, `randrange`, `lipsum` or `now`, uses `namespace`, passes a work, output, memory or time limit, or has a recipient address the check cannot read. The message is `<email>: the message could not be rendered: <reason>`, or without `<email>: ` when no recipient had started rendering. A refused request with an `Idempotency-Key` gets the same answer again for that key.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                render_refused:
+                  summary: A recipient's values make the content fail
+                  value:
+                    message: 'john@example.com: the message could not be rendered: unknown function: nosuch'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. For example, the API key cannot send from the domain, the account cannot send, or sending from the domain is paused. A sandbox message is accepted from a paused domain.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                domain_paused:
+                  summary: Sending from the domain is paused
+                  value:
+                    message: Sending from domain 'example.com' is paused. Check your dashboard for the reason.
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateCheckBusy'
+  /v2/accounts/{account_id}/messages/template:
+    post:
+      summary: Create Template Message
+      description: 'Sends a stored transactional template to one or more recipients. Each recipient gets a separate message. The template supplies the body. It also supplies the subject, the sender and the reply-to when the request does not give them. To send content that is not stored in a template, use Create Message. **The message:**
+
+        The message has the template''s HTML body, with the template''s preview text added, and the template''s text body. It has no AMP part. The message records the template: the message''s `template_id` (Get Message) is the ID of this template. **Variables:**
+
+        Values for the template''s variables come only from each recipient''s `substitutions`. Every recipient must give a value for each required variable of the template (see `variables` on Get Template). If a recipient does not, the request is rejected with a 400 that names each recipient and the variables it does not give, and no message is sent. A value for a name that the template does not use is accepted. To fill a `list` variable, send an array; the template''s `variables` show the fields each element needs. Your `subject` and `headers` resolve from the same values. A `{{ name }}` that has no value becomes empty. **Reserved variables:**
+
+        The send supplies `email` for each recipient: the recipient''s address. When the template''s design uses `unsubscribe_url`, the send also supplies it: a link made for each recipient. The message then carries `List-Unsubscribe` with that link and `List-Unsubscribe-Post: List-Unsubscribe=One-Click`, so the unsubscribe button of a mail client works. That button suppresses the recipient for the sending domain at once. The link opens a confirmation page, and the suppression happens when the recipient confirms. A `List-Unsubscribe` or `List-Unsubscribe-Post` in your `headers` is dropped, in any letter case. When the design does not use `unsubscribe_url`, no link is made and your headers are sent as you give them. A recipient''s own value for a reserved variable is replaced. **Fields that are not accepted:**
+
+        These fields at the top of the request are rejected with a 400. Any value except `null` is rejected, `""` and `{}` included. - `substitutions`: `substitutions go on each recipient, not at the top of the request`
+
+        - `text_content`, `html_content` and `amp_content`: ` is not accepted, the template supplies the body`, with the name of the field
+
+
+        A request with more than one of them gets the error for the first in this list. These fields are checked as soon as the request body is read, before the rest of the request. **Sender:**
+
+        - When the request has no `from`, the message is sent from the template''s default sender. When the template has no default sender, the request is rejected with a 400 `from is required because the template has no default sender`. - A `from` given in the request is used even when the template has a default sender. It must have an `email`, and it is checked as on Create Message. - The sender, the request''s or the template''s, must be from a domain you own with valid DNS records. - When the request has no `reply_to` and no `reply-to` in `headers`, the template''s reply-to is used. **Subject:**
+
+        The request''s `subject` is used when it holds more than spaces. If not, the template''s published subject is used. When neither has a subject, the request is rejected with a 400 `the template has no subject, publish one on the template page or pass subject`. **Headers and subject:**
+
+        - Header names must be visible ASCII with no space and no colon. An empty name, or one holding a space, a colon or a line break, is rejected. - A substitution value that a header uses must not contain a line break. Such a request is rejected, and the error names the recipient. - A `{{ name }}` in a subject that carries an emoji or an accented character is replaced before the message is built, on every send.'
+      operationId: createTemplateMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - messages:send:all
+      - BearerAuth:
+        - messages:send:{domain}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateMessageRequest'
+      responses:
+        '202':
+          description: Message created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+        '400':
+          description: 'Bad request. Every message is checked before it is sent. A message is refused, and nothing of the request is sent, when its content cannot be rendered with a recipient''s values, calls `random`, `randrange`, `lipsum` or `now`, uses `namespace`, passes a work, output, memory or time limit, or has a recipient address the check cannot read. The message is `<email>: the message could not be rendered: <reason>`, or without `<email>: ` when no recipient had started rendering. A refused request with an `Idempotency-Key` gets the same answer again for that key.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_variables:
+                  summary: A recipient does not give a required variable
+                  value:
+                    message: 'missing required template variables: user@example.com needs first_name, order_id'
+                render_refused:
+                  summary: A recipient's values make the template fail
+                  value:
+                    message: 'john@example.com: the message could not be rendered: unknown function: nosuch'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. For example, the API key cannot send from the domain of the sender, the account cannot send, or sending from the domain is paused. A sandbox message is accepted from a paused domain. A request with no `from` is refused with `this api key is not authorized to send messages` when the API key cannot send from any domain.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                domain_paused:
+                  summary: Sending from the domain is paused
+                  value:
+                    message: Sending from domain 'example.com' is paused. Check your dashboard for the reason.
+        '404':
+          description: '`template not found`: `template_id` is not the ID of one of this account''s transactional templates. A deleted template, a campaign design and a template of another account get this answer too.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateCheckBusy'
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  templateID := uuid.MustParse(\"11111111-1111-4111-8111-111111111111\")\n\n  // The template supplies the body, and the subject and sender when the\n  // request leaves them out. Each recipient gives its own variable values.\n  // For a template with no default sender, set From to an address on one of\n  // your domains.\n  response, _, err := client.MessagesAPI.CreateTemplateMessage(ctx, accountID, requests.CreateTemplateMessageRequest{\n    TemplateID: templateID,\n    Recipients: []common.Recipient{\n      {\n        Email: \"john@example.com\",\n        Name:  ahasend.String(\"John Smith\"),\n        Substitutions: map[string]interface{}{\n          \"first_name\": \"John\",\n          \"order_id\":   \"12345\",\n        },\n      },\n    },\n    Sandbox: ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error sending message: %v\", err)\n  }\n  // Each recipient gets its own message, or an error saying why it was not sent.\n  for _, message := range response.Data {\n    if message.ID != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.ID)\n    } else if message.Error != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.Error)\n    }\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst result = await client.messages.sendTemplate({\n  template_id: \"00000000-0000-4000-8000-000000000009\",\n  recipients: [{ email: \"recipient@example.net\", substitutions: { first_name: \"Ada\" } }],\n  sandbox: true,\n});\nconsole.log(\"Sandbox template message accepted.\", { count: result.data.length });\n"
+  /v2/accounts/{account_id}/messages/conversation:
+    post:
+      summary: Create Conversational Message
+      description: 'Creates and sends a conversational message (with support for CC and BCC) to one or more recipients. This API does not support template substitutions, use Create Message instead if you need substitutions.
+
+
+        **Validation Requirements:**
+
+        - Either `text_content` or `html_content` is required
+
+        - `from.email` must be from a domain you own with valid DNS records
+
+        - `retention.metadata` must be between 1 and 30 days
+
+        - `retention.data` must be between 0 and 30 days
+
+        - If the `reply_to` parameter is provided, do not include `reply-to` in headers
+
+        - If the `cc` parameter is provided, do not include `cc` in headers
+
+        - `message-id` header will be ignored and automatically generated
+
+        - header names must be visible ASCII with no space and no colon; an empty name, or one holding a space, a colon or a line break, is rejected
+
+        - Schedule times must be in RFC3339 format
+
+        - `schedule.first_attempt` must be in the future and within 7 days of the request
+
+        - `schedule.expires` must be in the future and within 8 days of the request
+
+
+        Authorization uses the domain in `from.email`: either
+
+        `messages:send:all` or the matching domain-specific send role is
+
+        sufficient.'
+      operationId: createConversationMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - messages:send:all
+      - BearerAuth:
+        - messages:send:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/common\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // A conversational message sets the To/CC/BCC headers directly, so\n  // recipients can see each other (BCC excluded). The combined\n  // To + CC + BCC count must not exceed 50. Unlike Create Message,\n  // this endpoint does not support template substitutions.\n  //\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.MessagesAPI.CreateConversationMessage(ctx, accountID, requests.CreateConversationMessageRequest{\n    From: common.SenderAddress{\n      Email: \"info@example.com\",\n      Name:  ahasend.String(\"Example Corp.\"),\n    },\n    To: []common.SenderAddress{\n      {Email: \"john@example.com\", Name: ahasend.String(\"John Smith\")},\n      {Email: \"jane@example.com\", Name: ahasend.String(\"Jane Doe\")},\n    },\n    CC: []common.SenderAddress{\n      {Email: \"hr@example.com\", Name: ahasend.String(\"Example Corp HR\")},\n    },\n    BCC: []common.SenderAddress{\n      {Email: \"archive@example.com\"},\n    },\n    Subject:     \"Welcome to Example Corp\",\n    HtmlContent: ahasend.String(\"<h1>Dear John and Jane, welcome to Example Corp!</h1>\"),\n    TextContent: ahasend.String(\"Dear John and Jane, welcome to Example Corp!\"),\n    Sandbox:     ahasend.Bool(true),\n  })\n  if err != nil {\n    log.Fatalf(\"Error sending conversational message: %v\", err)\n  }\n  for _, message := range response.Data {\n    if message.ID != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.ID)\n    } else if message.Error != nil {\n      fmt.Printf(\"%s: %s\\n\", message.Recipient.Email, *message.Error)\n    }\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst result = await client.messages.sendConversation({\n  from: { email: \"sender@example.com\", name: \"Example\" },\n  to: [{ email: \"recipient@example.net\" }],\n  subject: \"Hello from AhaSend\",\n  html_content: \"<p>Hello!</p>\",\n  sandbox: true,\n});\nconsole.log(\"Sandbox conversation accepted.\", { count: result.data.length });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationMessageRequest'
+      responses:
+        '202':
+          description: Message created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+        '400':
+          description: 'Bad request. Every message is checked before it is sent. A message is refused, and nothing of the request is sent, when its content cannot be rendered with a recipient''s values, calls `random`, `randrange`, `lipsum` or `now`, uses `namespace`, passes a work, output, memory or time limit, or has a recipient address the check cannot read. The message is `<email>: the message could not be rendered: <reason>`, or without `<email>: ` when no recipient had started rendering. A refused request with an `Idempotency-Key` gets the same answer again for that key.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                render_refused:
+                  summary: A recipient's values make the content fail
+                  value:
+                    message: 'john@example.com: the message could not be rendered: unknown function: nosuch'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. For example, the API key cannot send from the domain, the account cannot send, or sending from the domain is paused. A sandbox message is accepted from a paused domain.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                domain_paused:
+                  summary: Sending from the domain is paused
+                  value:
+                    message: Sending from domain 'example.com' is paused. Check your dashboard for the reason.
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/TemplateCheckBusy'
+  /v2/accounts/{account_id}/messages/{message_id}:
+    get:
+      summary: Get Message
+      description: 'Returns the complete message by its ID, including raw content and parsed content structure.
+
+        Access requires `messages:read:all` or a read role matching the
+
+        message''s sender domain.'
+      operationId: getMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: message_id
+        in: path
+        required: true
+        description: Message API ID. Accepts the generated Message-ID returned by [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) or [Create Template Message](https://ahasend.com/docs/api-reference/messages/create-template-message), for example `<uuid@example.com>`, or the bare UUID portion.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - messages:read:all
+      - BearerAuth:
+        - messages:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The Message-ID returned by Create Message, or its bare UUID.\n  response, _, err := client.MessagesAPI.GetMessageByAPIID(ctx, accountID, \"<8b1f2e8c-5d6a-4c3b-9e7f-1a2b3c4d5e6f@example.com>\")\n  if err != nil {\n    log.Fatalf(\"Error getting message: %v\", err)\n  }\n  fmt.Printf(\"Subject: %s\\n\", response.Subject)\n  fmt.Printf(\"Status: %s\\n\", response.Status)\n  fmt.Printf(\"Recipient: %s\\n\", response.Recipient)\n  fmt.Printf(\"Opens: %d, clicks: %d\\n\", response.OpenCount, response.ClickCount)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const messageId = "00000000-0000-4000-8000-000000000002";
+
+          const message = await client.messages.get(messageId);
+
+          console.log("Message found.", { id: message.id, status: message.status });
+
+          '
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/messages/{message_id}/cancel:
+    delete:
+      summary: Cancel Message
+      description: 'Cancels a scheduled message. Access requires `messages:cancel:all` or a
+
+        cancel role matching the message''s sender domain.'
+      operationId: cancelMessage
+      tags:
+      - Messages
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: message_id
+        in: path
+        required: true
+        description: Message API ID. Accepts the generated Message-ID returned by [Create Message](https://ahasend.com/docs/api-reference/messages/create-message) or [Create Template Message](https://ahasend.com/docs/api-reference/messages/create-template-message), for example `<uuid@example.com>`, or the bare UUID portion.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - messages:cancel:all
+      - BearerAuth:
+        - messages:cancel:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The Message-ID returned by Create Message, or its bare UUID.\n  response, _, err := client.MessagesAPI.CancelMessage(ctx, accountID, \"<8b1f2e8c-5d6a-4c3b-9e7f-1a2b3c4d5e6f@example.com>\")\n  if err != nil {\n    log.Fatalf(\"Error canceling message: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const messageId = "00000000-0000-4000-8000-000000000002";
+
+          const result = await client.messages.cancel(messageId);
+
+          console.log("Message cancellation requested.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Scheduled message is cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    Attachment:
+      type: object
+      required:
+      - data
+      - content_type
+      - file_name
+      properties:
+        base64:
+          type: boolean
+          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
+          default: false
+        data:
+          type: string
+          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
+        content_type:
+          type: string
+          description: The MIME type of the attachment
+        content_disposition:
+          type: string
+          description: The disposition of the attachment
+        content_id:
+          type: string
+          description: 'Content-ID that lets you reference this attachment as an inline image from your HTML.
+
+
+            The value **must be wrapped in angle brackets**, matching the MIME `Content-ID` header format — for example `"<image1@example.com>"`. Reference it from `html_content` **without** the brackets, e.g. `<img src="cid:image1@example.com">`.
+
+
+            If the angle brackets are omitted, the file is delivered as a regular (downloadable) attachment instead of rendering inline.
+
+            '
+        file_name:
+          type: string
+          description: The filename of the attachment
+      example:
+        base64: true
+        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+        content_type: image/png
+        file_name: pixel.png
+    MessageAttachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Original filename of the attachment
+          example: document.pdf
+        content:
+          type: string
+          description: Base64 encoded attachment content
+        content_type:
+          type: string
+          description: MIME content type of the attachment
+          example: application/pdf
+        content_id:
+          type: string
+          description: Content-ID for inline attachments
+          example: image001@example.com
+      required:
+      - filename
+      - content
+      - content_type
+      - content_id
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    CreateSingleMessageResponse:
+      type: object
+      required:
+      - object
+      - id
+      - recipient
+      - status
+      - error
+      properties:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+        id:
+          type:
+          - string
+          - 'null'
+          description: Message ID (null if the message was not sent)
+          example: <uuid@example.com>
+        recipient:
+          allOf:
+          - $ref: '#/components/schemas/Recipient'
+          - type: object
+            required:
+            - name
+        status:
+          type: string
+          enum:
+          - queued
+          - scheduled
+          - error
+          description: Status of the message
+        error:
+          type:
+          - string
+          - 'null'
+          description: Error message if the message was not sent
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Provided if the request contained a schedule
+    MessageSummary:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - message
+          description: Object type identifier
+        created_at:
+          type: string
+          format: date-time
+          description: When the message was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the message was last updated
+        sent_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the message was sent
+        delivered_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the message was delivered
+        retain_until:
+          type: string
+          format: date-time
+          description: When the message data will be purged
+        direction:
+          type: string
+          enum:
+          - inbound
+          - outbound
+          description: Message direction
+        is_bounce_notification:
+          type: boolean
+          description: Whether this is a bounce notification
+        bounce_classification:
+          type: string
+          description: Classification of bounce if applicable
+        delivery_attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryEvent'
+          description: List of delivery attempts for this message
+        message_id:
+          type: string
+          description: Message-ID header value
+        id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: API-generated message ID
+        subject:
+          type: string
+          description: Message subject
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the message
+        sender:
+          type: string
+          format: email
+          description: Sender email address
+        recipient:
+          type: string
+          format: email
+          description: Recipient email address
+        status:
+          type: string
+          description: Current message status
+        num_attempts:
+          type: integer
+          description: Number of delivery attempts
+        click_count:
+          type: integer
+          description: Number of clicks tracked for this message
+        open_count:
+          type: integer
+          description: Number of opens tracked for this message
+        reference_message_id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: ID of the original message (for bounce messages)
+        domain_id:
+          type: string
+          format: uuid
+          description: Domain ID this message was sent from
+        account_id:
+          type: string
+          format: uuid
+          description: Account ID this message belongs to
+        template_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: The transactional template the message was sent from with [Create Template Message](https://ahasend.com/docs/api-reference/messages/create-template-message). Null for any other message, including SMTP mail, dashboard test sends and messages sent before this field was added. The template may have been deleted since.
+      required:
+      - object
+      - created_at
+      - updated_at
+      - sent_at
+      - delivered_at
+      - retain_until
+      - direction
+      - is_bounce_notification
+      - bounce_classification
+      - delivery_attempts
+      - message_id
+      - id
+      - subject
+      - tags
+      - sender
+      - recipient
+      - status
+      - num_attempts
+      - click_count
+      - open_count
+      - reference_message_id
+      - domain_id
+      - account_id
+      - template_id
+    Message:
+      allOf:
+      - $ref: '#/components/schemas/MessageSummary'
+      - type: object
+        properties:
+          content:
+            type: string
+            description: Original raw email content in RFC822 format. Omitted when message content is unavailable.
+          content_parsed:
+            $ref: '#/components/schemas/MessageContentParsed'
+            description: Parsed message content. Omitted when message content is unavailable.
+    CreateConversationMessageRequest:
+      type: object
+      required:
+      - from
+      - to
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        to:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          maxItems: 50
+          description: This parameter can set the `To` header to multiple addresses. The combined to, cc, and bcc recipient count must not exceed 50.
+        cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          maxItems: 50
+          description: This parameter can set the `CC` header to multiple addresses. Do not include `cc` in the headers array. The combined to, cc, and bcc recipient count must not exceed 50.
+        bcc:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          minItems: 1
+          maxItems: 50
+          description: Addresses that get a copy of the message without appearing in any of its headers. The combined to, cc, and bcc recipient count must not exceed 50.
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: Email subject line
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+        amp_content:
+          type: string
+          description: AMP HTML content
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. Each name must be visible ASCII with no space and no colon. `cc` and `reply-to` headers cannot be provided if `reply_to` or `cc` parameters are provided, message-id will be ignored and automatically generated. A `to` header is ignored; the `to` parameter sets the To header.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        to:
+        - email: user@example.com
+          name: John Doe
+        - email: someone@example.com
+          name: Jane Doe
+        cc:
+        - email: hr@example.com
+          name: Example Corp HR
+        bcc:
+        - email: bcc@example.com
+          name: BCC Recipient
+        subject: Welcome to Example Corp
+        html_content: <h1>Dear John and Jane, welcome to Example Corp!</h1>
+        text_content: Dear John and Jane, welcome to Example Corp!
+    CreateTemplateMessageRequest:
+      type: object
+      required:
+      - template_id
+      - recipients
+      properties:
+        template_id:
+          type: string
+          format: uuid
+          description: The ID of one of this account's transactional templates. List Templates returns the IDs.
+        from:
+          $ref: '#/components/schemas/Address'
+          description: The sender. Leave it out to send from the template's default sender. A `from` given here is used even when the template has a default sender, and it must have an `email`.
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          maxItems: 100
+          description: 'Each recipient gets a separate message. This does not set the To header to more than one address.
+
+
+            A recipient''s `substitutions` hold its values for the template''s variables. They are the only place for these values. To fill a `list` variable, send an array; the template''s `variables` show the fields each element needs.
+
+            '
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers must not be provided. When the request has neither, the template's reply-to is used.
+        subject:
+          type: string
+          description: 'Email subject line. When it is left out, empty or only spaces, the template''s published subject is used.
+
+
+            A `{{ variable }}` in the subject, yours or the template''s, resolves for every recipient from that recipient''s `substitutions` and the reserved variables, whatever else the subject contains -- an emoji or an accented character included. A variable with no value becomes empty.
+
+
+            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
+
+
+            On a subject that carries a `{{ variable }}` and an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
+
+            '
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For an inline image, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`). The template's HTML can then show it with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated.
+
+
+            A `{{ variable }}` in a value resolves from the recipient''s `substitutions` and the reserved variables. On a template whose design uses `unsubscribe_url`, a `List-Unsubscribe` or `List-Unsubscribe-Post` header given here is dropped.
+
+            '
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        template_id: 0195c2a4-7d3e-7b6a-9f1c-2e4d5a6b7c8d
+        recipients:
+        - email: user@example.com
+          name: John Doe
+          substitutions:
+            first_name: John
+            order_id: '12345'
+    Tracking:
+      type:
+      - object
+      - 'null'
+      properties:
+        open:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to track opens
+        click:
+          type:
+          - boolean
+          - 'null'
+          description: Whether to track clicks
+      example:
+        open: true
+        click: true
+    MessageContentParsed:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContentPart'
+          description: Array of message content parts (text, HTML, etc.)
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+          description: Array of message attachments
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
+          example:
+            Content-Type:
+            - text/html; charset=utf-8
+            X-Custom-Header:
+            - value1
+            - value2
+      required:
+      - parts
+      - attachments
+      - headers
+    CreateMessageResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSingleMessageResponse'
+          description: List of messages and their statuses
+    CreateMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          maxItems: 100
+          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: 'Email subject line.
+
+
+            A `{{ variable }}` in a subject resolves, whatever else the subject contains -- an emoji or an accented character included -- for every recipient whose message carries substitutions, the request''s own `substitutions` or that recipient''s. A recipient with neither is sent nothing to render, so their subject arrives exactly as written, braces and all.
+
+
+            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
+
+
+            On a subject that is being resolved and carries an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
+
+            '
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+        amp_content:
+          type: string
+          description: AMP HTML content
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Global substitutions, recipient substitutions override global. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        recipients:
+        - email: user@example.com
+          name: John Doe
+        subject: Welcome to Example Corp
+        html_content: <h1>Welcome {{first_name}}!</h1>
+        text_content: Welcome {{first_name}}!
+        substitutions:
+          first_name: John
+    DeliveryEvent:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+          description: Timestamp of the delivery event
+        log:
+          type: string
+          description: Log message for the delivery event
+        status:
+          type: string
+          description: Status of the delivery event
+      required:
+      - time
+      - log
+      - status
+    MessageSchedule:
+      type: object
+      properties:
+        first_attempt:
+          type: string
+          format: date-time
+          description: The time to make the first attempt for delivering the message. Must be RFC3339 format, in the future, and within 7 days of the request.
+        expires:
+          type: string
+          format: date-time
+          description: Expire and drop the message if not delivered by this time. Must be RFC3339 format, in the future, and within 8 days of the request.
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
+        name:
+          type: string
+          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    MessageContentPart:
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: MIME content type (e.g., "text/plain", "text/html")
+          example: text/html
+        content:
+          type: string
+          description: The actual content for this part
+      required:
+      - content_type
+      - content
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    PaginatedMessagesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageSummary'
+          description: Array of message summaries (content and content_parsed fields omitted for performance)
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    Retention:
+      type:
+      - object
+      - 'null'
+      properties:
+        metadata:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain metadata
+          minimum: 1
+          maximum: 30
+        data:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain data
+          minimum: 0
+          maximum: 30
+      example:
+        metadata: 1
+        data: 0
+    Recipient:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Recipient email address
+        name:
+          type: string
+          description: Display name for the recipient. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are. On a template send, to fill a `list` variable, send an array; the template's `variables` show the fields each element needs.
+      example:
+        email: user@example.com
+        name: John Doe
+        substitutions:
+          first_name: John
+          order_id: '12345'
+  headers:
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  responses:
+    TemplateCheckBusy:
+      description: 'Every message is checked with the template engine before it is sent,
+
+        and the check could not run right now: the service was busy, or the
+
+        engine failed. Nothing was sent and nothing is known to be wrong with
+
+        the message.
+
+        Send it again after `Retry-After` seconds; on an operation that takes
+
+        an `Idempotency-Key`, send it with the same key.
+
+        '
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: the message could not be checked right now; try again in a moment
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

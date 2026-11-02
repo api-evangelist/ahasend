@@ -1,0 +1,751 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Statistics API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Statistics
+  description: Access transactional email statistics
+paths:
+  /v2/accounts/{account_id}/statistics/transactional/deliverability:
+    get:
+      summary: Get Deliverability Statistics
+      description: 'Returns transactional deliverability statistics grouped by status
+
+
+        The global statistics role can query all sender domains. A
+
+        domain-scoped key is limited to authorized domains and must authorize
+
+        every comma-separated value supplied in `sender_domain`.
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domain
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)'
+      operationId: getDeliverabilityStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: sender_domain
+        in: query
+        description: Comma-separated sender domains; the key must authorize every requested domain
+        schema:
+          type: string
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+      - BearerAuth:
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-30 * 24 * time.Hour)\n\n  response, _, err := client.StatisticsAPI.GetDeliverabilityStatistics(ctx, accountID, requests.GetDeliverabilityStatisticsParams{\n    FromTime:         &fromTime,\n    SenderDomain:     ahasend.String(\"example.com\"),\n    RecipientDomains: ahasend.String(\"gmail.com\"),\n    GroupBy:          ahasend.String(\"week\"),\n  })\n  if err != nil {\n    log.Fatalf(\"Error getting deliverability statistics: %v\", err)\n  }\n  fmt.Printf(\"Got %d weekly buckets\\n\", len(response.Data))\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst statistics = await client.statistics.deliverability({\n  from_time: \"2026-01-01T00:00:00Z\",\n  to_time: \"2026-01-02T00:00:00Z\",\n});\nconsole.log(\"Deliverability statistics loaded.\", { buckets: statistics.data.length });\n"
+      responses:
+        '200':
+          description: Deliverability statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliverabilityStatisticsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/statistics/transactional/bounce:
+    get:
+      summary: Get Bounce Statistics
+      description: 'Returns transactional bounce statistics grouped by classification
+
+
+        The global statistics role can query all sender domains. A
+
+        domain-scoped key is limited to authorized domains and must authorize
+
+        every comma-separated value supplied in `sender_domain`.
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domain
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)'
+      operationId: getBounceStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: sender_domain
+        in: query
+        description: Comma-separated sender domains; the key must authorize every requested domain
+        schema:
+          type: string
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+      - BearerAuth:
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-30 * 24 * time.Hour)\n\n  response, _, err := client.StatisticsAPI.GetBounceStatistics(ctx, accountID, requests.GetBounceStatisticsParams{\n    FromTime:         &fromTime,\n    SenderDomain:     ahasend.String(\"example.com\"),\n    RecipientDomains: ahasend.String(\"gmail.com\"),\n    GroupBy:          ahasend.String(\"week\"),\n  })\n  if err != nil {\n    log.Fatalf(\"Error getting bounce statistics: %v\", err)\n  }\n  fmt.Printf(\"Got %d weekly buckets\\n\", len(response.Data))\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst statistics = await client.statistics.bounces({\n  from_time: \"2026-01-01T00:00:00Z\",\n  to_time: \"2026-01-02T00:00:00Z\",\n});\nconsole.log(\"Bounce statistics loaded.\", { buckets: statistics.data.length });\n"
+      responses:
+        '200':
+          description: Bounce statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceStatisticsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/statistics/transactional/delivery-time:
+    get:
+      summary: Get Delivery Time Statistics
+      description: 'Returns transactional delivery time statistics grouped by recipient domain
+
+
+        The global statistics role can query all sender domains. A
+
+        domain-scoped key is limited to authorized domains and must authorize
+
+        every comma-separated value supplied in `sender_domain`.
+
+
+        **Query Parameters:**
+
+        - `from_time`: Filter statistics after this date (RFC3339 format)
+
+        - `to_time`: Filter statistics before this date (RFC3339 format)
+
+        - `sender_domain`: Filter by sender domain
+
+        - `recipient_domains`: Filter by recipient domains
+
+        - `tags`: Filter by tags (comma-separated)
+
+        - `group_by`: Group by time period (hour, day, week, month)'
+      operationId: getDeliveryTimeStatistics
+      tags:
+      - Statistics
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: from_time
+        in: query
+        description: Filter statistics after this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: to_time
+        in: query
+        description: Filter statistics before this datetime (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: sender_domain
+        in: query
+        description: Comma-separated sender domains; the key must authorize every requested domain
+        schema:
+          type: string
+      - name: recipient_domains
+        in: query
+        description: Filter by a comma separated list of recipient domains
+        schema:
+          type: string
+        example: gmail.com,googlemail.com
+      - name: tags
+        in: query
+        description: Filter by tags (comma-separated)
+        schema:
+          type: string
+      - name: group_by
+        in: query
+        description: Group by time period
+        schema:
+          type: string
+          enum:
+          - hour
+          - day
+          - week
+          - month
+          default: day
+      security:
+      - BearerAuth:
+        - statistics-transactional:read:all
+      - BearerAuth:
+        - statistics-transactional:read:{domain}
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  fromTime := time.Now().Add(-30 * 24 * time.Hour)\n\n  response, _, err := client.StatisticsAPI.GetDeliveryTimeStatistics(ctx, accountID, requests.GetDeliveryTimeStatisticsParams{\n    FromTime:         &fromTime,\n    SenderDomain:     ahasend.String(\"example.com\"),\n    RecipientDomains: ahasend.String(\"gmail.com\"),\n    GroupBy:          ahasend.String(\"week\"),\n  })\n  if err != nil {\n    log.Fatalf(\"Error getting delivery time statistics: %v\", err)\n  }\n  fmt.Printf(\"Got %d weekly buckets\\n\", len(response.Data))\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\nconst statistics = await client.statistics.deliveryTimes({\n  from_time: \"2026-01-01T00:00:00Z\",\n  to_time: \"2026-01-02T00:00:00Z\",\n});\nconsole.log(\"Delivery-time statistics loaded.\", { buckets: statistics.data.length });\n"
+      responses:
+        '200':
+          description: Delivery time statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryTimeStatisticsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests (rate limited to 1 request per second)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    DeliverabilityStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        reception_count:
+          type: integer
+          description: Number of messages accepted for delivery
+        delivered_count:
+          type: integer
+          description: Number of messages delivered
+        deferred_count:
+          type: integer
+          description: Number of messages deferred
+        bounced_count:
+          type: integer
+          description: Number of messages bounced
+        failed_count:
+          type: integer
+          description: Number of messages failed
+        suppressed_count:
+          type: integer
+          description: Number of messages suppressed
+        opened_count:
+          type: integer
+          description: Number of messages opened at least once
+        clicked_count:
+          type: integer
+          description: Number of messages that have at least one link in them clicked.
+      required:
+      - from_timestamp
+      - to_timestamp
+      - reception_count
+      - delivered_count
+      - deferred_count
+      - bounced_count
+      - failed_count
+      - suppressed_count
+      - opened_count
+      - clicked_count
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    BounceStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        bounces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bounce'
+          description: Bounce count per bounce classification
+      required:
+      - from_timestamp
+      - to_timestamp
+      - bounces
+    BounceStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
+    DeliveryTimeStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        avg_delivery_time:
+          type: number
+          format: double
+          description: Average delivery time in seconds
+        delivered_count:
+          type: integer
+          description: Number of messages
+        delivery_times:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTime'
+            description: Delivery times per recipient domain
+      required:
+      - from_timestamp
+      - to_timestamp
+      - avg_delivery_time
+      - delivered_count
+      - delivery_times
+    DeliverabilityStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliverabilityStatistics'
+          description: Array of deliverability statistics
+    Bounce:
+      type: object
+      properties:
+        classification:
+          type: string
+          description: Bounce classification
+        count:
+          type: integer
+          description: Number of bounces
+      required:
+      - classification
+      - count
+    DeliveryTime:
+      type: object
+      properties:
+        recipient_domain:
+          type: string
+          format: fqdn
+          description: The recipient domain
+        delivery_time:
+          type: number
+          format: double
+          description: The average time from reception to delivery in seconds
+        count:
+          type: integer
+          format: int64
+          description: Number of delivered messages included in the average
+      required:
+      - recipient_domain
+      - delivery_time
+      - count
+    DeliveryTimeStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTimeStatistics'
+          description: Array of delivery time statistics
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '

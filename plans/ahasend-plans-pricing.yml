@@ -1,0 +1,79 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-10-28'
+method: searched
+source: https://ahasend.com/pricing
+sources:
+- https://ahasend.com/pricing
+provenance:
+  tool: engine/economics/harvest_pricing.py
+  run: 20261028T122340
+  grounding: every price_text was found verbatim in the fetched page text
+audience: developer-api
+pricing_basis: tiered-subscription
+delivery:
+  delivery: managed
+  method: page
+  read: '2026-10-28'
+  managed_tier: Pro
+published: true
+note: Tiered email-sending plans with included monthly volumes and overage at max $0.50 per 1000 extra
+  emails; prices in USD, EUR billing also mentioned.
+plan_count: 3
+currency: USD
+plans:
+- name: Free
+  price_text: $0
+  price: 0
+  currency: USD
+  period: month
+  unit: emails
+  included_quota: 1000 emails per month
+- name: Pro
+  price_text: $10 /month
+  price: 10
+  currency: USD
+  period: month
+  unit: emails
+  included_quota: 25,000 emails per month
+  overage: Extra usage per 1000 emails Max $0.50
+- name: Max
+  price_text: $80 /month
+  price: 80
+  currency: USD
+  period: month
+  unit: emails
+  included_quota: 100,000 emails per month
+  overage: Extra usage per 1000 emails Max $0.50
+x-canonical:
+  generated: '2026-11-01'
+  vocabulary: engine/economics/plans-canonical.yml
+  models:
+  - hybrid
+  - metered
+  units:
+  - message
+  plans:
+  - name: Free
+    access: other
+    model: metered
+    model_how: derived
+    units:
+    - message
+    periods:
+    - month
+  - name: Pro
+    access: other
+    model: hybrid
+    model_how: derived
+    units:
+    - message
+    periods:
+    - month
+  - name: Max
+    access: other
+    model: hybrid
+    model_how: derived
+    units:
+    - message
+    periods:
+    - month

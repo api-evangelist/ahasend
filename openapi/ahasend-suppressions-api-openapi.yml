@@ -1,0 +1,825 @@
+openapi: 3.2.0
+info:
+  title: AhaSend API v2 Suppressions API
+  description: 'The AhaSend API v2 allows you to send transactional emails, manage domains, webhooks, routes, API keys, and view statistics. ## Authentication
+
+    All API requests must be authenticated using a Bearer token in the Authorization header:
+
+    ```
+
+    Authorization: Bearer aha-sk-64-CHARACTER-RANDOM-STRING
+
+    ```
+
+
+    ## Scopes
+
+    API keys have specific scopes that control access to different resources and actions:
+
+
+    ### Message Scopes
+
+    - `messages:send:all` - Send messages from any domain in the account
+
+    - `messages:send:{domain}` - Send messages from a specific domain
+
+    - `messages:cancel:all` - Cancel messages from any domain
+
+    - `messages:cancel:{domain}` - Cancel messages from a specific domain
+
+    - `messages:read:all` - Read messages from any domain
+
+    - `messages:read:{domain}` - Read messages from a specific domain
+
+
+    ### Domain Scopes
+
+    - `domains:read` - Read all domains
+
+    - `domains:write` - Create and update domains
+
+    - `domains:delete:all` - Delete any domain
+
+    - `domains:delete:{domain}` - Delete a specific domain
+
+
+    ### Account Scopes
+
+    - `accounts:read` - Read account information
+
+    - `accounts:write` - Update account settings
+
+    - `accounts:billing` - Access billing information
+
+    - `accounts:members:read` - Read account members
+
+    - `accounts:members:add` - Add account members
+
+    - `accounts:members:update` - Update account members
+
+    - `accounts:members:remove` - Remove account members
+
+
+    ### Webhook Scopes
+
+    - `webhooks:read:all` - Read all webhooks
+
+    - `webhooks:read:{domain}` - Read webhooks for a specific domain
+
+    - `webhooks:write:all` - Create and update webhooks
+
+    - `webhooks:write:{domain}` - Create and update webhooks for a specific domain
+
+    - `webhooks:delete:all` - Delete any webhook
+
+    - `webhooks:delete:{domain}` - Delete webhooks for a specific domain
+
+
+    ### Route Scopes
+
+    - `routes:read:all` - Read all routes
+
+    - `routes:read:{domain}` - Read routes for a specific domain
+
+    - `routes:write:all` - Create and update routes
+
+    - `routes:write:{domain}` - Create and update routes for a specific domain
+
+    - `routes:delete:all` - Delete any route
+
+    - `routes:delete:{domain}` - Delete routes for a specific domain
+
+
+    ### Suppression Scopes
+
+    - `suppressions:read` - Read suppressions
+
+    - `suppressions:write` - Create suppressions
+
+    - `suppressions:delete` - Delete suppressions
+
+    - `suppressions:wipe` - Delete the account''s suppressions except protected ones (dangerous)
+
+
+    ### Template Scopes
+
+    - `templates:read` - Read transactional templates, their drafts and their published versions, and campaign templates
+
+    - `templates:write` - Create and update transactional templates, and publish, discard and restore their drafts; create and update campaign templates
+
+    - `templates:delete` - Delete transactional templates and campaign templates
+
+
+    ### Campaign Scopes
+
+    - `campaigns:read` - Read campaigns, their stats and their recipients
+
+    - `campaigns:write` - Create, update and duplicate campaigns
+
+    - `campaigns:delete` - Delete draft campaigns
+
+    - `campaigns:send` - Send, unschedule and test-send campaigns
+
+
+    ### Contact Scopes
+
+    - `contacts:read` - Read contacts
+
+    - `contacts:write` - Create and update contacts
+
+    - `contacts:delete` - Delete contacts
+
+
+    ### Contact lifecycle and attributes
+
+    Contacts are account-global. A contact created through this API joins no
+
+    list on its own; campaigns target lists, so add it to one with the Lists
+
+    endpoints before a campaign can reach it. Contact subscription state and suppression records are independent:
+
+    creating, updating, unsubscribing, resubscribing, or deleting a contact
+
+    never creates, changes, or removes complaint, permanent, or protected
+
+    suppressions. Prefer unsubscribe over delete when the goal is only to stop
+
+    marketing mail, because unsubscribe is reversible and preserves contact
+
+    history. Writable attribute keys and types come from the account''s contact-attribute
+
+    definitions managed in the dashboard; this API does not expose property
+
+    definition CRUD.'
+  version: 2.0.0
+  contact:
+    email: support@ahasend.com
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.ahasend.com
+  description: Production server
+security:
+- BearerAuth: []
+tags:
+- name: Suppressions
+  description: Manage email suppressions
+paths:
+  /v2/accounts/{account_id}/suppressions:
+    get:
+      summary: Get Suppressions
+      description: 'Returns a list of suppressions for the account
+
+
+        **Query Parameters:**
+
+        - `domain`: Filter by domain (optional)
+
+        - `email`: Filter by email (optional)
+
+        - `from_time`: Filter suppressions created after this time (RFC3339 format, optional)
+
+        - `to_time`: Filter suppressions created before this time (RFC3339 format, optional)
+
+        - `limit`: Maximum number of items to return (1-100, default: 100)
+
+        - `after`: Pagination cursor for the next page
+
+        - `before`: Pagination cursor for the previous page'
+      operationId: getSuppressions
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: domain
+        in: query
+        description: Filter by domain
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: Email address
+        schema:
+          type: string
+          format: email
+      - name: from_time
+        in: query
+        description: Filter suppressions created after this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: to_time
+        in: query
+        description: Filter suppressions created before this time (RFC3339 format)
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        description: Maximum number of items to return (1-100)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+      - name: after
+        in: query
+        description: Pagination cursor for the next page. Provide the value provided in `next_cursor` from the response.
+        schema:
+          type: string
+      - name: before
+        in: query
+        description: Pagination cursor for the previous page. Provide the value provided in `previous_cursor` from the response.
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - suppressions:read
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  response, _, err := client.SuppressionsAPI.GetSuppressions(ctx, accountID, requests.GetSuppressionsParams{})\n  if err != nil {\n    log.Fatalf(\"Error getting suppressions: %v\", err)\n  }\n  for _, suppression := range response.Data {\n    fmt.Printf(\"%s until %s: %s\\n\", suppression.Email, suppression.ExpiresAt, suppression.Reason)\n  }\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const page = await client.suppressions.list({ limit: 20 });
+
+          console.log("Suppressions listed.", { count: page.data.length });
+
+          '
+      responses:
+        '200':
+          description: List of suppressions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSuppressionsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Suppression
+      description: 'Creates a new suppression for an email address
+
+
+        **Validation Requirements:**
+
+        - `email` must be a valid email address
+
+        - `expires_at` must be in RFC3339 format
+
+        - `domain` is optional - if not provided, applies to all account domains'
+      operationId: createSuppression
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+      - BearerAuth:
+        - suppressions:write
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n  \"time\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/AhaSend/ahasend-go/models/requests\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // The SDK sends a fresh Idempotency-Key with this POST and reuses it on\n  // its own retries, so a retried request is not applied twice.\n  response, _, err := client.SuppressionsAPI.CreateSuppression(ctx, accountID, requests.CreateSuppressionRequest{\n    Email:     \"test@example.com\",\n    Reason:    ahasend.String(\"Inbox full\"),\n    ExpiresAt: time.Now().Add(30 * 24 * time.Hour),\n  })\n  if err != nil {\n    log.Fatalf(\"Error creating suppression: %v\", err)\n  }\n  fmt.Printf(\"Created %d suppression(s)\\n\", len(response.Data))\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: "import { AhaSendClient } from \"@ahasend/sdk\";\n\nconst client = AhaSendClient.fromEnv();\n// The SDK sends a fresh Idempotency-Key automatically and reuses it on its own retries.\nconst result = await client.suppressions.create({\n  email: \"recipient@example.net\",\n  reason: \"User requested removal\",\n  expires_at: \"2030-01-01T00:00:00Z\",\n});\nconsole.log(\"Suppression created.\", { count: result.data.length });\n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSuppressionRequest'
+      responses:
+        '201':
+          description: Suppression created successfully
+          headers:
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSuppressionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'Either the suppression already exists or the idempotency-key
+
+            execution is in progress. The in-progress case is identified only
+
+            by `Idempotent-Replayed: false` plus a positive integer
+
+            `Retry-After`. A new duplicate-suppression response has neither
+
+            header; a stored replay of that response has
+
+            `Idempotent-Replayed: true`. The message is not a stable
+
+            discriminator.
+
+            '
+          headers:
+            Idempotent-Replayed:
+              description: '`false` with a positive `Retry-After` means an execution is in
+
+                progress. `true` means a stored duplicate-suppression 409 was
+
+                replayed. Absent means a fresh duplicate-suppression conflict.
+
+                '
+              schema:
+                type: string
+                enum:
+                - 'true'
+                - 'false'
+            Retry-After:
+              $ref: '#/components/headers/IdempotencyRetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/IdempotencyPayloadMismatch'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Suppression
+      description: 'Deletes suppressions for an email address
+
+
+        **Query Parameters:**
+
+        - `email`: Required email address to delete from suppression list
+
+        - `domain`: Optional domain filter to delete suppressions for specific domain only'
+      operationId: deleteSuppression
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: email
+        in: query
+        required: true
+        description: Email address
+        schema:
+          type: string
+          format: email
+      - name: domain
+        in: query
+        description: Optional domain filter
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - suppressions:delete
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go\"\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Removes the suppression for one address; pass nil instead of a domain\n  // to remove it for every domain.\n  response, _, err := client.SuppressionsAPI.DeleteSuppression(\n    ctx,\n    accountID,\n    \"info@example.com\",\n    ahasend.String(\"notifications.example.com\"),\n  )\n  if err != nil {\n    log.Fatalf(\"Error deleting suppression: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const result = await client.suppressions.delete({ email: "recipient@example.net" });
+
+          console.log("Suppression deleted.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Suppression deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Suppression not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/accounts/{account_id}/suppressions/all:
+    delete:
+      summary: Delete All Suppressions
+      description: 'Deletes the account''s suppressions, except protected ones. A suppression is
+
+        protected when the recipient made the decision themselves, by unsubscribing or by
+
+        reporting the message as spam; those are kept. The response message reports how
+
+        many were kept when any were.
+
+
+        **Query Parameters:**
+
+        - `domain`: Optional domain filter to delete suppressions for specific domain only'
+      operationId: deleteAllSuppressions
+      tags:
+      - Suppressions
+      parameters:
+      - name: account_id
+        in: path
+        required: true
+        description: Account ID
+        schema:
+          type: string
+          format: uuid
+      - name: domain
+        in: query
+        description: Optional domain filter
+        schema:
+          type: string
+      security:
+      - BearerAuth:
+        - suppressions:wipe
+      x-code-samples:
+      - lang: go
+        label: AhaSend Go SDK
+        source: "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"log\"\n  \"os\"\n\n  \"github.com/AhaSend/ahasend-go/api\"\n  \"github.com/google/uuid\"\n)\n\nfunc main() {\n  client := api.NewAPIClient(api.WithAPIKey(os.Getenv(\"AHASEND_API_KEY\")))\n  accountID := uuid.MustParse(os.Getenv(\"AHASEND_ACCOUNT_ID\"))\n  ctx := context.Background()\n\n  // Pass a domain instead of nil to limit the wipe to that domain.\n  response, _, err := client.SuppressionsAPI.DeleteAllSuppressions(ctx, accountID, nil)\n  if err != nil {\n    log.Fatalf(\"Error deleting all suppressions: %v\", err)\n  }\n  fmt.Println(response.Message)\n}\n"
+      - lang: javascript
+        label: Node.js 22+ (AhaSend SDK)
+        source: 'import { AhaSendClient } from "@ahasend/sdk";
+
+
+          const client = AhaSendClient.fromEnv();
+
+          const result = await client.suppressions.wipe({ domain: "example.com" });
+
+          console.log("Domain suppressions deleted.", { message: result.message });
+
+          '
+      responses:
+        '200':
+          description: Suppressions deleted successfully, protected ones kept
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Domain not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    CreateSuppressionRequest:
+      type: object
+      required:
+      - email
+      - expires_at
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to suppress
+        domain:
+          type: string
+          format: hostname
+          description: Domain for which to suppress the email
+        reason:
+          type: string
+          maxLength: 255
+          description: Reason for suppression
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires (RFC3339 format)
+      example:
+        email: user@example.com
+        domain: example.com
+        reason: User requested removal
+        expires_at: '2024-12-25T10:30:00Z'
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    CreateSuppressionResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+    Suppression:
+      type: object
+      properties:
+        object:
+          type: string
+          enum:
+          - suppression
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the suppression
+        created_at:
+          type: string
+          format: date-time
+          description: When the suppression was created
+        email:
+          type: string
+          format: email
+          description: Suppressed email address
+        domain:
+          type: string
+          description: Domain for which the email is suppressed
+        reason:
+          type: string
+          description: Reason for suppression
+        protected:
+          type: boolean
+          description: 'Whether a bulk wipe must keep this suppression. Read-only. True when
+
+            AhaSend recorded the recipient''s own decision -- they unsubscribed, or they
+
+            reported a message as spam. It is not derived from the `reason` you send:
+
+            suppressions you create yourself are never protected, whatever reason they
+
+            carry, so your own wipe can always clear them. Suppressions predating this
+
+            field are also protected when they record a complaint under the earlier
+
+            `FBL Abuse Report` spelling, which nothing writes any more. It says nothing
+
+            about whether the address can be mailed, which `expires_at` alone answers,
+
+            and it does not exempt the row from expiring.
+
+            '
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires
+      required:
+      - object
+      - id
+      - created_at
+      - email
+      - domain
+      - reason
+      - protected
+      - expires_at
+    PaginatedSuppressionsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
+
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
+
+        '
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  headers:
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: aha-sk-64-CHARACTER-RANDOM-STRING
+      description: 'API key for authentication. Non-empty Security Requirement values are
+
+        AhaSend API-key roles. Roles listed within one requirement object are
+
+        jointly required; separate requirement objects are alternatives.
+
+        '
