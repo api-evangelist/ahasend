@@ -841,6 +841,94 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    BatchContactResult:
+      type: object
+      additionalProperties: false
+      required:
+      - position
+      - email
+      - outcome
+      properties:
+        position:
+          type: integer
+          minimum: 0
+        email:
+          type: string
+          description: Normalized input email, or empty when the input email was not a string
+        outcome:
+          type: string
+          enum:
+          - created
+          - updated
+          - failed
+        contact:
+          $ref: '#/components/schemas/Contact'
+        reason:
+          type: string
+          description: Caller-safe reason present only for failed records
+    BatchUpsertContactInput:
+      type: object
+      additionalProperties: false
+      description: 'One create-or-update input. On update, omitted or null scalar fields
+
+        leave stored values unchanged. On create, omitted or null fields use
+
+        the same defaults as `CreateContactRequest`. A present attributes
+
+        object is merged and null attribute members remove existing keys.
+
+        '
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Contact email; trimmed and lowercased before duplicate classification
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - enabled
+          - disabled
+          - blocked
+          - null
+        status_reason:
+          type:
+          - string
+          - 'null'
+        unsubscribed:
+          type:
+          - boolean
+          - 'null'
+        attributes:
+          type:
+          - object
+          - 'null'
+          description: A present object is merged; null members remove existing keys.
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
+            - type: 'null'
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     BatchUpsertContactsResponse:
       type: object
       additionalProperties: false
@@ -868,6 +956,68 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BatchContactResult'
+    JSONValue:
+      description: Any recursively nested JSON value stored in a contact attribute
+      oneOf:
+      - type: 'null'
+      - type: boolean
+      - type: number
+      - type: string
+      - type: array
+        items:
+          $ref: '#/components/schemas/JSONValue'
+      - type: object
+        additionalProperties:
+          $ref: '#/components/schemas/JSONValue'
+    UpdateContactRequest:
+      type: object
+      additionalProperties: false
+      description: 'A partial contact update. Omitted or null scalar fields and a null
+
+        attributes object leave stored values unchanged. A present attributes
+
+        object is merged; a null member removes that attribute key.
+
+        '
+      properties:
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - enabled
+          - disabled
+          - blocked
+          - null
+        status_reason:
+          type:
+          - string
+          - 'null'
+        unsubscribed:
+          type:
+          - boolean
+          - 'null'
+        attributes:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
+            - type: 'null'
     ErrorResponse:
       type: object
       description: 'Human-readable API error. The server currently sends no stable machine
@@ -888,43 +1038,6 @@ components:
           description: Error description
       example:
         message: Error message
-    BatchUpsertContactsRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - data
-      properties:
-        data:
-          type: array
-          minItems: 1
-          maxItems: 1000
-          items:
-            $ref: '#/components/schemas/BatchUpsertContactInput'
-    BatchContactResult:
-      type: object
-      additionalProperties: false
-      required:
-      - position
-      - email
-      - outcome
-      properties:
-        position:
-          type: integer
-          minimum: 0
-        email:
-          type: string
-          description: Normalized input email, or empty when the input email was not a string
-        outcome:
-          type: string
-          enum:
-          - created
-          - updated
-          - failed
-        contact:
-          $ref: '#/components/schemas/Contact'
-        reason:
-          type: string
-          description: Caller-safe reason present only for failed records
     Contact:
       type: object
       additionalProperties: false
@@ -1008,55 +1121,18 @@ components:
           - string
           - 'null'
           format: date-time
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    ContactPagination:
+    BatchUpsertContactsRequest:
       type: object
       additionalProperties: false
       required:
-      - has_more
-      - next_cursor
-      - previous_cursor
-      properties:
-        has_more:
-          type: boolean
-          description: Whether another page exists in the requested direction
-        next_cursor:
-          type:
-          - string
-          - 'null'
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type:
-          - string
-          - 'null'
-          description: Pass as `before` to fetch the previous page
-    PaginatedContactsResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - object
       - data
-      - pagination
       properties:
-        object:
-          type: string
-          enum:
-          - list
         data:
           type: array
+          minItems: 1
+          maxItems: 1000
           items:
-            $ref: '#/components/schemas/Contact'
-        pagination:
-          $ref: '#/components/schemas/ContactPagination'
+            $ref: '#/components/schemas/BatchUpsertContactInput'
     CanonicalContactAttributeValue:
       description: 'A non-null contact attribute value. The account''s declared attribute
 
@@ -1082,55 +1158,6 @@ components:
       - type: string
         format: date-time
         description: RFC3339 value for a declared timestamp attribute
-    UpdateContactRequest:
-      type: object
-      additionalProperties: false
-      description: 'A partial contact update. Omitted or null scalar fields and a null
-
-        attributes object leave stored values unchanged. A present attributes
-
-        object is merged; a null member removes that attribute key.
-
-        '
-      properties:
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-        first_name:
-          type:
-          - string
-          - 'null'
-        last_name:
-          type:
-          - string
-          - 'null'
-        status:
-          type:
-          - string
-          - 'null'
-          enum:
-          - enabled
-          - disabled
-          - blocked
-          - null
-        status_reason:
-          type:
-          - string
-          - 'null'
-        unsubscribed:
-          type:
-          - boolean
-          - 'null'
-        attributes:
-          type:
-          - object
-          - 'null'
-          additionalProperties:
-            oneOf:
-            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
-            - type: 'null'
     CreateContactRequest:
       type: object
       additionalProperties: false
@@ -1200,72 +1227,45 @@ components:
           score: 12.5
           birthday: '2024-02-29'
           joined_at: '2026-09-09T10:04:56Z'
-    JSONValue:
-      description: Any recursively nested JSON value stored in a contact attribute
-      oneOf:
-      - type: 'null'
-      - type: boolean
-      - type: number
-      - type: string
-      - type: array
-        items:
-          $ref: '#/components/schemas/JSONValue'
-      - type: object
-        additionalProperties:
-          $ref: '#/components/schemas/JSONValue'
-    BatchUpsertContactInput:
+    ContactPagination:
       type: object
       additionalProperties: false
-      description: 'One create-or-update input. On update, omitted or null scalar fields
-
-        leave stored values unchanged. On create, omitted or null fields use
-
-        the same defaults as `CreateContactRequest`. A present attributes
-
-        object is merged and null attribute members remove existing keys.
-
-        '
       required:
-      - email
+      - has_more
+      - next_cursor
+      - previous_cursor
       properties:
-        email:
+        has_more:
+          type: boolean
+          description: Whether another page exists in the requested direction
+        next_cursor:
+          type:
+          - string
+          - 'null'
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type:
+          - string
+          - 'null'
+          description: Pass as `before` to fetch the previous page
+    PaginatedContactsResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
           type: string
-          format: email
-          description: Contact email; trimmed and lowercased before duplicate classification
-        first_name:
-          type:
-          - string
-          - 'null'
-        last_name:
-          type:
-          - string
-          - 'null'
-        status:
-          type:
-          - string
-          - 'null'
           enum:
-          - enabled
-          - disabled
-          - blocked
-          - null
-        status_reason:
-          type:
-          - string
-          - 'null'
-        unsubscribed:
-          type:
-          - boolean
-          - 'null'
-        attributes:
-          type:
-          - object
-          - 'null'
-          description: A present object is merged; null members remove existing keys.
-          additionalProperties:
-            oneOf:
-            - $ref: '#/components/schemas/CanonicalContactAttributeValue'
-            - type: 'null'
+          - list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        pagination:
+          $ref: '#/components/schemas/ContactPagination'
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
@@ -1302,16 +1302,6 @@ components:
         maxLength: 255
       example: user-12345-create-domain-20240101
   headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
 
@@ -1324,6 +1314,16 @@ components:
         type: string
         enum:
         - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
     IdempotencyRetryAfter:
       description: 'Positive whole number of seconds after which the in-progress execution
 

@@ -636,53 +636,6 @@ paths:
           '
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
     CampaignTemplate:
       type: object
       required:
@@ -721,6 +674,48 @@ components:
           - $ref: '#/components/schemas/TemplateContent'
           - type: 'null'
           description: The content. Null when the campaign template has neither HTML nor text, as for one created without content. A campaign can be made from the campaign template only once it has HTML. List Campaign Templates leaves this field out; every other operation that returns a CampaignTemplate sets it.
+    TemplateContent:
+      type: object
+      required:
+      - text_is_custom
+      description: 'A template''s content. A key that does not apply to the template''s
+
+        editor is left out, and so are `mjml`, `html` and `text` when they are
+
+        empty.
+
+        '
+      properties:
+        mjml:
+          type: string
+          description: The MJML source. Only for `advanced` templates.
+        html:
+          type: string
+          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
+        text:
+          type: string
+          description: The plain text version of the email.
+        text_is_custom:
+          type: boolean
+          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
+    CreateCampaignTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      description: A new campaign template.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Campaign template name. Spaces around it are dropped.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+          description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself.
     TemplateContentInput:
       type: object
       additionalProperties: false
@@ -758,6 +753,26 @@ components:
         text_is_custom:
           type: boolean
           description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
     UpdateCampaignTemplateRequest:
       type: object
       additionalProperties: false
@@ -771,37 +786,16 @@ components:
         content:
           $ref: '#/components/schemas/TemplateContentInput'
           description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself. For a `simple` campaign template, send only `text`.
-    TemplateContent:
+    SuccessResponse:
       type: object
       required:
-      - text_is_custom
-      description: 'A template''s content. A key that does not apply to the template''s
-
-        editor is left out, and so are `mjml`, `html` and `text` when they are
-
-        empty.
-
-        '
+      - message
       properties:
-        mjml:
+        message:
           type: string
-          description: The MJML source. Only for `advanced` templates.
-        html:
-          type: string
-          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
-        text:
-          type: string
-          description: The plain text version of the email.
-        text_is_custom:
-          type: boolean
-          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
-    TemplateEditor:
-      type: string
-      enum:
-      - advanced
-      - simple
-      - html
-      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
+          description: Success message
+      example:
+        message: Operation completed successfully
     PaginatedCampaignTemplatesResponse:
       type: object
       required:
@@ -821,24 +815,30 @@ components:
           description: Array of campaign templates, each without its `content`
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    CreateCampaignTemplateRequest:
+    PaginationInfo:
       type: object
-      additionalProperties: false
       required:
-      - name
-      description: A new campaign template.
+      - has_more
       properties:
-        name:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
           type: string
-          minLength: 1
-          maxLength: 255
-          description: Campaign template name. Spaces around it are dropped.
-        editor:
-          $ref: '#/components/schemas/TemplateEditor'
-          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
-        content:
-          $ref: '#/components/schemas/TemplateContentInput'
-          description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself.
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved

@@ -1331,254 +1331,6 @@ paths:
           '
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    CampaignTestFailure:
-      type: object
-      required:
-      - email
-      - message
-      description: An address the mail server refused.
-      properties:
-        email:
-          type: string
-          description: The address as the mail server reported it, which can be one the request did not hold.
-        message:
-          type: string
-          description: Why the address was refused
-    Campaign:
-      allOf:
-      - $ref: '#/components/schemas/CampaignListItem'
-      - type: object
-        required:
-        - list_ids
-        - editor
-        - content
-        - ready
-        - issues
-        properties:
-          list_ids:
-            type: array
-            items:
-              type: string
-              format: uuid
-            description: The lists the campaign sends to, in the order they were saved. A list that was deleted is left out.
-          editor:
-            oneOf:
-            - $ref: '#/components/schemas/TemplateEditor'
-            - type: 'null'
-            description: The editor of the campaign's design. Null while the campaign has no design.
-          content:
-            oneOf:
-            - $ref: '#/components/schemas/TemplateContent'
-            - type: 'null'
-            description: The content of the campaign's design. Null while it has no design, or its design has neither HTML nor text.
-          ready:
-            type:
-            - boolean
-            - 'null'
-            description: Whether the draft has no issue, so it can be sent. Null unless the campaign is a draft.
-          issues:
-            oneOf:
-            - type: array
-              items:
-                $ref: '#/components/schemas/CampaignIssue'
-            - type: 'null'
-            description: The reasons the draft cannot be sent yet, in a fixed order; empty when it is ready. Null unless the campaign is a draft.
-    TemplateEditor:
-      type: string
-      enum:
-      - advanced
-      - simple
-      - html
-      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
-    TestCampaignRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - to
-      description: The addresses to send a test to.
-      properties:
-        to:
-          type: array
-          minItems: 1
-          items:
-            type: string
-          description: 1 to 5 addresses, counted after addresses that differ only in case are dropped. An entry may carry a display name, such as `Ann <ann@example.com>`; the test goes to the address alone.
-    PaginatedCampaignsResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CampaignListItem'
-          description: Array of campaigns
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    CreateCampaignRequest:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      description: 'A new draft campaign. Every field but `name` can be set later with
-
-        Update Campaign. The design comes from at most one source: an
-
-        `editor`, `content`, both, or a `template_id`. With none of them the
-
-        campaign has no design yet.
-
-        '
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Campaign name. Spaces around it are dropped.
-        subject:
-          type:
-          - string
-          - 'null'
-          description: The subject line. Line breaks become spaces and spaces around it are dropped; an empty subject is no subject.
-        preheader:
-          type:
-          - string
-          - 'null'
-          description: The preview text, cleaned as `subject` is.
-        from:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateAddressInput'
-          - type: 'null'
-          description: The sender. `email` must be on a domain of this account with valid DNS. A paused domain is accepted here and refused when the campaign is sent.
-        reply_to:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: The reply-to address, an address only, without a display name.
-        list_ids:
-          type: array
-          minItems: 1
-          maxItems: 50
-          items:
-            type: string
-            format: uuid
-          description: The lists to send to, in order. A list named twice counts once. Each must be a list of this account.
-        editor:
-          $ref: '#/components/schemas/TemplateEditor'
-          description: The editor of the design. Without `content` the campaign gets an empty design of this editor, which the dashboard's editor opens. With `content`, it is required when the content holds neither `mjml` nor `html`, and must agree with it otherwise. Not accepted with `template_id`, whose editor the design keeps.
-        content:
-          $ref: '#/components/schemas/TemplateContentInput'
-          description: The content of the design, by the rules of `TemplateContentInput`. A campaign has no draft, so where those rules name the draft, they mean the campaign's design. Not accepted with `template_id`.
-        template_id:
-          type: string
-          format: uuid
-          description: A campaign template whose design the campaign copies. The copy is the campaign's own; later changes to the template do not reach it. A campaign template with no HTML is refused.
-    CampaignStatsReport:
-      type: object
-      required:
-      - computed_at
-      - recipients
-      - openers
-      - clickers
-      - bounces
-      - deferrals
-      - by_status
-      - by_bounce_classification
-      description: The campaign's stored report, which is recounted from its recipients from time to time.
-      properties:
-        computed_at:
-          type: string
-          format: date-time
-          description: When the report was counted
-        recipients:
-          type: integer
-          description: The recipients the report counted, the base of `bounce_rate` and `deferral_rate`
-        openers:
-          type: integer
-          description: Contacts who opened, each once, without bots
-        clickers:
-          type: integer
-          description: Contacts who clicked, each once, without bots
-        bounces:
-          type: integer
-          description: Recipients that bounced or failed
-        deferrals:
-          type: integer
-          description: Recipients whose delivery was deferred
-        by_status:
-          type: object
-          additionalProperties:
-            type: integer
-          description: Recipients by status, under the names the dashboard's report shows, such as `Queued`, `Delivered`, `Bounced` or `Administratively Bounced`. Each name is a `status` of List Campaign Recipients.
-        by_bounce_classification:
-          type: object
-          additionalProperties:
-            type: integer
-          description: Bounces by bounce classification. `Unknown` counts the bounces with no classification and has no recipient page; every other key is a `bounce_classification` of List Campaign Recipients.
-    CampaignNotReady:
-      type: object
-      required:
-      - message
-      description: A refusal. A campaign with issues is refused with `campaign is not ready to send` and the issues that block the request; every other refusal has only `message`.
-      properties:
-        message:
-          type: string
-          description: Error message
-        issues:
-          type: array
-          items:
-            $ref: '#/components/schemas/CampaignIssue'
-          description: The issues that block the request, in the order of `CampaignIssue`. For a test, every issue but `unsubscribe_link_missing`.
-      example:
-        message: campaign is not ready to send
-        issues:
-        - code: subject_missing
-          message: Add a subject before you send the campaign.
     UpdateCampaignRequest:
       type: object
       additionalProperties: false
@@ -1625,7 +1377,158 @@ components:
         content:
           $ref: '#/components/schemas/TemplateContentInput'
           description: The content of the design, by the rules of `TemplateContentInput`, in the design's editor. For a `simple` design, send only `text`. A campaign with no design yet needs `mjml` or `html`, which sets its editor.
-    PaginatedCampaignRecipientsResponse:
+    CampaignIssue:
+      type: object
+      required:
+      - code
+      - message
+      description: A reason the campaign cannot be sent yet.
+      properties:
+        code:
+          type: string
+          enum:
+          - sender_missing
+          - lists_missing
+          - subject_missing
+          - preheader_missing
+          - design_missing
+          - text_broken
+          - text_unchecked
+          - unsubscribe_link_missing
+          description: '- `sender_missing`: the campaign has no complete sender, or its domain was deleted.
+
+            - `lists_missing`: the campaign has no list that still exists.
+
+            - `subject_missing`: the campaign has no subject.
+
+            - `preheader_missing`: the campaign has no preview text.
+
+            - `design_missing`: the campaign has no design, or its design has no HTML.
+
+            - `text_broken`: the subject, the preview text or the design holds template syntax that cannot be rendered, so every message would fail.
+
+            - `text_unchecked`: the subject, the preview text and the design could not be checked right now. Nothing is wrong with them that is known; try again in a moment. Under load it can come and go between reads.
+
+            - `unsubscribe_link_missing`: the HTML does not use `{{ unsubscribe_url }}`, with or without filters.
+
+            '
+        message:
+          type: string
+          description: What to do, in the words the dashboard uses.
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    TemplateContentInput:
+      type: object
+      additionalProperties: false
+      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
+      properties:
+        mjml:
+          type: string
+          minLength: 1
+          description: 'The MJML source. Only for `advanced` templates. It is compiled in
+
+            strict mode, and every problem strict validation finds is refused
+
+            with its line. Images must use full `https://` URLs: the API cannot
+
+            upload files.
+
+            '
+        html:
+          type: string
+          minLength: 1
+          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
+
+            template can be changed only in the dashboard. Images and
+
+            stylesheets must use full `https://` URLs: the API cannot upload
+
+            files.
+
+            '
+        text:
+          type:
+          - string
+          - 'null'
+          description: The plain text version. Null makes it from the HTML.
+        text_is_custom:
+          type: boolean
+          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/CampaignListItem'
+      - type: object
+        required:
+        - list_ids
+        - editor
+        - content
+        - ready
+        - issues
+        properties:
+          list_ids:
+            type: array
+            items:
+              type: string
+              format: uuid
+            description: The lists the campaign sends to, in the order they were saved. A list that was deleted is left out.
+          editor:
+            oneOf:
+            - $ref: '#/components/schemas/TemplateEditor'
+            - type: 'null'
+            description: The editor of the campaign's design. Null while the campaign has no design.
+          content:
+            oneOf:
+            - $ref: '#/components/schemas/TemplateContent'
+            - type: 'null'
+            description: The content of the campaign's design. Null while it has no design, or its design has neither HTML nor text.
+          ready:
+            type:
+            - boolean
+            - 'null'
+            description: Whether the draft has no issue, so it can be sent. Null unless the campaign is a draft.
+          issues:
+            oneOf:
+            - type: array
+              items:
+                $ref: '#/components/schemas/CampaignIssue'
+            - type: 'null'
+            description: The reasons the draft cannot be sent yet, in a fixed order; empty when it is ready. Null unless the campaign is a draft.
+    PaginatedCampaignsResponse:
       type: object
       required:
       - object
@@ -1640,22 +1543,43 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CampaignRecipient'
-          description: Array of recipients, by contact ID, the highest first
+            $ref: '#/components/schemas/CampaignListItem'
+          description: Array of campaigns
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    CampaignSend:
-      allOf:
-      - $ref: '#/components/schemas/Campaign'
-      - type: object
-        required:
-        - warnings
-        properties:
-          warnings:
-            type: array
-            items:
-              type: string
-            description: Things the send accepted but you should know, such as an account that cannot send right now while the campaign is sent later, or a design its view-in-browser page cannot show. Empty when there is none.
+    TemplateContent:
+      type: object
+      required:
+      - text_is_custom
+      description: 'A template''s content. A key that does not apply to the template''s
+
+        editor is left out, and so are `mjml`, `html` and `text` when they are
+
+        empty.
+
+        '
+      properties:
+        mjml:
+          type: string
+          description: The MJML source. Only for `advanced` templates.
+        html:
+          type: string
+          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
+        text:
+          type: string
+          description: The plain text version of the email.
+        text_is_custom:
+          type: boolean
+          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
+    SendCampaignRequest:
+      type: object
+      additionalProperties: false
+      description: When to send. Without `send_at` the campaign is sent now.
+      properties:
+        send_at:
+          type: string
+          format: date-time
+          description: The time to send, in RFC 3339, at least 1 minute ahead. `null` is refused.
     CampaignListItem:
       type: object
       required:
@@ -1741,6 +1665,102 @@ components:
           - 'null'
           format: date-time
           description: When the send ended, in UTC. Null until then.
+    TestCampaignRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - to
+      description: The addresses to send a test to.
+      properties:
+        to:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: 1 to 5 addresses, counted after addresses that differ only in case are dropped. An entry may carry a display name, such as `Ann <ann@example.com>`; the test goes to the address alone.
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
+        name:
+          type: string
+          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    CampaignTestFailure:
+      type: object
+      required:
+      - email
+      - message
+      description: An address the mail server refused.
+      properties:
+        email:
+          type: string
+          description: The address as the mail server reported it, which can be one the request did not hold.
+        message:
+          type: string
+          description: Why the address was refused
+    PaginatedCampaignRecipientsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignRecipient'
+          description: Array of recipients, by contact ID, the highest first
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    CampaignStatus:
+      type: string
+      enum:
+      - draft
+      - validating
+      - waiting_for_review
+      - scheduled
+      - sending
+      - paused
+      - sent
+      - canceled
+      - failed
+      description: 'Where the campaign is in its life. Only a `draft` can be changed or
+
+        deleted.
+
+
+        - `draft`: being prepared.
+
+        - `validating`: scheduled, and its lists are being checked.
+
+        - `waiting_for_review`: held for a review before it sends.
+
+        - `scheduled`: accepted, waiting for its send time.
+
+        - `sending`: sending now.
+
+        - `paused`: sending stopped for now; `status_reason` says why.
+
+        - `sent`: every message was sent.
+
+        - `canceled`: stopped before it finished; `status_reason` says why.
+
+        - `failed`: could not be sent; `status_reason` says why.
+
+        '
     CampaignStats:
       type: object
       required:
@@ -1804,40 +1824,196 @@ components:
         recount_failed:
           type: boolean
           description: True while the last recount of the report failed, so `report` may be old.
-    DuplicateCampaignRequest:
+    CampaignNotReady:
+      type: object
+      required:
+      - message
+      description: A refusal. A campaign with issues is refused with `campaign is not ready to send` and the issues that block the request; every other refusal has only `message`.
+      properties:
+        message:
+          type: string
+          description: Error message
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignIssue'
+          description: The issues that block the request, in the order of `CampaignIssue`. For a test, every issue but `unsubscribe_link_missing`.
+      example:
+        message: campaign is not ready to send
+        issues:
+        - code: subject_missing
+          message: Add a subject before you send the campaign.
+    CreateCampaignRequest:
       type: object
       additionalProperties: false
-      description: The copy's name. Without one the copy is named `Copy of` and the source's name, cut to 255 characters.
+      required:
+      - name
+      description: 'A new draft campaign. Every field but `name` can be set later with
+
+        Update Campaign. The design comes from at most one source: an
+
+        `editor`, `content`, both, or a `template_id`. With none of them the
+
+        campaign has no design yet.
+
+        '
       properties:
         name:
           type: string
           minLength: 1
           maxLength: 255
-          description: Name of the copy. Spaces around it are dropped.
-    TemplateContent:
+          description: Campaign name. Spaces around it are dropped.
+        subject:
+          type:
+          - string
+          - 'null'
+          description: The subject line. Line breaks become spaces and spaces around it are dropped; an empty subject is no subject.
+        preheader:
+          type:
+          - string
+          - 'null'
+          description: The preview text, cleaned as `subject` is.
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The sender. `email` must be on a domain of this account with valid DNS. A paused domain is accepted here and refused when the campaign is sent.
+        reply_to:
+          type:
+          - string
+          - 'null'
+          format: email
+          description: The reply-to address, an address only, without a display name.
+        list_ids:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+            format: uuid
+          description: The lists to send to, in order. A list named twice counts once. Each must be a list of this account.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+          description: The editor of the design. Without `content` the campaign gets an empty design of this editor, which the dashboard's editor opens. With `content`, it is required when the content holds neither `mjml` nor `html`, and must agree with it otherwise. Not accepted with `template_id`, whose editor the design keeps.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+          description: The content of the design, by the rules of `TemplateContentInput`. A campaign has no draft, so where those rules name the draft, they mean the campaign's design. Not accepted with `template_id`.
+        template_id:
+          type: string
+          format: uuid
+          description: A campaign template whose design the campaign copies. The copy is the campaign's own; later changes to the template do not reach it. A campaign template with no HTML is refused.
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
+    SuccessResponse:
       type: object
       required:
-      - text_is_custom
-      description: 'A template''s content. A key that does not apply to the template''s
-
-        editor is left out, and so are `mjml`, `html` and `text` when they are
-
-        empty.
-
-        '
+      - message
       properties:
-        mjml:
+        message:
           type: string
-          description: The MJML source. Only for `advanced` templates.
-        html:
+          description: Success message
+      example:
+        message: Operation completed successfully
+    CampaignSend:
+      allOf:
+      - $ref: '#/components/schemas/Campaign'
+      - type: object
+        required:
+        - warnings
+        properties:
+          warnings:
+            type: array
+            items:
+              type: string
+            description: Things the send accepted but you should know, such as an account that cannot send right now while the campaign is sent later, or a design its view-in-browser page cannot show. Empty when there is none.
+    CampaignStatsReport:
+      type: object
+      required:
+      - computed_at
+      - recipients
+      - openers
+      - clickers
+      - bounces
+      - deferrals
+      - by_status
+      - by_bounce_classification
+      description: The campaign's stored report, which is recounted from its recipients from time to time.
+      properties:
+        computed_at:
           type: string
-          description: The HTML of an `html` template, or the HTML made from the design of a `simple` template.
-        text:
+          format: date-time
+          description: When the report was counted
+        recipients:
+          type: integer
+          description: The recipients the report counted, the base of `bounce_rate` and `deferral_rate`
+        openers:
+          type: integer
+          description: Contacts who opened, each once, without bots
+        clickers:
+          type: integer
+          description: Contacts who clicked, each once, without bots
+        bounces:
+          type: integer
+          description: Recipients that bounced or failed
+        deferrals:
+          type: integer
+          description: Recipients whose delivery was deferred
+        by_status:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Recipients by status, under the names the dashboard's report shows, such as `Queued`, `Delivered`, `Bounced` or `Administratively Bounced`. Each name is a `status` of List Campaign Recipients.
+        by_bounce_classification:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Bounces by bounce classification. `Unknown` counts the bounces with no classification and has no recipient page; every other key is a `bounce_classification` of List Campaign Recipients.
+    CampaignTest:
+      type: object
+      required:
+      - object
+      - sent_to
+      - failed
+      - result_unknown
+      description: What a test send did.
+      properties:
+        object:
           type: string
-          description: The plain text version of the email.
-        text_is_custom:
+          enum:
+          - campaign_test
+          description: Object type identifier
+        sent_to:
+          type: array
+          items:
+            type: string
+          description: The addresses the mail server accepted
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignTestFailure'
+          description: The addresses the mail server refused
+        result_unknown:
           type: boolean
-          description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
+          description: True when the mail server took the request but its answer could not be read. The test may have gone out; `sent_to` and `failed` are empty. Check the inboxes before you send another.
+    TemplateAddressInput:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      description: An address in a template write, in the shape a Template answers it.
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address.
+        name:
+          type: string
+          description: The display name.
     CampaignStatsRates:
       type: object
       required:
@@ -1867,192 +2043,16 @@ components:
           - number
           - 'null'
           description: Deferrals out of `report.recipients`
-    CampaignStatus:
-      type: string
-      enum:
-      - draft
-      - validating
-      - waiting_for_review
-      - scheduled
-      - sending
-      - paused
-      - sent
-      - canceled
-      - failed
-      description: 'Where the campaign is in its life. Only a `draft` can be changed or
-
-        deleted.
-
-
-        - `draft`: being prepared.
-
-        - `validating`: scheduled, and its lists are being checked.
-
-        - `waiting_for_review`: held for a review before it sends.
-
-        - `scheduled`: accepted, waiting for its send time.
-
-        - `sending`: sending now.
-
-        - `paused`: sending stopped for now; `status_reason` says why.
-
-        - `sent`: every message was sent.
-
-        - `canceled`: stopped before it finished; `status_reason` says why.
-
-        - `failed`: could not be sent; `status_reason` says why.
-
-        '
-    Address:
+    DuplicateCampaignRequest:
       type: object
-      required:
-      - email
+      additionalProperties: false
+      description: The copy's name. Without one the copy is named `Copy of` and the source's name, cut to 255 characters.
       properties:
-        email:
-          type: string
-          format: email
-          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
         name:
           type: string
-          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
-      example:
-        email: noreply@example.com
-        name: Example Corp
-    CampaignIssue:
-      type: object
-      required:
-      - code
-      - message
-      description: A reason the campaign cannot be sent yet.
-      properties:
-        code:
-          type: string
-          enum:
-          - sender_missing
-          - lists_missing
-          - subject_missing
-          - preheader_missing
-          - design_missing
-          - text_broken
-          - text_unchecked
-          - unsubscribe_link_missing
-          description: '- `sender_missing`: the campaign has no complete sender, or its domain was deleted.
-
-            - `lists_missing`: the campaign has no list that still exists.
-
-            - `subject_missing`: the campaign has no subject.
-
-            - `preheader_missing`: the campaign has no preview text.
-
-            - `design_missing`: the campaign has no design, or its design has no HTML.
-
-            - `text_broken`: the subject, the preview text or the design holds template syntax that cannot be rendered, so every message would fail.
-
-            - `text_unchecked`: the subject, the preview text and the design could not be checked right now. Nothing is wrong with them that is known; try again in a moment. Under load it can come and go between reads.
-
-            - `unsubscribe_link_missing`: the HTML does not use `{{ unsubscribe_url }}`, with or without filters.
-
-            '
-        message:
-          type: string
-          description: What to do, in the words the dashboard uses.
-    SendCampaignRequest:
-      type: object
-      additionalProperties: false
-      description: When to send. Without `send_at` the campaign is sent now.
-      properties:
-        send_at:
-          type: string
-          format: date-time
-          description: The time to send, in RFC 3339, at least 1 minute ahead. `null` is refused.
-    CampaignTest:
-      type: object
-      required:
-      - object
-      - sent_to
-      - failed
-      - result_unknown
-      description: What a test send did.
-      properties:
-        object:
-          type: string
-          enum:
-          - campaign_test
-          description: Object type identifier
-        sent_to:
-          type: array
-          items:
-            type: string
-          description: The addresses the mail server accepted
-        failed:
-          type: array
-          items:
-            $ref: '#/components/schemas/CampaignTestFailure'
-          description: The addresses the mail server refused
-        result_unknown:
-          type: boolean
-          description: True when the mail server took the request but its answer could not be read. The test may have gone out; `sent_to` and `failed` are empty. Check the inboxes before you send another.
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    TemplateContentInput:
-      type: object
-      additionalProperties: false
-      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
-      properties:
-        mjml:
-          type: string
           minLength: 1
-          description: 'The MJML source. Only for `advanced` templates. It is compiled in
-
-            strict mode, and every problem strict validation finds is refused
-
-            with its line. Images must use full `https://` URLs: the API cannot
-
-            upload files.
-
-            '
-        html:
-          type: string
-          minLength: 1
-          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
-
-            template can be changed only in the dashboard. Images and
-
-            stylesheets must use full `https://` URLs: the API cannot upload
-
-            files.
-
-            '
-        text:
-          type:
-          - string
-          - 'null'
-          description: The plain text version. Null makes it from the HTML.
-        text_is_custom:
-          type: boolean
-          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
-    TemplateAddressInput:
-      type: object
-      additionalProperties: false
-      required:
-      - email
-      description: An address in a template write, in the shape a Template answers it.
-      properties:
-        email:
-          type: string
-          format: email
-          description: The email address.
-        name:
-          type: string
-          description: The display name.
+          maxLength: 255
+          description: Name of the copy. Spaces around it are dropped.
     CampaignRecipient:
       type: object
       required:
@@ -2113,51 +2113,39 @@ components:
           type: string
           format: date-time
           description: When the recipient last changed
-  responses:
-    CampaignConflict:
-      description: 'Either the campaign''s status does not allow the request (for most
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
 
-        requests, the campaign is not a draft; for an unschedule, it is not
-
-        validating or scheduled, or it has queued mail), or an execution
-
-        with this idempotency key is still in progress. The in-progress case
-
-        is identified only by `Idempotent-Replayed: false` plus a positive
-
-        integer `Retry-After`; retry it after that many seconds with the same
-
-        key. A new status conflict has neither header; a stored replay of
-
-        one has `Idempotent-Replayed: true` (a test send''s status conflict is
-
-        not stored, so it is never replayed). The message is not a stable
-
-        discriminator.
+        lease may be retried with the same key and unchanged request.
 
         '
-      headers:
-        Idempotent-Replayed:
-          description: '`false` with a positive `Retry-After` means an execution is in
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
 
-            progress. `true` means a stored status 409 was replayed. Absent
+        When this header is absent, the response is not a stored replay. Ordinary fresh
 
-            means a fresh status conflict.
+        responses do not send `false`; that value is reserved for an in-progress 409.
 
-            '
-          schema:
-            type: string
-            enum:
-            - 'true'
-            - 'false'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: campaign is not a draft
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+  responses:
     TemplateCheckBusy:
       description: 'Every message is checked with the template engine before it is sent,
 
@@ -2205,6 +2193,50 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
+    CampaignConflict:
+      description: 'Either the campaign''s status does not allow the request (for most
+
+        requests, the campaign is not a draft; for an unschedule, it is not
+
+        validating or scheduled, or it has queued mail), or an execution
+
+        with this idempotency key is still in progress. The in-progress case
+
+        is identified only by `Idempotent-Replayed: false` plus a positive
+
+        integer `Retry-After`; retry it after that many seconds with the same
+
+        key. A new status conflict has neither header; a stored replay of
+
+        one has `Idempotent-Replayed: true` (a test send''s status conflict is
+
+        not stored, so it is never replayed). The message is not a stable
+
+        discriminator.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          description: '`false` with a positive `Retry-After` means an execution is in
+
+            progress. `true` means a stored status 409 was replayed. Absent
+
+            means a fresh status conflict.
+
+            '
+          schema:
+            type: string
+            enum:
+            - 'true'
+            - 'false'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: campaign is not a draft
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
 
@@ -2219,38 +2251,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: idempotency key was already used with a different request payload
-  headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

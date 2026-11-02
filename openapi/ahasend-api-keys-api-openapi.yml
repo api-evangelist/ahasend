@@ -587,26 +587,58 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    ErrorResponse:
+    APIKeyScope:
       type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
       properties:
-        message:
+        id:
           type: string
-          description: Error description
+          format: uuid
+          description: Unique identifier for the scope
+        created_at:
+          type: string
+          format: date-time
+          description: When the scope was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the scope was last updated
+        api_key_id:
+          type: string
+          format: uuid
+          description: ID of the API key this scope belongs to
+        scope:
+          type: string
+          description: The scope string
+        domain_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
+      required:
+      - id
+      - created_at
+      - updated_at
+      - api_key_id
+      - scope
+      - domain_id
+    PaginationInfo:
+      type: object
+      required:
+      - has_more
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
+          type: string
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
+          type: string
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
       example:
-        message: Error message
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
     APIKey:
       type: object
       properties:
@@ -664,52 +696,6 @@ components:
       - public_key
       - scopes
       - ip_allow_list
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
-    PaginatedAPIKeysResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIKey'
-          description: Array of API keys
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
     UpdateAPIKeyRequest:
       type: object
       description: At least one non-null field must be provided, and at least one provided value must differ from the current value. Omitted or null fields are left unchanged.
@@ -759,6 +745,55 @@ components:
         - domains:read
         ip_allow_list:
         - 203.0.113.0/24
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    PaginatedAPIKeysResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+          description: Array of API keys
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     CreateAPIKeyRequest:
       type: object
       required:
@@ -789,41 +824,6 @@ components:
         ip_allow_list:
         - 203.0.113.0/24
         - 198.51.100.7
-    APIKeyScope:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the scope
-        created_at:
-          type: string
-          format: date-time
-          description: When the scope was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the scope was last updated
-        api_key_id:
-          type: string
-          format: uuid
-          description: ID of the API key this scope belongs to
-        scope:
-          type: string
-          description: The scope string
-        domain_id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Domain ID for domain-specific scopes; always present and null for non-domain scopes
-      required:
-      - id
-      - created_at
-      - updated_at
-      - api_key_id
-      - scope
-      - domain_id
   responses:
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
@@ -881,16 +881,6 @@ components:
         maxLength: 255
       example: user-12345-create-domain-20240101
   headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
     IdempotentReplayed:
       description: 'Indicates that this response is a stored replay of a previous identical request.
 
@@ -903,6 +893,16 @@ components:
         type: string
         enum:
         - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
     IdempotencyRetryAfter:
       description: 'Positive whole number of seconds after which the in-progress execution
 
