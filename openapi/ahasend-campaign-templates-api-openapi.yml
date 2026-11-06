@@ -635,45 +635,56 @@ paths:
 
           '
 components:
+  headers:
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
   schemas:
-    CampaignTemplate:
+    PaginationInfo:
       type: object
       required:
-      - object
-      - id
-      - created_at
-      - updated_at
-      - name
-      - editor
-      description: A design a campaign copies when it is made from it. A campaign template has no draft, no versions, no subject and no sender; the campaign owns its subject and sender.
+      - has_more
       properties:
-        object:
+        has_more:
+          type: boolean
+          description: Whether more items exist after the last item of this page
+        next_cursor:
           type: string
-          enum:
-          - campaign_template
-          description: Object type identifier
-        id:
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
           type: string
-          format: uuid
-          description: Campaign template ID
-        created_at:
-          type: string
-          format: date-time
-          description: When the campaign template was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the campaign template last changed
-        name:
-          type: string
-          description: Campaign template name, as it appears in the dashboard
-        editor:
-          $ref: '#/components/schemas/TemplateEditor'
-        content:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateContent'
-          - type: 'null'
-          description: The content. Null when the campaign template has neither HTML nor text, as for one created without content. A campaign can be made from the campaign template only once it has HTML. List Campaign Templates leaves this field out; every other operation that returns a CampaignTemplate sets it.
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
+      example:
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
     TemplateContent:
       type: object
       required:
@@ -716,6 +727,43 @@ components:
         content:
           $ref: '#/components/schemas/TemplateContentInput'
           description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself.
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     TemplateContentInput:
       type: object
       additionalProperties: false
@@ -753,26 +801,44 @@ components:
         text_is_custom:
           type: boolean
           description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
-    ErrorResponse:
+    CampaignTemplate:
       type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
       required:
-      - message
+      - object
+      - id
+      - created_at
+      - updated_at
+      - name
+      - editor
+      description: A design a campaign copies when it is made from it. A campaign template has no draft, no versions, no subject and no sender; the campaign owns its subject and sender.
       properties:
-        message:
+        object:
           type: string
-          description: Error description
-      example:
-        message: Error message
+          enum:
+          - campaign_template
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Campaign template ID
+        created_at:
+          type: string
+          format: date-time
+          description: When the campaign template was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the campaign template last changed
+        name:
+          type: string
+          description: Campaign template name, as it appears in the dashboard
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+        content:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateContent'
+          - type: 'null'
+          description: The content. Null when the campaign template has neither HTML nor text, as for one created without content. A campaign can be made from the campaign template only once it has HTML. List Campaign Templates leaves this field out; every other operation that returns a CampaignTemplate sets it.
     UpdateCampaignTemplateRequest:
       type: object
       additionalProperties: false
@@ -786,16 +852,6 @@ components:
         content:
           $ref: '#/components/schemas/TemplateContentInput'
           description: The content, by the rules of `TemplateContentInput`. A campaign template has no draft, so where those rules name the draft, they mean the campaign template itself. For a `simple` campaign template, send only `text`.
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
     PaginatedCampaignTemplatesResponse:
       type: object
       required:
@@ -815,45 +871,27 @@ components:
           description: Array of campaign templates, each without its `content`
         pagination:
           $ref: '#/components/schemas/PaginationInfo'
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
-    TemplateEditor:
-      type: string
-      enum:
-      - advanced
-      - simple
-      - html
-      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
 
-        request path, or request body. This response includes neither
+        An identical request with a completed stored outcome returns the original status and body. An in-progress
 
-        `Idempotent-Replayed` nor `Retry-After`.
+        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
+
+        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
+
+        so successful encrypted replay responses for those operations expire after 5 minutes.
 
         '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
+      schema:
+        type: string
+        maxLength: 255
+      example: user-12345-create-domain-20240101
+  responses:
     IdempotencyConflict:
       description: 'Request in progress. This response always includes
 
@@ -875,58 +913,20 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: A request with this idempotency key is already in progress
-  parameters:
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: false
-      description: 'Optional idempotency key for safe request retries. Must be a unique string for each logical request.
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
 
-        An identical request with a completed stored outcome returns the original status and body. An in-progress
+        request path, or request body. This response includes neither
 
-        execution returns 409, a changed method/path/body returns 422, and a released 5xx execution may run again.
-
-        Keys for non-secret responses expire after 24 hours. API-key create responses include a one-time `secret_key`,
-
-        so successful encrypted replay responses for those operations expire after 5 minutes.
+        `Idempotent-Replayed` nor `Retry-After`.
 
         '
-      schema:
-        type: string
-        maxLength: 255
-      example: user-12345-create-domain-20240101
-  headers:
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

@@ -852,141 +852,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    CreateTemplateMessageRequest:
-      type: object
-      required:
-      - template_id
-      - recipients
-      properties:
-        template_id:
-          type: string
-          format: uuid
-          description: The ID of one of this account's transactional templates. List Templates returns the IDs.
-        from:
-          $ref: '#/components/schemas/Address'
-          description: The sender. Leave it out to send from the template's default sender. A `from` given here is used even when the template has a default sender, and it must have an `email`.
-        recipients:
-          type: array
-          items:
-            $ref: '#/components/schemas/Recipient'
-          minItems: 1
-          maxItems: 100
-          description: 'Each recipient gets a separate message. This does not set the To header to more than one address.
-
-
-            A recipient''s `substitutions` hold its values for the template''s variables. They are the only place for these values. To fill a `list` variable, send an array; the template''s `variables` show the fields each element needs.
-
-            '
-        reply_to:
-          $ref: '#/components/schemas/Address'
-          description: If provided, the reply-to header in headers must not be provided. When the request has neither, the template's reply-to is used.
-        subject:
-          type: string
-          description: 'Email subject line. When it is left out, empty or only spaces, the template''s published subject is used.
-
-
-            A `{{ variable }}` in the subject, yours or the template''s, resolves for every recipient from that recipient''s `substitutions` and the reserved variables, whatever else the subject contains -- an emoji or an accented character included. A variable with no value becomes empty.
-
-
-            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
-
-
-            On a subject that carries a `{{ variable }}` and an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
-
-            '
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          description: File attachments. For an inline image, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`). The template's HTML can then show it with `cid:` (e.g. `<img src="cid:image1@example.com">`).
-        headers:
-          type: object
-          additionalProperties:
-            type: string
-          description: 'Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated.
-
-
-            A `{{ variable }}` in a value resolves from the recipient''s `substitutions` and the reserved variables. On a template whose design uses `unsubscribe_url`, a `List-Unsubscribe` or `List-Unsubscribe-Post` header given here is dropped.
-
-            '
-        tags:
-          type: array
-          items:
-            type: string
-          description: Tags for categorizing messages
-        sandbox:
-          type: boolean
-          description: If true, the message will be sent to the sandbox environment
-          default: false
-        sandbox_result:
-          type: string
-          enum:
-          - deliver
-          - bounce
-          - defer
-          - fail
-          - suppress
-          description: The result of the sandbox send
-        tracking:
-          $ref: '#/components/schemas/Tracking'
-          description: Tracking settings for the message, overrides default account settings
-        retention:
-          $ref: '#/components/schemas/Retention'
-          description: Retention settings for the message, overrides default account settings
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Schedule for message delivery
-      example:
-        template_id: 0195c2a4-7d3e-7b6a-9f1c-2e4d5a6b7c8d
-        recipients:
-        - email: user@example.com
-          name: John Doe
-          substitutions:
-            first_name: John
-            order_id: '12345'
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    MessageAttachment:
-      type: object
-      properties:
-        filename:
-          type: string
-          description: Original filename of the attachment
-          example: document.pdf
-        content:
-          type: string
-          description: Base64 encoded attachment content
-        content_type:
-          type: string
-          description: MIME content type of the attachment
-          example: application/pdf
-        content_id:
-          type: string
-          description: Content-ID for inline attachments
-          example: image001@example.com
-      required:
-      - filename
-      - content
-      - content_type
-      - content_id
     Tracking:
       type:
       - object
@@ -1005,17 +870,6 @@ components:
       example:
         open: true
         click: true
-    MessageSchedule:
-      type: object
-      properties:
-        first_attempt:
-          type: string
-          format: date-time
-          description: The time to make the first attempt for delivering the message. Must be RFC3339 format, in the future, and within 7 days of the request.
-        expires:
-          type: string
-          format: date-time
-          description: Expire and drop the message if not delivered by this time. Must be RFC3339 format, in the future, and within 8 days of the request.
     PaginationInfo:
       type: object
       required:
@@ -1033,73 +887,39 @@ components:
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
-    Message:
-      allOf:
-      - $ref: '#/components/schemas/MessageSummary'
-      - type: object
-        properties:
-          content:
-            type: string
-            description: Original raw email content in RFC822 format. Omitted when message content is unavailable.
-          content_parsed:
-            $ref: '#/components/schemas/MessageContentParsed'
-            description: Parsed message content. Omitted when message content is unavailable.
-    Attachment:
-      type: object
-      required:
-      - data
-      - content_type
-      - file_name
-      properties:
-        base64:
-          type: boolean
-          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
-          default: false
-        data:
-          type: string
-          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
-        content_type:
-          type: string
-          description: The MIME type of the attachment
-        content_disposition:
-          type: string
-          description: The disposition of the attachment
-        content_id:
-          type: string
-          description: 'Content-ID that lets you reference this attachment as an inline image from your HTML.
-
-
-            The value **must be wrapped in angle brackets**, matching the MIME `Content-ID` header format — for example `"<image1@example.com>"`. Reference it from `html_content` **without** the brackets, e.g. `<img src="cid:image1@example.com">`.
-
-
-            If the angle brackets are omitted, the file is delivered as a regular (downloadable) attachment instead of rendering inline.
-
-            '
-        file_name:
-          type: string
-          description: The filename of the attachment
-      example:
-        base64: true
-        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
-        content_type: image/png
-        file_name: pixel.png
-    DeliveryEvent:
+    MessageSchedule:
       type: object
       properties:
-        time:
+        first_attempt:
           type: string
           format: date-time
-          description: Timestamp of the delivery event
-        log:
+          description: The time to make the first attempt for delivering the message. Must be RFC3339 format, in the future, and within 7 days of the request.
+        expires:
           type: string
-          description: Log message for the delivery event
-        status:
-          type: string
-          description: Status of the delivery event
+          format: date-time
+          description: Expire and drop the message if not delivered by this time. Must be RFC3339 format, in the future, and within 8 days of the request.
+    Recipient:
+      type: object
       required:
-      - time
-      - log
-      - status
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Recipient email address
+        name:
+          type: string
+          description: Display name for the recipient. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+        substitutions:
+          type: object
+          additionalProperties: true
+          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are. On a template send, to fill a `list` variable, send an array; the template's `variables` show the fields each element needs.
+      example:
+        email: user@example.com
+        name: John Doe
+        substitutions:
+          first_name: John
+          order_id: '12345'
     CreateConversationMessageRequest:
       type: object
       required:
@@ -1215,6 +1035,96 @@ components:
       example:
         email: noreply@example.com
         name: Example Corp
+    DeliveryEvent:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+          description: Timestamp of the delivery event
+        log:
+          type: string
+          description: Log message for the delivery event
+        status:
+          type: string
+          description: Status of the delivery event
+      required:
+      - time
+      - log
+      - status
+    MessageAttachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Original filename of the attachment
+          example: document.pdf
+        content:
+          type: string
+          description: Base64 encoded attachment content
+        content_type:
+          type: string
+          description: MIME content type of the attachment
+          example: application/pdf
+        content_id:
+          type: string
+          description: Content-ID for inline attachments
+          example: image001@example.com
+      required:
+      - filename
+      - content
+      - content_type
+      - content_id
+    Message:
+      allOf:
+      - $ref: '#/components/schemas/MessageSummary'
+      - type: object
+        properties:
+          content:
+            type: string
+            description: Original raw email content in RFC822 format. Omitted when message content is unavailable.
+          content_parsed:
+            $ref: '#/components/schemas/MessageContentParsed'
+            description: Parsed message content. Omitted when message content is unavailable.
+    Attachment:
+      type: object
+      required:
+      - data
+      - content_type
+      - file_name
+      properties:
+        base64:
+          type: boolean
+          description: If true, data must be encoded using base64. Otherwise, data will be interpreted as UTF-8
+          default: false
+        data:
+          type: string
+          description: Either plaintext or base64 encoded attachment data (depending on base64 field)
+        content_type:
+          type: string
+          description: The MIME type of the attachment
+        content_disposition:
+          type: string
+          description: The disposition of the attachment
+        content_id:
+          type: string
+          description: 'Content-ID that lets you reference this attachment as an inline image from your HTML.
+
+
+            The value **must be wrapped in angle brackets**, matching the MIME `Content-ID` header format — for example `"<image1@example.com>"`. Reference it from `html_content` **without** the brackets, e.g. `<img src="cid:image1@example.com">`.
+
+
+            If the angle brackets are omitted, the file is delivered as a regular (downloadable) attachment instead of rendering inline.
+
+            '
+        file_name:
+          type: string
+          description: The filename of the attachment
+      example:
+        base64: true
+        data: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+        content_type: image/png
+        file_name: pixel.png
     CreateMessageResponse:
       type: object
       required:
@@ -1231,58 +1141,35 @@ components:
           items:
             $ref: '#/components/schemas/CreateSingleMessageResponse'
           description: List of messages and their statuses
-    Retention:
-      type:
-      - object
-      - 'null'
-      properties:
-        metadata:
-          type:
-          - integer
-          - 'null'
-          description: Number of days to retain metadata
-          minimum: 1
-          maximum: 30
-        data:
-          type:
-          - integer
-          - 'null'
-          description: Number of days to retain data
-          minimum: 0
-          maximum: 30
-      example:
-        metadata: 1
-        data: 0
-    MessageContentParsed:
+    PaginatedMessagesResponse:
       type: object
-      properties:
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageContentPart'
-          description: Array of message content parts (text, HTML, etc.)
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageAttachment'
-          description: Array of message attachments
-        headers:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
-          example:
-            Content-Type:
-            - text/html; charset=utf-8
-            X-Custom-Header:
-            - value1
-            - value2
       required:
-      - parts
-      - attachments
-      - headers
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageSummary'
+          description: Array of message summaries (content and content_parsed fields omitted for performance)
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     CreateSingleMessageResponse:
       type: object
       required:
@@ -1324,47 +1211,256 @@ components:
         schedule:
           $ref: '#/components/schemas/MessageSchedule'
           description: Provided if the request contained a schedule
-    Recipient:
+    CreateTemplateMessageRequest:
       type: object
       required:
-      - email
+      - template_id
+      - recipients
       properties:
-        email:
+        template_id:
           type: string
-          format: email
-          description: Recipient email address
-        name:
+          format: uuid
+          description: The ID of one of this account's transactional templates. List Templates returns the IDs.
+        from:
+          $ref: '#/components/schemas/Address'
+          description: The sender. Leave it out to send from the template's default sender. A `from` given here is used even when the template has a default sender, and it must have an `email`.
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          maxItems: 100
+          description: 'Each recipient gets a separate message. This does not set the To header to more than one address.
+
+
+            A recipient''s `substitutions` hold its values for the template''s variables. They are the only place for these values. To fill a `list` variable, send an array; the template''s `variables` show the fields each element needs.
+
+            '
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers must not be provided. When the request has neither, the template's reply-to is used.
+        subject:
           type: string
-          description: Display name for the recipient. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+          description: 'Email subject line. When it is left out, empty or only spaces, the template''s published subject is used.
+
+
+            A `{{ variable }}` in the subject, yours or the template''s, resolves for every recipient from that recipient''s `substitutions` and the reserved variables, whatever else the subject contains -- an emoji or an accented character included. A variable with no value becomes empty.
+
+
+            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
+
+
+            On a subject that carries a `{{ variable }}` and an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
+
+            '
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For an inline image, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`). The template's HTML can then show it with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated.
+
+
+            A `{{ variable }}` in a value resolves from the recipient''s `substitutions` and the reserved variables. On a template whose design uses `unsubscribe_url`, a `List-Unsubscribe` or `List-Unsubscribe-Post` header given here is dropped.
+
+            '
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        template_id: 0195c2a4-7d3e-7b6a-9f1c-2e4d5a6b7c8d
+        recipients:
+        - email: user@example.com
+          name: John Doe
+          substitutions:
+            first_name: John
+            order_id: '12345'
+    MessageContentPart:
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: MIME content type (e.g., "text/plain", "text/html")
+          example: text/html
+        content:
+          type: string
+          description: The actual content for this part
+      required:
+      - content_type
+      - content
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    MessageContentParsed:
+      type: object
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageContentPart'
+          description: Array of message content parts (text, HTML, etc.)
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageAttachment'
+          description: Array of message attachments
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Email headers as key-value pairs (values are arrays to handle multiple headers with same name)
+          example:
+            Content-Type:
+            - text/html; charset=utf-8
+            X-Custom-Header:
+            - value1
+            - value2
+      required:
+      - parts
+      - attachments
+      - headers
+    CreateMessageRequest:
+      type: object
+      required:
+      - from
+      - recipients
+      - subject
+      properties:
+        from:
+          $ref: '#/components/schemas/Address'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+          minItems: 1
+          maxItems: 100
+          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
+        reply_to:
+          $ref: '#/components/schemas/Address'
+          description: If provided, the reply-to header in headers array must not be provided
+        subject:
+          type: string
+          description: 'Email subject line.
+
+
+            A `{{ variable }}` in a subject resolves, whatever else the subject contains -- an emoji or an accented character included -- for every recipient whose message carries substitutions, the request''s own `substitutions` or that recipient''s. A recipient with neither is sent nothing to render, so their subject arrives exactly as written, braces and all.
+
+
+            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
+
+
+            On a subject that is being resolved and carries an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
+
+            '
+        text_content:
+          type: string
+          description: Plain text content. Required if html_content is empty
+        html_content:
+          type: string
+          description: HTML content. Required if text_content is empty
+        amp_content:
+          type: string
+          description: AMP HTML content
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
         substitutions:
           type: object
           additionalProperties: true
-          description: Substitution data for the recipient. Used with jinja2 templating language for dynamic content. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are. On a template send, to fill a `list` variable, send an array; the template's `variables` show the fields each element needs.
-      example:
-        email: user@example.com
-        name: John Doe
-        substitutions:
-          first_name: John
-          order_id: '12345'
-    PaginatedMessagesResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
+          description: Global substitutions, recipient substitutions override global. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are.
+        tags:
           type: array
           items:
-            $ref: '#/components/schemas/MessageSummary'
-          description: Array of message summaries (content and content_parsed fields omitted for performance)
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+            type: string
+          description: Tags for categorizing messages
+        sandbox:
+          type: boolean
+          description: If true, the message will be sent to the sandbox environment
+          default: false
+        sandbox_result:
+          type: string
+          enum:
+          - deliver
+          - bounce
+          - defer
+          - fail
+          - suppress
+          description: The result of the sandbox send
+        tracking:
+          $ref: '#/components/schemas/Tracking'
+          description: Tracking settings for the message, overrides default account settings
+        retention:
+          $ref: '#/components/schemas/Retention'
+          description: Retention settings for the message, overrides default account settings
+        schedule:
+          $ref: '#/components/schemas/MessageSchedule'
+          description: Schedule for message delivery
+      example:
+        from:
+          email: noreply@example.com
+          name: Example Corp
+        recipients:
+        - email: user@example.com
+          name: John Doe
+        subject: Welcome to Example Corp
+        html_content: <h1>Welcome {{first_name}}!</h1>
+        text_content: Welcome {{first_name}}!
+        substitutions:
+          first_name: John
     MessageSummary:
       type: object
       properties:
@@ -1496,124 +1592,90 @@ components:
       - domain_id
       - account_id
       - template_id
-    MessageContentPart:
-      type: object
+    Retention:
+      type:
+      - object
+      - 'null'
       properties:
-        content_type:
-          type: string
-          description: MIME content type (e.g., "text/plain", "text/html")
-          example: text/html
-        content:
-          type: string
-          description: The actual content for this part
-      required:
-      - content_type
-      - content
-    CreateMessageRequest:
-      type: object
-      required:
-      - from
-      - recipients
-      - subject
-      properties:
-        from:
-          $ref: '#/components/schemas/Address'
-        recipients:
-          type: array
-          items:
-            $ref: '#/components/schemas/Recipient'
-          minItems: 1
-          maxItems: 100
-          description: This does not set the To header to multiple addresses, it sends a separate message for each recipient
-        reply_to:
-          $ref: '#/components/schemas/Address'
-          description: If provided, the reply-to header in headers array must not be provided
-        subject:
-          type: string
-          description: 'Email subject line.
-
-
-            A `{{ variable }}` in a subject resolves, whatever else the subject contains -- an emoji or an accented character included -- for every recipient whose message carries substitutions, the request''s own `substitutions` or that recipient''s. A recipient with neither is sent nothing to render, so their subject arrives exactly as written, braces and all.
-
-
-            Pad the braces with ordinary spaces: a variable written with non-ASCII whitespace inside them is not reliably recognised.
-
-
-            On a subject that is being resolved and carries an emoji or an accented character, template syntax other than a variable -- `{% ... %}`, `{# ... #}` or an unclosed brace -- is rejected. A substitution value is rejected for any of `{{`, `{%` or `{#`, a `{{ ... }}` included, and so is a subject whose values combine into one of them.
-
-            '
-        text_content:
-          type: string
-          description: Plain text content. Required if html_content is empty
-        html_content:
-          type: string
-          description: HTML content. Required if text_content is empty
-        amp_content:
-          type: string
-          description: AMP HTML content
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attachment'
-          description: File attachments. For inline images, set the attachment's `content_id` to a value wrapped in angle brackets (e.g. `<image1@example.com>`) and reference it from `html_content` with `cid:` (e.g. `<img src="cid:image1@example.com">`).
-        headers:
-          type: object
-          additionalProperties:
-            type: string
-          description: Custom email headers. Each name must be visible ASCII with no space and no colon. reply-to header cannot be provided if reply_to is provided, message-id will be ignored and automatically generated
-        substitutions:
-          type: object
-          additionalProperties: true
-          description: Global substitutions, recipient substitutions override global. In the HTML and AMP bodies, values are HTML-escaped; write `{{ name|safe }}` to insert a value as HTML. The subject, the headers and the text body get values as they are.
-        tags:
-          type: array
-          items:
-            type: string
-          description: Tags for categorizing messages
-        sandbox:
-          type: boolean
-          description: If true, the message will be sent to the sandbox environment
-          default: false
-        sandbox_result:
-          type: string
-          enum:
-          - deliver
-          - bounce
-          - defer
-          - fail
-          - suppress
-          description: The result of the sandbox send
-        tracking:
-          $ref: '#/components/schemas/Tracking'
-          description: Tracking settings for the message, overrides default account settings
-        retention:
-          $ref: '#/components/schemas/Retention'
-          description: Retention settings for the message, overrides default account settings
-        schedule:
-          $ref: '#/components/schemas/MessageSchedule'
-          description: Schedule for message delivery
+        metadata:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain metadata
+          minimum: 1
+          maximum: 30
+        data:
+          type:
+          - integer
+          - 'null'
+          description: Number of days to retain data
+          minimum: 0
+          maximum: 30
       example:
-        from:
-          email: noreply@example.com
-          name: Example Corp
-        recipients:
-        - email: user@example.com
-          name: John Doe
-        subject: Welcome to Example Corp
-        html_content: <h1>Welcome {{first_name}}!</h1>
-        text_content: Welcome {{first_name}}!
-        substitutions:
-          first_name: John
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
+        metadata: 1
+        data: 0
+  responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
+    TemplateCheckBusy:
+      description: 'Every message is checked with the template engine before it is sent,
+
+        and the check could not run right now: the service was busy, or the
+
+        engine failed. Nothing was sent and nothing is known to be wrong with
+
+        the message.
+
+        Send it again after `Retry-After` seconds; on an operation that takes
+
+        an `Idempotency-Key`, send it with the same key.
+
+        '
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: the message could not be checked right now; try again in a moment
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   headers:
     IdempotencyRetryAfter:
       description: 'Positive whole number of seconds after which the in-progress execution
@@ -1646,68 +1708,6 @@ components:
         type: string
         enum:
         - 'false'
-  responses:
-    TemplateCheckBusy:
-      description: 'Every message is checked with the template engine before it is sent,
-
-        and the check could not run right now: the service was busy, or the
-
-        engine failed. Nothing was sent and nothing is known to be wrong with
-
-        the message.
-
-        Send it again after `Retry-After` seconds; on an operation that takes
-
-        an `Idempotency-Key`, send it with the same key.
-
-        '
-      headers:
-        Retry-After:
-          description: Seconds to wait before retrying
-          schema:
-            type: integer
-            minimum: 1
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: the message could not be checked right now; try again in a moment
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

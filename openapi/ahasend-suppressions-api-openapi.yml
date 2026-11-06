@@ -584,68 +584,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    IdempotencyPayloadMismatch:
-      description: 'Idempotency key was already used with a different HTTP method, resolved
-
-        request path, or request body. This response includes neither
-
-        `Idempotent-Replayed` nor `Retry-After`.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: idempotency key was already used with a different request payload
   schemas:
-    PaginatedSuppressionsResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Suppression'
-          description: Array of suppressions
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
-    CreateSuppressionRequest:
-      type: object
-      required:
-      - email
-      - expires_at
-      properties:
-        email:
-          type: string
-          format: email
-          description: Email address to suppress
-        domain:
-          type: string
-          format: hostname
-          description: Domain for which to suppress the email
-        reason:
-          type: string
-          maxLength: 255
-          description: Reason for suppression
-        expires_at:
-          type: string
-          format: date-time
-          description: When the suppression expires (RFC3339 format)
-      example:
-        email: user@example.com
-        domain: example.com
-        reason: User requested removal
-        expires_at: '2024-12-25T10:30:00Z'
     CreateSuppressionResponse:
       type: object
       required:
@@ -662,26 +601,6 @@ components:
           items:
             $ref: '#/components/schemas/Suppression'
           description: Array of suppressions
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
     Suppression:
       type: object
       properties:
@@ -742,16 +661,6 @@ components:
       - reason
       - protected
       - expires_at
-    SuccessResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Success message
-      example:
-        message: Operation completed successfully
     PaginationInfo:
       type: object
       required:
@@ -769,6 +678,82 @@ components:
       example:
         has_more: true
         next_cursor: eyJpZCI6MTIzNH0=
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
+    PaginatedSuppressionsResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Suppression'
+          description: Array of suppressions
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    CreateSuppressionRequest:
+      type: object
+      required:
+      - email
+      - expires_at
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to suppress
+        domain:
+          type: string
+          format: hostname
+          description: Domain for which to suppress the email
+        reason:
+          type: string
+          maxLength: 255
+          description: Reason for suppression
+        expires_at:
+          type: string
+          format: date-time
+          description: When the suppression expires (RFC3339 format)
+      example:
+        email: user@example.com
+        domain: example.com
+        reason: User requested removal
+        expires_at: '2024-12-25T10:30:00Z'
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -811,6 +796,21 @@ components:
       schema:
         type: integer
         minimum: 1
+  responses:
+    IdempotencyPayloadMismatch:
+      description: 'Idempotency key was already used with a different HTTP method, resolved
+
+        request path, or request body. This response includes neither
+
+        `Idempotent-Replayed` nor `Retry-After`.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: idempotency key was already used with a different request payload
   securitySchemes:
     BearerAuth:
       type: http

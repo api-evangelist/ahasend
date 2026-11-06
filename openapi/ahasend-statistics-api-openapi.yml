@@ -543,83 +543,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    Bounce:
-      type: object
-      properties:
-        classification:
-          type: string
-          description: Bounce classification
-        count:
-          type: integer
-          description: Number of bounces
-      required:
-      - classification
-      - count
-    DeliveryTimeStatistics:
-      type: object
-      properties:
-        from_timestamp:
-          type: string
-          format: date-time
-          description: Start time of the statistics bucket
-        to_timestamp:
-          type: string
-          format: date-time
-          description: End time of the statistics bucket
-        avg_delivery_time:
-          type: number
-          format: double
-          description: Average delivery time in seconds
-        delivered_count:
-          type: integer
-          description: Number of messages
-        delivery_times:
-          type: array
-          items:
-            $ref: '#/components/schemas/DeliveryTime'
-            description: Delivery times per recipient domain
-      required:
-      - from_timestamp
-      - to_timestamp
-      - avg_delivery_time
-      - delivered_count
-      - delivery_times
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    BounceStatisticsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BounceStatistics'
-          description: Array of bounce statistics
     DeliveryTime:
       type: object
       properties:
@@ -659,7 +582,27 @@ components:
       - from_timestamp
       - to_timestamp
       - bounces
-    DeliverabilityStatisticsResponse:
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    BounceStatisticsResponse:
       type: object
       required:
       - object
@@ -673,8 +616,8 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/DeliverabilityStatistics'
-          description: Array of deliverability statistics
+            $ref: '#/components/schemas/BounceStatistics'
+          description: Array of bounce statistics
     DeliveryTimeStatisticsResponse:
       type: object
       required:
@@ -691,6 +634,22 @@ components:
           items:
             $ref: '#/components/schemas/DeliveryTimeStatistics'
           description: Array of delivery time statistics
+    DeliverabilityStatisticsResponse:
+      type: object
+      required:
+      - object
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliverabilityStatistics'
+          description: Array of deliverability statistics
     DeliverabilityStatistics:
       type: object
       properties:
@@ -737,6 +696,47 @@ components:
       - suppressed_count
       - opened_count
       - clicked_count
+    Bounce:
+      type: object
+      properties:
+        classification:
+          type: string
+          description: Bounce classification
+        count:
+          type: integer
+          description: Number of bounces
+      required:
+      - classification
+      - count
+    DeliveryTimeStatistics:
+      type: object
+      properties:
+        from_timestamp:
+          type: string
+          format: date-time
+          description: Start time of the statistics bucket
+        to_timestamp:
+          type: string
+          format: date-time
+          description: End time of the statistics bucket
+        avg_delivery_time:
+          type: number
+          format: double
+          description: Average delivery time in seconds
+        delivered_count:
+          type: integer
+          description: Number of messages
+        delivery_times:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryTime'
+            description: Delivery times per recipient domain
+      required:
+      - from_timestamp
+      - to_timestamp
+      - avg_delivery_time
+      - delivered_count
+      - delivery_times
   securitySchemes:
     BearerAuth:
       type: http

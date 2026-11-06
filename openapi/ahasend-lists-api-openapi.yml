@@ -1454,309 +1454,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    BatchAddListContactsResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - object
-      - added
-      - skipped
-      - failed
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-        added:
-          type: integer
-          minimum: 0
-          description: Entries whose membership this request created
-        skipped:
-          type: integer
-          minimum: 0
-          description: Entries reported `already_member`
-        failed:
-          type: integer
-          minimum: 0
-          description: Entries reported `not_found` or `invalid`
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/BatchListContactResult'
-    EmbeddedContactList:
-      type: object
-      additionalProperties: false
-      description: 'The list as a membership carries it: a `contact_list` without
-
-        `contact_count`, which no membership read pays for.
-
-        '
-      required:
-      - object
-      - id
-      - created_at
-      - updated_at
-      - name
-      - description
-      - tags
-      properties:
-        object:
-          type: string
-          enum:
-          - contact_list
-          description: Object type identifier
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the list
-        created_at:
-          type: string
-          format: date-time
-          description: When the list was created
-        updated_at:
-          type: string
-          format: date-time
-          description: When the list was last updated
-        name:
-          type: string
-          description: List name; names are not unique within an account
-        description:
-          type: string
-          description: Free-text description; empty when none was given
-        tags:
-          type: array
-          description: Always present; an empty array when the list carries no tags
-          items:
-            type: string
-    JSONValue:
-      description: Any recursively nested JSON value stored in a contact attribute
-      oneOf:
-      - type: 'null'
-      - type: boolean
-      - type: number
-      - type: string
-      - type: array
-        items:
-          $ref: '#/components/schemas/JSONValue'
-      - type: object
-        additionalProperties:
-          $ref: '#/components/schemas/JSONValue'
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    UpsertListContactRequest:
-      type: object
-      additionalProperties: false
-      description: 'Names at most `subscription_status`. An empty object is legal and names
-
-        no status: on a new membership that means `confirmed`, and on one that
-
-        already exists it leaves the stored status exactly as it is. A property
-
-        that is not writable is rejected with 400 naming it.
-
-        '
-      properties:
-        subscription_status:
-          type:
-          - string
-          - 'null'
-          enum:
-          - confirmed
-          - unconfirmed
-          - unsubscribed
-          - null
-          description: 'Null and omission are one case and name no status. `complained` is
-
-            the mailbox provider''s verdict rather than the caller''s and is
-
-            rejected with 400.
-
-            '
-    UpdateContactListRequest:
-      type: object
-      additionalProperties: false
-      description: 'A partial list update. An omitted or null property leaves the stored
-
-        value unchanged; a present `tags` array replaces the stored tags, and an
-
-        empty one clears them. A property that is not writable is rejected with
-
-        400 naming it.
-
-        '
-      properties:
-        name:
-          type:
-          - string
-          - 'null'
-          minLength: 1
-          maxLength: 255
-          description: 'Trimmed before it is measured and stored, exactly as on create. The
-
-            bound counts characters rather than bytes, and a name that is empty
-
-            after trimming is rejected.
-
-            '
-        description:
-          type:
-          - string
-          - 'null'
-          maxLength: 1000
-          description: Trimmed and bounded exactly as on create.
-        tags:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: Normalized and bounded exactly as on create.
-    CreateContactListRequest:
-      type: object
-      additionalProperties: false
-      description: 'The writable list projection. A property that is not writable is
-
-        rejected with 400 naming it.
-
-        '
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: 'Trimmed before it is measured and stored. The bound counts
-
-            characters rather than bytes, and a name that is empty after
-
-            trimming is rejected.
-
-            '
-        description:
-          type:
-          - string
-          - 'null'
-          maxLength: 1000
-          description: 'Trimmed before it is measured and stored. The bound counts
-
-            characters rather than bytes. Null and omission both store an empty
-
-            description.
-
-            '
-        tags:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-          description: 'Each tag is trimmed, empty tags are dropped, and duplicates are
-
-            collapsed; at most 50 tags may survive that normalization. A null
-
-            element is rejected rather than read as an empty string. Null and
-
-            omission both store an empty array.
-
-            '
-    BatchListContactResult:
-      type: object
-      additionalProperties: false
-      description: 'One entry''s outcome. `position` is the entry''s index in the request
-
-        array and the only handle an entry that named no single identifier
-
-        carries.
-
-        '
-      required:
-      - position
-      - outcome
-      properties:
-        position:
-          type: integer
-          minimum: 0
-        email:
-          type: string
-          description: 'The normalized input email, echoed only when the entry named one
-
-            identifier and it decoded to a non-empty string. An entry whose
-
-            `email` was not a string or was empty once trimmed, and one naming
-
-            both identifiers, carry `position` alone.
-
-            '
-        id:
-          type: string
-          format: uuid
-          description: 'The input contact ID, echoed only when the entry named one that
-
-            parsed as a UUID.
-
-            '
-        outcome:
-          type: string
-          enum:
-          - added
-          - already_member
-          - not_found
-          - invalid
-          description: '`added` created the membership, `already_member` found one and left
-
-            it untouched whatever its status, `not_found` matched no contact in
-
-            this account, and `invalid` was decidable from the payload alone.
-
-            '
-        membership:
-          $ref: '#/components/schemas/ListContact'
-          description: 'The membership, present on `added` and on `already_member`, where
-
-            it is the row as it stands.
-
-            '
-        reason:
-          type: string
-          description: Caller-safe reason present only on `not_found` and `invalid`
-    PaginatedContactListsResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactList'
-        pagination:
-          $ref: '#/components/schemas/ContactPagination'
     ListContact:
       type: object
       additionalProperties: false
@@ -1855,55 +1552,6 @@ components:
             /v2/accounts/{account_id}/contacts/{id_or_email}/lists`.
 
             '
-    PaginatedListContactsResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ListContact'
-        pagination:
-          $ref: '#/components/schemas/ContactPagination'
-    BatchAddListContactInput:
-      type: object
-      description: 'Names exactly one of `email` or `id`; a null names neither. No contact
-
-        is created here.
-
-
-        None of that is a request-level rejection, which is why it is stated
-
-        here rather than constrained above: an entry that names neither
-
-        identifier, names both, or carries any other property is reported
-
-        `invalid` at its own position inside a 200, and one naming nobody in
-
-        this account is reported `not_found`.
-
-        '
-      properties:
-        email:
-          type:
-          - string
-          - 'null'
-          format: email
-          description: Contact email; trimmed and lowercased before duplicates are counted
-        id:
-          type:
-          - string
-          - 'null'
-          format: uuid
-          description: Contact ID
     ContactList:
       type: object
       additionalProperties: false
@@ -1962,6 +1610,317 @@ components:
             invalid by validation. It is the same number the dashboard shows.
 
             '
+    EmbeddedContactList:
+      type: object
+      additionalProperties: false
+      description: 'The list as a membership carries it: a `contact_list` without
+
+        `contact_count`, which no membership read pays for.
+
+        '
+      required:
+      - object
+      - id
+      - created_at
+      - updated_at
+      - name
+      - description
+      - tags
+      properties:
+        object:
+          type: string
+          enum:
+          - contact_list
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the list
+        created_at:
+          type: string
+          format: date-time
+          description: When the list was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the list was last updated
+        name:
+          type: string
+          description: List name; names are not unique within an account
+        description:
+          type: string
+          description: Free-text description; empty when none was given
+        tags:
+          type: array
+          description: Always present; an empty array when the list carries no tags
+          items:
+            type: string
+    BatchListContactResult:
+      type: object
+      additionalProperties: false
+      description: 'One entry''s outcome. `position` is the entry''s index in the request
+
+        array and the only handle an entry that named no single identifier
+
+        carries.
+
+        '
+      required:
+      - position
+      - outcome
+      properties:
+        position:
+          type: integer
+          minimum: 0
+        email:
+          type: string
+          description: 'The normalized input email, echoed only when the entry named one
+
+            identifier and it decoded to a non-empty string. An entry whose
+
+            `email` was not a string or was empty once trimmed, and one naming
+
+            both identifiers, carry `position` alone.
+
+            '
+        id:
+          type: string
+          format: uuid
+          description: 'The input contact ID, echoed only when the entry named one that
+
+            parsed as a UUID.
+
+            '
+        outcome:
+          type: string
+          enum:
+          - added
+          - already_member
+          - not_found
+          - invalid
+          description: '`added` created the membership, `already_member` found one and left
+
+            it untouched whatever its status, `not_found` matched no contact in
+
+            this account, and `invalid` was decidable from the payload alone.
+
+            '
+        membership:
+          $ref: '#/components/schemas/ListContact'
+          description: 'The membership, present on `added` and on `already_member`, where
+
+            it is the row as it stands.
+
+            '
+        reason:
+          type: string
+          description: Caller-safe reason present only on `not_found` and `invalid`
+    UpsertListContactRequest:
+      type: object
+      additionalProperties: false
+      description: 'Names at most `subscription_status`. An empty object is legal and names
+
+        no status: on a new membership that means `confirmed`, and on one that
+
+        already exists it leaves the stored status exactly as it is. A property
+
+        that is not writable is rejected with 400 naming it.
+
+        '
+      properties:
+        subscription_status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - confirmed
+          - unconfirmed
+          - unsubscribed
+          - null
+          description: 'Null and omission are one case and name no status. `complained` is
+
+            the mailbox provider''s verdict rather than the caller''s and is
+
+            rejected with 400.
+
+            '
+    PaginatedListContactsResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListContact'
+        pagination:
+          $ref: '#/components/schemas/ContactPagination'
+    UpdateContactListRequest:
+      type: object
+      additionalProperties: false
+      description: 'A partial list update. An omitted or null property leaves the stored
+
+        value unchanged; a present `tags` array replaces the stored tags, and an
+
+        empty one clears them. A property that is not writable is rejected with
+
+        400 naming it.
+
+        '
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 255
+          description: 'Trimmed before it is measured and stored, exactly as on create. The
+
+            bound counts characters rather than bytes, and a name that is empty
+
+            after trimming is rejected.
+
+            '
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+          description: Trimmed and bounded exactly as on create.
+        tags:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: Normalized and bounded exactly as on create.
+    CreateContactListRequest:
+      type: object
+      additionalProperties: false
+      description: 'The writable list projection. A property that is not writable is
+
+        rejected with 400 naming it.
+
+        '
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: 'Trimmed before it is measured and stored. The bound counts
+
+            characters rather than bytes, and a name that is empty after
+
+            trimming is rejected.
+
+            '
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+          description: 'Trimmed before it is measured and stored. The bound counts
+
+            characters rather than bytes. Null and omission both store an empty
+
+            description.
+
+            '
+        tags:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+          description: 'Each tag is trimmed, empty tags are dropped, and duplicates are
+
+            collapsed; at most 50 tags may survive that normalization. A null
+
+            element is rejected rather than read as an empty string. Null and
+
+            omission both store an empty array.
+
+            '
+    BatchAddListContactsResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - added
+      - skipped
+      - failed
+      - data
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+        added:
+          type: integer
+          minimum: 0
+          description: Entries whose membership this request created
+        skipped:
+          type: integer
+          minimum: 0
+          description: Entries reported `already_member`
+        failed:
+          type: integer
+          minimum: 0
+          description: Entries reported `not_found` or `invalid`
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchListContactResult'
+    BatchAddListContactInput:
+      type: object
+      description: 'Names exactly one of `email` or `id`; a null names neither. No contact
+
+        is created here.
+
+
+        None of that is a request-level rejection, which is why it is stated
+
+        here rather than constrained above: an entry that names neither
+
+        identifier, names both, or carries any other property is reported
+
+        `invalid` at its own position inside a 200, and one naming nobody in
+
+        this account is reported `not_found`.
+
+        '
+      properties:
+        email:
+          type:
+          - string
+          - 'null'
+          format: email
+          description: Contact email; trimmed and lowercased before duplicates are counted
+        id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Contact ID
+    SuccessResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Success message
+      example:
+        message: Operation completed successfully
     Contact:
       type: object
       additionalProperties: false
@@ -2045,6 +2004,19 @@ components:
           - string
           - 'null'
           format: date-time
+    JSONValue:
+      description: Any recursively nested JSON value stored in a contact attribute
+      oneOf:
+      - type: 'null'
+      - type: boolean
+      - type: number
+      - type: string
+      - type: array
+        items:
+          $ref: '#/components/schemas/JSONValue'
+      - type: object
+        additionalProperties:
+          $ref: '#/components/schemas/JSONValue'
     BatchAddListContactsRequest:
       type: object
       additionalProperties: false
@@ -2057,16 +2029,44 @@ components:
           maxItems: 1000
           items:
             $ref: '#/components/schemas/BatchAddListContactInput'
-    SuccessResponse:
+    PaginatedContactListsResponse:
       type: object
+      additionalProperties: false
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactList'
+        pagination:
+          $ref: '#/components/schemas/ContactPagination'
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
       required:
       - message
       properties:
         message:
           type: string
-          description: Success message
+          description: Error description
       example:
-        message: Operation completed successfully
+        message: Error message
     ContactPagination:
       type: object
       additionalProperties: false
@@ -2088,38 +2088,6 @@ components:
           - string
           - 'null'
           description: Pass as `before` to fetch the previous page
-  headers:
-    IdempotencyRetryAfter:
-      description: 'Positive whole number of seconds after which the in-progress execution
-
-        lease may be retried with the same key and unchanged request.
-
-        '
-      schema:
-        type: integer
-        minimum: 1
-    IdempotentReplayed:
-      description: 'Indicates that this response is a stored replay of a previous identical request.
-
-        When this header is absent, the response is not a stored replay. Ordinary fresh
-
-        responses do not send `false`; that value is reserved for an in-progress 409.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'true'
-    IdempotencyInProgress:
-      description: 'Identifies an idempotency-key execution that is still in progress. This
-
-        header is emitted only on the specialized HTTP 409 response.
-
-        '
-      schema:
-        type: string
-        enum:
-        - 'false'
   responses:
     IdempotencyConflict:
       description: 'Request in progress. This response always includes
@@ -2156,6 +2124,38 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: idempotency key was already used with a different request payload
+  headers:
+    IdempotencyRetryAfter:
+      description: 'Positive whole number of seconds after which the in-progress execution
+
+        lease may be retried with the same key and unchanged request.
+
+        '
+      schema:
+        type: integer
+        minimum: 1
+    IdempotentReplayed:
+      description: 'Indicates that this response is a stored replay of a previous identical request.
+
+        When this header is absent, the response is not a stored replay. Ordinary fresh
+
+        responses do not send `false`; that value is reserved for an in-progress 409.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'true'
+    IdempotencyInProgress:
+      description: 'Identifies an idempotency-key execution that is still in progress. This
+
+        header is emitted only on the specialized HTTP 409 response.
+
+        '
+      schema:
+        type: string
+        enum:
+        - 'false'
   parameters:
     IdempotencyKey:
       name: Idempotency-Key

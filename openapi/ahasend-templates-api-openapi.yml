@@ -1266,157 +1266,6 @@ paths:
           '
 components:
   schemas:
-    TemplateContentInput:
-      type: object
-      additionalProperties: false
-      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
-      properties:
-        mjml:
-          type: string
-          minLength: 1
-          description: 'The MJML source. Only for `advanced` templates. It is compiled in
-
-            strict mode, and every problem strict validation finds is refused
-
-            with its line. Images must use full `https://` URLs: the API cannot
-
-            upload files.
-
-            '
-        html:
-          type: string
-          minLength: 1
-          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
-
-            template can be changed only in the dashboard. Images and
-
-            stylesheets must use full `https://` URLs: the API cannot upload
-
-            files.
-
-            '
-        text:
-          type:
-          - string
-          - 'null'
-          description: The plain text version. Null makes it from the HTML.
-        text_is_custom:
-          type: boolean
-          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
-    ErrorResponse:
-      type: object
-      description: 'Human-readable API error. The server currently sends no stable machine
-
-        error code. In particular, clients must not parse `message` to
-
-        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
-
-        suppression-duplicate, or other errors that share an HTTP status.
-
-        '
-      additionalProperties: false
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: Error description
-      example:
-        message: Error message
-    TemplateVersion:
-      type: object
-      required:
-      - object
-      - id
-      - version
-      - published_at
-      - published_by
-      description: One published version of a template, without its content.
-      properties:
-        object:
-          type: string
-          enum:
-          - template_version
-          description: Object type identifier
-        id:
-          type: string
-          format: uuid
-          description: Version ID
-        version:
-          type: integer
-          description: The version number, counted from 1 for each template
-        published_at:
-          type: string
-          format: date-time
-          description: When the version was published
-        published_by:
-          oneOf:
-          - $ref: '#/components/schemas/TemplatePublisher'
-          - type: 'null'
-          description: Who published the version. Null when this is not known, as for versions made before versions recorded it, or when the user or API key was deleted for good.
-    TemplateVersionDetail:
-      allOf:
-      - $ref: '#/components/schemas/TemplateVersion'
-      - type: object
-        required:
-        - subject
-        - preheader
-        - variables
-        - from
-        - reply_to
-        - content
-        properties:
-          subject:
-            type: string
-            description: The version's subject
-          preheader:
-            type: string
-            description: The version's preview text
-          variables:
-            type: array
-            items:
-              $ref: '#/components/schemas/TemplateVariable'
-            description: 'Every variable the version uses, as saved when the version was
-
-              published. A version published before kinds were recorded shows
-
-              every variable as `value`, with no `item_fields`; save and
-
-              publish the template again to get a version that records them.
-
-              '
-          from:
-            oneOf:
-            - $ref: '#/components/schemas/Address'
-            - type: 'null'
-            description: The version's default sender. Null when it has none.
-          reply_to:
-            oneOf:
-            - $ref: '#/components/schemas/Address'
-            - type: 'null'
-            description: The version's default reply-to address. Null when it has none. Its `name` is always empty.
-          content:
-            oneOf:
-            - $ref: '#/components/schemas/TemplateContent'
-            - type: 'null'
-            description: The version's content. Null when the version has no body.
-    PaginationInfo:
-      type: object
-      required:
-      - has_more
-      properties:
-        has_more:
-          type: boolean
-          description: Whether more items exist after the last item of this page
-        next_cursor:
-          type: string
-          description: Pass as `after` to fetch the next page
-        previous_cursor:
-          type: string
-          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
-      example:
-        has_more: true
-        next_cursor: eyJpZCI6MTIzNH0=
     TemplateContent:
       type: object
       required:
@@ -1441,181 +1290,23 @@ components:
         text_is_custom:
           type: boolean
           description: Whether the text was written rather than made from the HTML. A text made from the HTML is made again whenever the design changes.
-    CreateTemplateRequest:
+    PaginationInfo:
       type: object
-      additionalProperties: false
       required:
-      - name
-      description: 'A new transactional template. Its fields go to its draft, as a
-
-        dashboard save does; `publish: true` publishes the draft in the same
-
-        request, so sends use it.
-
-        '
+      - has_more
       properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Template name. Spaces around it are dropped.
-        editor:
-          $ref: '#/components/schemas/TemplateEditor'
-          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
-        subject:
-          type:
-          - string
-          - 'null'
-          maxLength: 998
-          description: The subject. Line breaks become spaces and spaces around it are dropped.
-        preheader:
-          type:
-          - string
-          - 'null'
-          maxLength: 500
-          description: The preview text. Line breaks become spaces and spaces around it are dropped.
-        from:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateAddressInput'
-          - type: 'null'
-          description: The default sender. `email` must be on a domain of this account with valid DNS records that is not paused.
-        reply_to:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateAddressInput'
-          - type: 'null'
-          description: The default reply-to address. It needs a `from`, and its `name` must be empty.
-        content:
-          $ref: '#/components/schemas/TemplateContentInput'
-        publish:
+        has_more:
           type: boolean
-          default: false
-          description: Publish the draft once it is written.
-    UpdateTemplateRequest:
-      type: object
-      additionalProperties: false
-      description: 'Changes to a template. A field left out is not changed or checked,
-
-        apart from a custom text kept beside a new design.
-
-        Every field but `name` goes to the draft, as a dashboard save does,
-
-        and a draft equal to the published copy is not kept. The draft is
-
-        shared with the dashboard: `publish: true`, like Publish Template,
-
-        publishes the whole draft, including changes made in the dashboard.
-
-        `name` changes at once, as the last step. The editor never changes.
-
-        '
-      properties:
-        name:
+          description: Whether more items exist after the last item of this page
+        next_cursor:
           type: string
-          minLength: 1
-          maxLength: 255
-          description: Template name. Spaces around it are dropped.
-        subject:
-          type:
-          - string
-          - 'null'
-          maxLength: 998
-          description: The subject. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
-        preheader:
-          type:
-          - string
-          - 'null'
-          maxLength: 500
-          description: The preview text. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
-        from:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateAddressInput'
-          - type: 'null'
-          description: The default sender. It replaces the address and the name together, so a missing `name` clears the name; the reply-to is kept. Null clears the sender and the reply-to. `email` must be on a domain of this account with valid DNS records that is not paused.
-        reply_to:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateAddressInput'
-          - type: 'null'
-          description: The default reply-to address. Null clears it. It needs a sender, and its `name` must be empty.
-        content:
-          $ref: '#/components/schemas/TemplateContentInput'
-        publish:
-          type: boolean
-          default: false
-          description: 'Publish the draft once it is written. With only `publish: true`, the request publishes the draft.'
-    TemplateDraft:
-      type: object
-      required:
-      - object
-      - template_id
-      - updated_at
-      - subject
-      - preheader
-      - variables
-      - from
-      - reply_to
-      - content
-      description: 'A template''s draft: the changes saved in the dashboard or through the
-
-        API that are not published yet. Sends use the published copy until the
-
-        draft is published.
-
-        '
-      properties:
-        object:
+          description: Pass as `after` to fetch the next page
+        previous_cursor:
           type: string
-          enum:
-          - template_draft
-          description: Object type identifier
-        template_id:
-          type: string
-          format: uuid
-          description: The template the draft belongs to
-        updated_at:
-          type: string
-          format: date-time
-          description: When the draft last changed
-        subject:
-          type: string
-          description: The draft's subject
-        preheader:
-          type: string
-          description: The draft's preview text
-        variables:
-          type: array
-          items:
-            $ref: '#/components/schemas/TemplateVariable'
-          description: Every variable the draft uses, as a send would require them once the draft is published
-        from:
-          oneOf:
-          - $ref: '#/components/schemas/Address'
-          - type: 'null'
-          description: The draft's default sender. Null when it has none.
-        reply_to:
-          oneOf:
-          - $ref: '#/components/schemas/Address'
-          - type: 'null'
-          description: The draft's default reply-to address. Null when it has none. Its `name` is always empty.
-        content:
-          oneOf:
-          - $ref: '#/components/schemas/TemplateContent'
-          - type: 'null'
-          description: The draft's content. Null when the draft has no body.
-    Address:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
-        name:
-          type: string
-          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+          description: Pass as `before` to fetch the previous page; absent on a `before` page when the start of the list has been reached
       example:
-        email: noreply@example.com
-        name: Example Corp
+        has_more: true
+        next_cursor: eyJpZCI6MTIzNH0=
     Template:
       type: object
       required:
@@ -1693,65 +1384,20 @@ components:
           - $ref: '#/components/schemas/TemplateContent'
           - type: 'null'
           description: The published content. Null when the published copy has no body, as for a template that was never published. List Templates leaves this field out; every other operation that returns a Template sets it.
-    TemplatePublisher:
+    TemplateAddressInput:
       type: object
+      additionalProperties: false
       required:
-      - type
-      - id
-      description: Who published a version.
+      - email
+      description: An address in a template write, in the shape a Template answers it.
       properties:
-        type:
+        email:
           type: string
-          enum:
-          - user
-          - api_key
-          description: '`user` for a version published in the dashboard, `api_key` for one published through the API'
-        id:
+          format: email
+          description: The email address.
+        name:
           type: string
-          format: uuid
-          description: The user's ID, as Get Account Members shows it, also for a user removed from the account since; or the API key's ID.
-    TemplateEditor:
-      type: string
-      enum:
-      - advanced
-      - simple
-      - html
-      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
-    TemplateVersionsResponse:
-      type: object
-      required:
-      - object
-      - data
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/TemplateVersion'
-          description: The template's versions, newest first. A template keeps its 50 most recent versions, so the list is not paginated.
-    PaginatedTemplatesResponse:
-      type: object
-      required:
-      - object
-      - data
-      - pagination
-      properties:
-        object:
-          type: string
-          enum:
-          - list
-          description: Object type identifier
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Template'
-          description: Array of templates, each without its `content`
-        pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+          description: The display name.
     RestoreTemplateVersionRequest:
       type: object
       additionalProperties: false
@@ -1761,6 +1407,52 @@ components:
           type: boolean
           default: false
           description: Publish the draft once the version is restored into it.
+    Address:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address. A `from` address must be on a domain defined in your account with valid DNS records.
+        name:
+          type: string
+          description: The display name shown with the address. It can hold any Unicode text; the API encodes it for the header. On a send with substitutions or a template, a name with non-ASCII text can use `{{ name }}` references only; other template syntax in it is refused.
+      example:
+        email: noreply@example.com
+        name: Example Corp
+    TemplateVersion:
+      type: object
+      required:
+      - object
+      - id
+      - version
+      - published_at
+      - published_by
+      description: One published version of a template, without its content.
+      properties:
+        object:
+          type: string
+          enum:
+          - template_version
+          description: Object type identifier
+        id:
+          type: string
+          format: uuid
+          description: Version ID
+        version:
+          type: integer
+          description: The version number, counted from 1 for each template
+        published_at:
+          type: string
+          format: date-time
+          description: When the version was published
+        published_by:
+          oneOf:
+          - $ref: '#/components/schemas/TemplatePublisher'
+          - type: 'null'
+          description: Who published the version. Null when this is not known, as for versions made before versions recorded it, or when the user or API key was deleted for good.
     TemplateVariable:
       type: object
       required:
@@ -1805,20 +1497,75 @@ components:
           items:
             type: string
           description: "Only for a `list` variable. The fields the repeated section uses\nfrom each element. Send each element as an object with these\nfields. A field an element does not have is taken from the\nvariable of the same name in `substitutions`, if there is one.\n\nFor example, if `items` has `item_fields` `[\"name\", \"price\"]`,\nsend:\n\n```json\n{\n  \"items\": [\n    {\"name\": \"Linen shirt\", \"price\": \"€49\"},\n    {\"name\": \"Canvas tote\", \"price\": \"€19\"}\n  ]\n}\n```\n\nA section that shows each element as it is, such as a list of\ntags, uses the field `value`. If `item_fields` is `[\"value\"]`, you\ncan send plain values, such as `[\"new\", \"sale\"]`. Empty when the\nsection uses nothing from its elements: send one element, of any\nkind, for each time the section repeats.\n"
-    TemplateAddressInput:
+    TemplateVersionsResponse:
       type: object
-      additionalProperties: false
       required:
-      - email
-      description: An address in a template write, in the shape a Template answers it.
+      - object
+      - data
       properties:
-        email:
+        object:
           type: string
-          format: email
-          description: The email address.
-        name:
-          type: string
-          description: The display name.
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVersion'
+          description: The template's versions, newest first. A template keeps its 50 most recent versions, so the list is not paginated.
+    TemplateVersionDetail:
+      allOf:
+      - $ref: '#/components/schemas/TemplateVersion'
+      - type: object
+        required:
+        - subject
+        - preheader
+        - variables
+        - from
+        - reply_to
+        - content
+        properties:
+          subject:
+            type: string
+            description: The version's subject
+          preheader:
+            type: string
+            description: The version's preview text
+          variables:
+            type: array
+            items:
+              $ref: '#/components/schemas/TemplateVariable'
+            description: 'Every variable the version uses, as saved when the version was
+
+              published. A version published before kinds were recorded shows
+
+              every variable as `value`, with no `item_fields`; save and
+
+              publish the template again to get a version that records them.
+
+              '
+          from:
+            oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+            description: The version's default sender. Null when it has none.
+          reply_to:
+            oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+            description: The version's default reply-to address. Null when it has none. Its `name` is always empty.
+          content:
+            oneOf:
+            - $ref: '#/components/schemas/TemplateContent'
+            - type: 'null'
+            description: The version's content. Null when the version has no body.
+    TemplateEditor:
+      type: string
+      enum:
+      - advanced
+      - simple
+      - html
+      description: "The editor the template is designed with. It never changes after the\ntemplate is created.\n\n- `advanced`: designed in MJML, with the dashboard's advanced editor.\n- `simple`: designed with the dashboard's simple editor. Its HTML is\n  made from the design and can be read but not changed through the API.\n- `html`: an HTML template, uploaded or written by hand.\n"
     SuccessResponse:
       type: object
       required:
@@ -1829,7 +1576,281 @@ components:
           description: Success message
       example:
         message: Operation completed successfully
+    TemplatePublisher:
+      type: object
+      required:
+      - type
+      - id
+      description: Who published a version.
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - api_key
+          description: '`user` for a version published in the dashboard, `api_key` for one published through the API'
+        id:
+          type: string
+          format: uuid
+          description: The user's ID, as Get Account Members shows it, also for a user removed from the account since; or the API key's ID.
+    CreateTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      description: 'A new transactional template. Its fields go to its draft, as a
+
+        dashboard save does; `publish: true` publishes the draft in the same
+
+        request, so sends use it.
+
+        '
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Template name. Spaces around it are dropped.
+        editor:
+          $ref: '#/components/schemas/TemplateEditor'
+          description: Required when `content` holds neither `mjml` nor `html`. `content.mjml` means `advanced` and `content.html` means `html`; an `editor` that disagrees with the content is refused.
+        subject:
+          type:
+          - string
+          - 'null'
+          maxLength: 998
+          description: The subject. Line breaks become spaces and spaces around it are dropped.
+        preheader:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The preview text. Line breaks become spaces and spaces around it are dropped.
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default sender. `email` must be on a domain of this account with valid DNS records that is not paused.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default reply-to address. It needs a `from`, and its `name` must be empty.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+        publish:
+          type: boolean
+          default: false
+          description: Publish the draft once it is written.
+    TemplateDraft:
+      type: object
+      required:
+      - object
+      - template_id
+      - updated_at
+      - subject
+      - preheader
+      - variables
+      - from
+      - reply_to
+      - content
+      description: 'A template''s draft: the changes saved in the dashboard or through the
+
+        API that are not published yet. Sends use the published copy until the
+
+        draft is published.
+
+        '
+      properties:
+        object:
+          type: string
+          enum:
+          - template_draft
+          description: Object type identifier
+        template_id:
+          type: string
+          format: uuid
+          description: The template the draft belongs to
+        updated_at:
+          type: string
+          format: date-time
+          description: When the draft last changed
+        subject:
+          type: string
+          description: The draft's subject
+        preheader:
+          type: string
+          description: The draft's preview text
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+          description: Every variable the draft uses, as a send would require them once the draft is published
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The draft's default sender. Null when it has none.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/Address'
+          - type: 'null'
+          description: The draft's default reply-to address. Null when it has none. Its `name` is always empty.
+        content:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateContent'
+          - type: 'null'
+          description: The draft's content. Null when the draft has no body.
+    PaginatedTemplatesResponse:
+      type: object
+      required:
+      - object
+      - data
+      - pagination
+      properties:
+        object:
+          type: string
+          enum:
+          - list
+          description: Object type identifier
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Template'
+          description: Array of templates, each without its `content`
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+    UpdateTemplateRequest:
+      type: object
+      additionalProperties: false
+      description: 'Changes to a template. A field left out is not changed or checked,
+
+        apart from a custom text kept beside a new design.
+
+        Every field but `name` goes to the draft, as a dashboard save does,
+
+        and a draft equal to the published copy is not kept. The draft is
+
+        shared with the dashboard: `publish: true`, like Publish Template,
+
+        publishes the whole draft, including changes made in the dashboard.
+
+        `name` changes at once, as the last step. The editor never changes.
+
+        '
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Template name. Spaces around it are dropped.
+        subject:
+          type:
+          - string
+          - 'null'
+          maxLength: 998
+          description: The subject. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
+        preheader:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The preview text. Null or an empty string clears it. Line breaks become spaces and spaces around it are dropped.
+        from:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default sender. It replaces the address and the name together, so a missing `name` clears the name; the reply-to is kept. Null clears the sender and the reply-to. `email` must be on a domain of this account with valid DNS records that is not paused.
+        reply_to:
+          oneOf:
+          - $ref: '#/components/schemas/TemplateAddressInput'
+          - type: 'null'
+          description: The default reply-to address. Null clears it. It needs a sender, and its `name` must be empty.
+        content:
+          $ref: '#/components/schemas/TemplateContentInput'
+        publish:
+          type: boolean
+          default: false
+          description: 'Publish the draft once it is written. With only `publish: true`, the request publishes the draft.'
+    ErrorResponse:
+      type: object
+      description: 'Human-readable API error. The server currently sends no stable machine
+
+        error code. In particular, clients must not parse `message` to
+
+        distinguish IP-allow-list, scope, ownership, plan, self-lockout,
+
+        suppression-duplicate, or other errors that share an HTTP status.
+
+        '
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Error description
+      example:
+        message: Error message
+    TemplateContentInput:
+      type: object
+      additionalProperties: false
+      description: "The content of a template write. It holds at most one of `mjml` and\n`html`, and at least one of `mjml`, `html` and `text`. The `content`\nof an `advanced` or `html` draft, or of the Template when it has no\ndraft, can be sent back as it is: an `mjml` or `html` equal to the\ncurrent one is held to the size limit but not compiled again or held\nto the HTML checks, and keeps the stored HTML. While a draft exists,\nthe Template's `content` is the published copy's, and sending it back\nreplaces the draft's design. Leave `content` out of a write that does\nnot change it. For a `simple` template, send back only `text`: its\n`html` can be changed only in the dashboard.\n\nThe text follows these rules:\n- Beside a new `mjml` or `html`, a missing `text` keeps the draft's\n  text when it is custom, and that text must still render, as a sent\n  text must; otherwise, and on a create, it makes the text from the\n  new HTML. A null `text` makes the text from the new\n  HTML, and so does a `text` equal to a text made from an earlier\n  HTML: the draft's made text, or the published copy's made text when\n  the draft does not hold that text as custom. A read `content` can\n  so be sent back with a changed design. Any other `text` is stored\n  as made when it equals the text made from the new HTML, and as\n  custom otherwise. To keep a made text beside a new design, send the\n  design first and the text in a second request.\n- Otherwise a `text` equal to the draft's custom text keeps it; one\n  equal to the text made from the draft's HTML is stored as made; any\n  other is stored as custom. A null `text` makes the text again from\n  the draft's HTML, and is refused when there is no HTML.\n\nLine ends written as CRLF are stored as LF, and a blank text is\nrefused. `mjml`, `html` and a custom `text` each have a size limit.\n"
+      properties:
+        mjml:
+          type: string
+          minLength: 1
+          description: 'The MJML source. Only for `advanced` templates. It is compiled in
+
+            strict mode, and every problem strict validation finds is refused
+
+            with its line. Images must use full `https://` URLs: the API cannot
+
+            upload files.
+
+            '
+        html:
+          type: string
+          minLength: 1
+          description: 'The HTML. Only for `html` templates; the HTML of a `simple`
+
+            template can be changed only in the dashboard. Images and
+
+            stylesheets must use full `https://` URLs: the API cannot upload
+
+            files.
+
+            '
+        text:
+          type:
+          - string
+          - 'null'
+          description: The plain text version. Null makes it from the HTML.
+        text_is_custom:
+          type: boolean
+          description: Accepted so a read `content` can be sent back, and ignored. The text rules decide it.
   responses:
+    IdempotencyConflict:
+      description: 'Request in progress. This response always includes
+
+        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
+
+        Clients must use that header tuple, not the human-readable message, to
+
+        distinguish this retryable idempotency state from other HTTP 409s.
+
+        '
+      headers:
+        Idempotent-Replayed:
+          $ref: '#/components/headers/IdempotencyInProgress'
+        Retry-After:
+          $ref: '#/components/headers/IdempotencyRetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: A request with this idempotency key is already in progress
     TemplateBeingChanged:
       description: 'The template changed in the dashboard or through another request
 
@@ -1852,27 +1873,6 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             message: template is being changed by another request, try again
-    IdempotencyConflict:
-      description: 'Request in progress. This response always includes
-
-        `Idempotent-Replayed: false` and a positive integer `Retry-After`.
-
-        Clients must use that header tuple, not the human-readable message, to
-
-        distinguish this retryable idempotency state from other HTTP 409s.
-
-        '
-      headers:
-        Idempotent-Replayed:
-          $ref: '#/components/headers/IdempotencyInProgress'
-        Retry-After:
-          $ref: '#/components/headers/IdempotencyRetryAfter'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            message: A request with this idempotency key is already in progress
     IdempotencyPayloadMismatch:
       description: 'Idempotency key was already used with a different HTTP method, resolved
 
